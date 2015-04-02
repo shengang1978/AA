@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-2 23:00:14 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpParty" table="dcp_party" catalog="divx_social" optimistic-lock="version">
+        <id name="partyId" type="java.lang.Integer">
+            <column name="party_id" />
+            <generator class="identity" />
+        </id>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="title" type="string">
+            <column name="title" length="128" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="512" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" />
+        </property>
+        <property name="partydate" type="date">
+            <column name="partydate" length="10" />
+        </property>
+        <property name="address" type="string">
+            <column name="address" length="512" />
+        </property>
+        <property name="partytype" type="java.lang.Integer">
+            <column name="partytype" />
+        </property>
+    </class>
+</hibernate-mapping>

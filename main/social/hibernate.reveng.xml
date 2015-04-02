@@ -10,6 +10,7 @@
 	<table-filter match-catalog="divx_social"
 		match-name="dcp_friend_request" />
 	<table-filter match-catalog="divx_social" match-name="dcp_share" />
+	<table-filter match-catalog="divx_social" match-name="dcp_party" />
 	<table-filter match-catalog="divx_social" match-name="osf_comments" />
 	<table-filter match-catalog="divx_social" match-name="osf_projects" />
 	<table-filter match-catalog="divx_social" match-name="osf_roles" />
