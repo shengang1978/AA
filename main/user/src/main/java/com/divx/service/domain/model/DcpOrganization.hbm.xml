@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-6 15:30:04 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpOrganization" table="dcp_organization" catalog="divx_user" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="title" type="string">
+            <column name="title" not-null="true" unique="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="500" />
+        </property>
+        <property name="homeurl" type="string">
+            <column name="homeurl" not-null="true" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <set name="dcpOrgsites" table="dcp_orgsite" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="organization_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpOrgsite" />
+        </set>
+    </class>
+</hibernate-mapping>

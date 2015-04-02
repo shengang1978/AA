@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 17:38:20 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfProjects" table="osf_projects" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="enabled" type="java.lang.Boolean">
+            <column name="_enabled" />
+        </property>
+        <property name="entered" type="timestamp">
+            <column name="_entered" length="19" not-null="true" />
+        </property>
+        <property name="modified" type="timestamp">
+            <column name="_modified" length="19" not-null="true" />
+        </property>
+        <property name="publish" type="java.lang.Boolean">
+            <column name="_publish" />
+        </property>
+        <property name="title" type="string">
+            <column name="_title" not-null="true" />
+        </property>
+        <property name="uniqueId" type="string">
+            <column name="_unique_id" not-null="true" unique="true" />
+        </property>
+        <property name="categoryId" type="long">
+            <column name="_category_id" not-null="true" />
+        </property>
+        <property name="enteredById" type="java.lang.Long">
+            <column name="_entered_by_id" />
+        </property>
+        <property name="modifiedById" type="java.lang.Long">
+            <column name="_modified_by_id" />
+        </property>
+        <property name="subCategory1Id" type="java.lang.Long">
+            <column name="_sub_category1_id" />
+        </property>
+        <property name="subCategory2Id" type="java.lang.Long">
+            <column name="_sub_category2_id" />
+        </property>
+        <property name="subCategory3Id" type="java.lang.Long">
+            <column name="_sub_category3_id" />
+        </property>
+        <property name="description" type="string">
+            <column name="_description" length="500" />
+        </property>
+        <property name="photourl" type="string">
+            <column name="_photourl" />
+        </property>
+    </class>
+</hibernate-mapping>

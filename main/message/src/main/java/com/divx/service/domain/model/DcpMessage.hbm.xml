@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-3 18:28:48 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpMessage" table="dcp_message" catalog="divx_message" optimistic-lock="version">
+        <id name="messageId" type="java.lang.Integer">
+            <column name="message_id" />
+            <generator class="identity" />
+        </id>
+        <property name="messagetype" type="int">
+            <column name="messagetype" not-null="true" />
+        </property>
+        <property name="content" type="string">
+            <column name="content" length="65535" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true">
+                <comment>0: Unsend 1: Sending 2: Done</comment>
+            </column>
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="senderId" type="int">
+            <column name="sender_id" not-null="true" />
+        </property>
+        <property name="deleted" type="java.lang.Boolean">
+            <column name="deleted" />
+        </property>
+        <property name="messageCategory" type="int">
+            <column name="messageCategory" not-null="true" />
+        </property>
+        <property name="issysmessage" type="boolean">
+            <column name="issysmessage" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

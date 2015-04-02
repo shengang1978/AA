@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="cfm" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="cfm_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="GetServiceBaseURLResponse">
+    <wsdl:part name="parameters" element="ns1:GetServiceBaseURLResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetConfigValueResponse">
+    <wsdl:part name="parameters" element="ns1:GetConfigValueResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetServiceBaseURL">
+    <wsdl:part name="parameters" element="ns1:GetServiceBaseURL">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetConfigValue">
+    <wsdl:part name="parameters" element="ns1:GetConfigValue">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="cfm">
+    <wsdl:operation name="GetServiceBaseURL">
+      <wsdl:input name="GetServiceBaseURL" message="ns1:GetServiceBaseURL">
+    </wsdl:input>
+      <wsdl:output name="GetServiceBaseURLResponse" message="ns1:GetServiceBaseURLResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetConfigValue">
+      <wsdl:input name="GetConfigValue" message="ns1:GetConfigValue">
+    </wsdl:input>
+      <wsdl:output name="GetConfigValueResponse" message="ns1:GetConfigValueResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

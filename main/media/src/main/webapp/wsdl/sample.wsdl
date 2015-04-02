@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="sample" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="sample_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="Say">
+    <wsdl:part name="parameters" element="ns1:Say">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SayResponse">
+    <wsdl:part name="parameters" element="ns1:SayResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="sample">
+    <wsdl:operation name="Say">
+      <wsdl:input name="Say" message="ns1:Say">
+    </wsdl:input>
+      <wsdl:output name="SayResponse" message="ns1:SayResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

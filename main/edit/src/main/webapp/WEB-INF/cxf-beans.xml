@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+		http://cxf.apache.org/jaxrs 
+		http://cxf.apache.org/schemas/jaxrs.xsd
+		http://cxf.apache.org/jaxws 
+		http://cxf.apache.org/schemas/jaxws.xsd">
+		
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+	
+	<jaxws:endpoint id="editimpl" implementor="com.divx.service.impl.editimpl"
+		wsdlLocation="wsdl/edit.wsdl" address="/edit">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+	
+	<!--  REST service settings -->
+	<bean id="EditRestService" 
+		class="com.divx.service.impl.editimpl">
+	</bean>
+	
+	<bean id="jsonProvider" 
+		class="org.apache.cxf.jaxrs.provider.JAXBElementProvider"/>
+	
+  	<jaxrs:server id="editRest" address="/rest">
+  		<jaxrs:serviceBeans>
+  			<ref bean="EditRestService"/>
+  		</jaxrs:serviceBeans>
+  		<jaxrs:providers>
+			<ref bean='jsonProvider' />
+		</jaxrs:providers>
+		<!-- 
+		<jaxrs:extensionMappings>
+          <entry key="json" value="application/json"/>
+          <entry key="xml" value="application/xml"/>
+        </jaxrs:extensionMappings>		
+         -->
+  	</jaxrs:server>
+</beans>

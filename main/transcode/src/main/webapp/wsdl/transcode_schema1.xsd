@@ -1,0 +1,19 @@
+<xs:schema xmlns:tns="http://service.divx.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://service.divx.com/" version="1.0">
+
+  <xs:element name="GetPrecess" type="tns:GetPrecess"/>
+
+  <xs:element name="GetPrecessResponse" type="tns:GetPrecessResponse"/>
+
+  <xs:complexType name="GetPrecess">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GetPrecessResponse">
+    <xs:sequence>
+      <xs:element name="return" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

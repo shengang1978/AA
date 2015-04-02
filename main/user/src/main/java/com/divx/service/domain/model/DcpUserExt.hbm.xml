@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-6 15:30:04 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpUserExt" table="dcp_user_ext" catalog="divx_user" optimistic-lock="version">
+        <id name="userId" type="int">
+            <column name="user_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="realname" type="string">
+            <column name="realname" />
+        </property>
+        <property name="gender" type="java.lang.Integer">
+            <column name="gender" />
+        </property>
+        <property name="birthday" type="date">
+            <column name="birthday" length="10" />
+        </property>
+        <property name="selfintroduce" type="string">
+            <column name="selfintroduce" length="65535" />
+        </property>
+        <property name="comefrom" type="string">
+            <column name="comefrom" />
+        </property>
+        <property name="im" type="string">
+            <column name="im" length="45" />
+        </property>
+        <property name="im2" type="string">
+            <column name="im2" length="45" />
+        </property>
+        <property name="mobile2" type="string">
+            <column name="mobile2" length="45" />
+        </property>
+        <property name="email2" type="string">
+            <column name="email2" />
+        </property>
+        <property name="telephone" type="string">
+            <column name="telephone" length="45" />
+        </property>
+        <property name="tdcImg" type="string">
+            <column name="tdc_img" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <property name="signature" type="string">
+            <column name="signature" />
+        </property>
+        <property name="homepage" type="string">
+            <column name="homepage" length="500" />
+        </property>
+    </class>
+</hibernate-mapping>

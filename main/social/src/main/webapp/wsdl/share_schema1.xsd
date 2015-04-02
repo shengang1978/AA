@@ -1,0 +1,181 @@
+<xs:schema xmlns:tns="http://service.divx.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://service.divx.com/" version="1.0">
+
+  <xs:element name="ActivitiesResponse" type="tns:ActivitiesResponse"/>
+
+  <xs:element name="Comment" type="tns:Comment"/>
+
+  <xs:element name="CommentResponse" type="tns:CommentResponse"/>
+
+  <xs:element name="History" type="tns:History"/>
+
+  <xs:element name="HistoryResponse" type="tns:HistoryResponse"/>
+
+  <xs:element name="Like" type="tns:Like"/>
+
+  <xs:element name="LikeResponse" type="tns:LikeResponse"/>
+
+  <xs:element name="MyShares" type="tns:MyShares"/>
+
+  <xs:element name="MySharesResponse" type="tns:MySharesResponse"/>
+
+  <xs:element name="Remove" type="tns:Remove"/>
+
+  <xs:element name="RemoveResponse" type="tns:RemoveResponse"/>
+
+  <xs:element name="ServiceResponse" type="tns:ServiceResponse"/>
+
+  <xs:element name="ShareInGroup" type="tns:ShareInGroup"/>
+
+  <xs:element name="ShareInGroupResponse" type="tns:ShareInGroupResponse"/>
+
+  <xs:element name="ShareToFriend" type="tns:ShareToFriend"/>
+
+  <xs:element name="ShareToFriendResponse" type="tns:ShareToFriendResponse"/>
+
+  <xs:element name="SharesResponse" type="tns:SharesResponse"/>
+
+  <xs:complexType name="MyShares">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:queryOption"/>
+      <xs:element name="arg1" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MySharesResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:SharesResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SharesResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:ServiceResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="shares" nillable="true" type="tns:share"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceResponse">
+    <xs:sequence>
+      <xs:element name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="share">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="date" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element name="ownerId" type="xs:int"/>
+      <xs:element name="shareId" type="xs:int"/>
+      <xs:element minOccurs="0" name="shareTitle" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Remove">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RemoveResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ShareInGroup">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+      <xs:element name="arg1" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ShareInGroupResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ShareToFriend">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+      <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ShareToFriendResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="History">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HistoryResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ActivitiesResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ActivitiesResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:ServiceResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="activities" nillable="true" type="tns:activity"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="activity">
+    <xs:sequence>
+      <xs:element name="activityId" type="xs:int"/>
+      <xs:element minOccurs="0" name="activityType" type="xs:string"/>
+      <xs:element minOccurs="0" name="content" type="xs:string"/>
+      <xs:element minOccurs="0" name="date" type="xs:dateTime"/>
+      <xs:element name="userId" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Like">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+      <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LikeResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Comment">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+      <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CommentResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="queryOption">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="all"/>
+      <xs:enumeration value="mine"/>
+      <xs:enumeration value="friend"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

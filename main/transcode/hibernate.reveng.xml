@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+	<table-filter match-schema="divx_transcode" match-name=".*" />
+	<table-filter match-catalog="divx_transcode"
+		match-name="dcp_transcode" />
+	<table-filter match-catalog="divx_transcode"
+		match-name="dcp_transcode_output" />
+	<table-filter match-name="dcp_transcode_job"
+		match-catalog="divx_transcode">
+	</table-filter>
+	<table-filter match-name="dcp_presetgroup"
+		match-catalog="divx_transcode">
+	</table-filter>
+	<table-filter match-name="dcp_radio"
+		match-catalog="divx_transcode">
+	</table-filter>
+</hibernate-reverse-engineering>

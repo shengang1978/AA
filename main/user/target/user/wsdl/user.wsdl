@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="user" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="user_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="LoginResponse">
+    <wsdl:part name="parameters" element="ns1:LoginResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Register">
+    <wsdl:part name="parameters" element="ns1:Register">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RegisterResponse">
+    <wsdl:part name="parameters" element="ns1:RegisterResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Login">
+    <wsdl:part name="parameters" element="ns1:Login">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="user">
+    <wsdl:operation name="Register">
+      <wsdl:input name="Register" message="ns1:Register">
+    </wsdl:input>
+      <wsdl:output name="RegisterResponse" message="ns1:RegisterResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Login">
+      <wsdl:input name="Login" message="ns1:Login">
+    </wsdl:input>
+      <wsdl:output name="LoginResponse" message="ns1:LoginResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

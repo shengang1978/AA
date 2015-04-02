@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 10:40:53 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpMedia" table="dcp_media" catalog="divx_content" optimistic-lock="version">
+        <id name="mediaId" type="java.lang.Integer">
+            <column name="media_id" />
+            <generator class="identity" />
+        </id>
+        <property name="title" type="string">
+            <column name="title" not-null="true" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true">
+                <comment>uploading uploaded editing publishing published</comment>
+            </column>
+        </property>
+        <property name="expiredate" type="timestamp">
+            <column name="expiredate" length="19" not-null="true" />
+        </property>
+        <property name="description" type="string">
+            <column name="description" length="500" not-null="true" />
+        </property>
+        <property name="deleted" type="boolean">
+            <column name="deleted" not-null="true" />
+        </property>
+        <property name="snapshoturl" type="string">
+            <column name="snapshoturl" />
+        </property>
+        <property name="errorlog" type="string">
+            <column name="errorlog" length="200" />
+        </property>
+        <property name="contenttype" type="java.lang.Integer">
+            <column name="contenttype" />
+        </property>
+    </class>
+</hibernate-mapping>

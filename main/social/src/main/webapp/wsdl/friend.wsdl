@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="friend" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="friend_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="InviteUser">
+    <wsdl:part name="parameters" element="ns1:InviteUser">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RequestFriend">
+    <wsdl:part name="parameters" element="ns1:RequestFriend">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UnbindFriendResponse">
+    <wsdl:part name="parameters" element="ns1:UnbindFriendResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RequestFriendResponse">
+    <wsdl:part name="parameters" element="ns1:RequestFriendResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MyFriends">
+    <wsdl:part name="parameters" element="ns1:MyFriends">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="UnbindFriend">
+    <wsdl:part name="parameters" element="ns1:UnbindFriend">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MyFriendRequests">
+    <wsdl:part name="parameters" element="ns1:MyFriendRequests">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RespondRequestFriendResponse">
+    <wsdl:part name="parameters" element="ns1:RespondRequestFriendResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RespondRequestFriend">
+    <wsdl:part name="parameters" element="ns1:RespondRequestFriend">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="InviteUserResponse">
+    <wsdl:part name="parameters" element="ns1:InviteUserResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MyFriendRequestsResponse">
+    <wsdl:part name="parameters" element="ns1:MyFriendRequestsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MyFriendsResponse">
+    <wsdl:part name="parameters" element="ns1:MyFriendsResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="friend">
+    <wsdl:operation name="RequestFriend">
+      <wsdl:input name="RequestFriend" message="ns1:RequestFriend">
+    </wsdl:input>
+      <wsdl:output name="RequestFriendResponse" message="ns1:RequestFriendResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UnbindFriend">
+      <wsdl:input name="UnbindFriend" message="ns1:UnbindFriend">
+    </wsdl:input>
+      <wsdl:output name="UnbindFriendResponse" message="ns1:UnbindFriendResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RespondRequestFriend">
+      <wsdl:input name="RespondRequestFriend" message="ns1:RespondRequestFriend">
+    </wsdl:input>
+      <wsdl:output name="RespondRequestFriendResponse" message="ns1:RespondRequestFriendResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="InviteUser">
+      <wsdl:input name="InviteUser" message="ns1:InviteUser">
+    </wsdl:input>
+      <wsdl:output name="InviteUserResponse" message="ns1:InviteUserResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MyFriends">
+      <wsdl:input name="MyFriends" message="ns1:MyFriends">
+    </wsdl:input>
+      <wsdl:output name="MyFriendsResponse" message="ns1:MyFriendsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="MyFriendRequests">
+      <wsdl:input name="MyFriendRequests" message="ns1:MyFriendRequests">
+    </wsdl:input>
+      <wsdl:output name="MyFriendRequestsResponse" message="ns1:MyFriendRequestsResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

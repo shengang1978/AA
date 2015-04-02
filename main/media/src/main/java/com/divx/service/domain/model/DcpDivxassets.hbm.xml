@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 10:40:53 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpDivxassets" table="dcp_divxassets" catalog="divx_content" optimistic-lock="version">
+        <id name="assetsId" type="java.lang.Integer">
+            <column name="assets_id" />
+            <generator class="identity" />
+        </id>
+        <property name="mediaId" type="int">
+            <column name="media_id" not-null="true" />
+        </property>
+        <property name="originalassetId" type="int">
+            <column name="originalasset_id" not-null="true" />
+        </property>
+        <property name="location" type="string">
+            <column name="location" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <property name="videoformat" type="int">
+            <column name="videoformat" not-null="true" />
+        </property>
+        <property name="videosolution" type="int">
+            <column name="videosolution" not-null="true" />
+        </property>
+        <property name="canstreaming" type="boolean">
+            <column name="canstreaming" not-null="true" />
+        </property>
+        <property name="candownload" type="boolean">
+            <column name="candownload" not-null="true" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

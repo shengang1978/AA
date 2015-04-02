@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-9 14:51:07 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpFilter" table="dcp_filter" catalog="divx_transcode" optimistic-lock="version">
+        <id name="filterId" type="java.lang.Integer">
+            <column name="filter_id" />
+            <generator class="identity" />
+        </id>
+        <property name="width" type="int">
+            <column name="width" not-null="true" />
+        </property>
+        <property name="height" type="int">
+            <column name="height" not-null="true" />
+        </property>
+        <property name="format" type="int">
+            <column name="format" not-null="true" />
+        </property>
+        <property name="rotation" type="int">
+            <column name="rotation" not-null="true" />
+        </property>
+        <property name="filterName" type="string">
+            <column name="filter_name" not-null="true" />
+        </property>
+        <property name="filterContent" type="string">
+            <column name="filter_content" />
+        </property>
+        <property name="dateCreate" type="timestamp">
+            <column name="date_create" length="19" />
+        </property>
+        <property name="dateModify" type="timestamp">
+            <column name="date_modify" length="19" />
+        </property>
+        <property name="enabled" type="java.lang.Boolean">
+            <column name="enabled" />
+        </property>
+    </class>
+</hibernate-mapping>

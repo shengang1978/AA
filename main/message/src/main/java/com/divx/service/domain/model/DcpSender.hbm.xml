@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-3 18:28:48 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpSender" table="dcp_sender" catalog="divx_message" optimistic-lock="version">
+        <id name="senderId" type="java.lang.Integer">
+            <column name="sender_id" />
+            <generator class="identity" />
+        </id>
+        <property name="type" type="int">
+            <column name="type" not-null="true">
+                <comment>system, user, group</comment>
+            </column>
+        </property>
+        <property name="nickname" type="string">
+            <column name="nickname" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="linkId" type="java.lang.Integer">
+            <column name="link_id">
+                <comment>0: system, userId groupId</comment>
+            </column>
+        </property>
+        <property name="description" type="string">
+            <column name="description" />
+        </property>
+    </class>
+</hibernate-mapping>

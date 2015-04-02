@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="message" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="message_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="MyMessagesResponse">
+    <wsdl:part name="parameters" element="ns1:MyMessagesResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MyMessages">
+    <wsdl:part name="parameters" element="ns1:MyMessages">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SendMessageResponse">
+    <wsdl:part name="parameters" element="ns1:SendMessageResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ResponseMessagesResponse">
+    <wsdl:part name="parameters" element="ns1:ResponseMessagesResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="SendMessage">
+    <wsdl:part name="parameters" element="ns1:SendMessage">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ResponseMessages">
+    <wsdl:part name="parameters" element="ns1:ResponseMessages">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="message">
+    <wsdl:operation name="MyMessages">
+      <wsdl:input name="MyMessages" message="ns1:MyMessages">
+    </wsdl:input>
+      <wsdl:output name="MyMessagesResponse" message="ns1:MyMessagesResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SendMessage">
+      <wsdl:input name="SendMessage" message="ns1:SendMessage">
+    </wsdl:input>
+      <wsdl:output name="SendMessageResponse" message="ns1:SendMessageResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ResponseMessages">
+      <wsdl:input name="ResponseMessages" message="ns1:ResponseMessages">
+    </wsdl:input>
+      <wsdl:output name="ResponseMessagesResponse" message="ns1:ResponseMessagesResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

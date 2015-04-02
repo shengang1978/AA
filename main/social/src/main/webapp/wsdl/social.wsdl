@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="social" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="social_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="AddFriendResponse">
+    <wsdl:part name="parameters" element="ns1:AddFriendResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="AddFriend">
+    <wsdl:part name="parameters" element="ns1:AddFriend">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="social">
+    <wsdl:operation name="AddFriend">
+      <wsdl:input name="AddFriend" message="ns1:AddFriend">
+    </wsdl:input>
+      <wsdl:output name="AddFriendResponse" message="ns1:AddFriendResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

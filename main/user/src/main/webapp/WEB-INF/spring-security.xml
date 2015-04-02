@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean:beans xmlns:bean="http://www.springframework.org/schema/beans"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+			xmlns="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+						http://www.springframework.org/schema/security
+						http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+	<global-method-security secured-annotations="enabled">
+	</global-method-security>
+	
+<!-- 	<jdbc:embedded-database id="dataSource" type="HSQL">  
+	  <jdbc:script location="classpath:security-schema.sql"/>  
+	</jdbc:embedded-database>  -->
+
+ 	<http pattern="/services/rest/user/**"
+			auto-config="false" 
+			use-expressions="true"
+			entry-point-ref="CustomAuthenticationEntryPoint"
+			create-session="stateless">
+		<intercept-url pattern="/services/rest/user/login/**" access="permitAll"/>
+		<intercept-url pattern="/services/rest/user/Logout/**" access="permitAll"/>
+		<intercept-url method="POST" pattern="/services/rest/user/" access="permitAll"/>
+		<intercept-url method="POST" pattern="/services/rest/user" access="permitAll"/>
+		<intercept-url pattern="/services/rest/user/FindUsers/**" access="permitAll"/>
+		<intercept-url pattern="/services/rest/user/ResetPassword/**" access="permitAll"/>
+		<intercept-url pattern="/services/rest/user/Startup/**" access="permitAll"/>
+		<custom-filter ref="authenticationTokenProcessingFilter" position="FORM_LOGIN_FILTER"/>
+		<intercept-url pattern="/services/rest/user/**" access="isAuthenticated()" />
+	</http> 
+
+	<bean:bean id="CustomAuthenticationEntryPoint"
+		class="com.divx.service.auth.CustomAuthenticationEntryPoint" />
+		
+<!-- 	<bean:bean id="userDao" class="com.ls.ss.auth.UserDal">
+	</bean:bean> -->
+	
+	<bean:bean xmlns="http://www.springframework.org/schema/beans" 
+		class="com.divx.service.auth.CustomTokenAuthenticationFilter"
+	    id="authenticationTokenProcessingFilter">
+	    <constructor-arg type="java.lang.String"><value>/services/rest/user/**</value></constructor-arg>
+	    <!--<property name="authenticationManager" ref="authenticationManager" />
+	     <bean:constructor-arg ref="userDao"></bean:constructor-arg> -->
+	</bean:bean>
+<!-- 	<authentication-manager id="authenticationManager">
+		<authentication-provider user-service-ref="userDao">
+			<password-encoder hash="sha"></password-encoder>
+		</authentication-provider>
+	</authentication-manager> -->
+ 	<!-- <authentication-manager alias="authenticationManager">
+    	<authentication-provider>
+    		<jdbc-user-service data-source-ref="dataSource"/>
+	        <password-encoder ref="encoder" />
+	    </authentication-provider>
+	</authentication-manager> -->
+ 	<authentication-manager alias="authenticationManager">    
+	    <authentication-provider>    
+	      <user-service>    
+	        <user authorities="ROLE_USER" name="guest" password="guest"/>    
+	      </user-service>    
+	    </authentication-provider>    
+	  </authentication-manager>  
+</bean:beans>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 10:40:53 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpOriginalasset" table="dcp_originalasset" catalog="divx_content" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="originalassetId" type="int">
+            <column name="originalasset_id" not-null="true" />
+        </property>
+        <property name="mediaId" type="int">
+            <column name="media_id" not-null="true" />
+        </property>
+        <property name="fileurl" type="string">
+            <column name="fileurl" not-null="true" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <property name="deleted" type="boolean">
+            <column name="deleted" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

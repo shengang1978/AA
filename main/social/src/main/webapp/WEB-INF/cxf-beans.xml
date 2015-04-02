@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+		http://cxf.apache.org/jaxrs 
+		http://cxf.apache.org/schemas/jaxrs.xsd
+		http://cxf.apache.org/jaxws 
+		http://cxf.apache.org/schemas/jaxws.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+		
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+	
+	<context:component-scan base-package="com.divx.service"/>
+	<context:component-scan base-package="com.divx.service.impl"/>
+	<context:component-scan base-package="org.osforce.connect.dao"/>
+	<context:component-scan base-package="org.osforce.connect.service"/>
+	
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+	
+	<!--  SOAP service settings 
+	<jaxws:endpoint id="group" implementor="com.divx.service.impl.groupImpl"
+		wsdlLocation="wsdl/group.wsdl" address="/group">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+	<jaxws:endpoint id="friend" implementor="com.divx.service.impl.friendImpl"
+		wsdlLocation="wsdl/friend.wsdl" address="/friend">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+	<jaxws:endpoint id="share" implementor="com.divx.service.impl.shareImpl"
+		wsdlLocation="wsdl/share.wsdl" address="/share">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+	-->
+	
+	<!--  REST service settings -->
+	<bean id="FriendRestService" 
+		class="com.divx.service.impl.friendImpl">
+	</bean>
+	
+	<bean id="GroupRestService" 
+		class="com.divx.service.impl.groupImpl">
+	</bean>
+	
+	<bean id="ShareRestService" 
+		class="com.divx.service.impl.shareImpl">
+	</bean>
+	
+	<bean id="CommentService" 
+		class="com.divx.service.impl.commentImpl">
+	</bean>
+	
+	<bean id="SocialInnerService" 
+		class="com.divx.service.impl.socialInnerImpl">
+	</bean>
+	
+	<!-- 	
+	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" /> 
+	 -->
+	
+	<bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.json.JSONProvider"> 
+       	<property name="dropCollectionWrapperElement" value="true"/>
+        <property name="serializeAsArray" value="false"/>   
+        <property name="ignoreNamespaces" value="true"/>  
+        <property name="dropRootElement" value="true"/>  
+    	<property name="ignoreMixedContent" value="true"/>  
+        <property name="attributesToElements" value="true"/>
+        <property name="arrayKeys">
+        	<list>
+			  <value>users</value>
+			  <value>shares</value>
+			  <value>groups</value>
+			  <value>reqList</value>
+			  <value>activities</value>
+			  <value>comments</value>
+			</list>
+        </property>  
+	</bean>    
+	
+  	<jaxrs:server id="friendRest" address="/rest">
+  		<jaxrs:serviceBeans>
+  			<ref bean="FriendRestService"/>
+  			<ref bean="GroupRestService"/>
+  			<ref bean="ShareRestService"/>
+  			<ref bean="CommentService"/>
+  			<ref bean="SocialInnerService" />
+  		</jaxrs:serviceBeans>
+  		<jaxrs:providers>
+			<ref bean='jsonProvider' />
+		</jaxrs:providers>
+  	</jaxrs:server>
+</beans>

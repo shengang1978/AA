@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpRadio" table="dcp_radio" catalog="divx_transcode" optimistic-lock="version">
+        <id name="radioId" type="int">
+            <column name="radio_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="description" type="string">
+            <column name="description" length="128" />
+        </property>
+        <property name="rangestart" type="java.lang.Float">
+            <column name="rangestart" precision="12" scale="0" />
+        </property>
+        <property name="rangeend" type="java.lang.Float">
+            <column name="rangeend" precision="12" scale="0" />
+        </property>
+        <set name="dcpPresetgroups" table="dcp_presetgroup" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="radio_id" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpPresetgroup" />
+        </set>
+    </class>
+</hibernate-mapping>

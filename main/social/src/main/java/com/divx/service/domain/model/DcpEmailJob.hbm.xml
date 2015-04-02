@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-12-23 14:37:45 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpEmailJob" table="dcp_email_job" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="status" type="boolean">
+            <column name="status" not-null="true" />
+        </property>
+        <property name="createdate" type="timestamp">
+            <column name="createdate" length="19" />
+        </property>
+        <property name="modifydate" type="timestamp">
+            <column name="modifydate" length="19" />
+        </property>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="emailAddress" type="string">
+            <column name="email_address" not-null="true" />
+        </property>
+        <property name="content" type="string">
+            <column name="content" />
+        </property>
+        <property name="attempts" type="int">
+            <column name="attempts" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

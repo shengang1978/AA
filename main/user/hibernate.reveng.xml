@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+	<table-filter match-schema="divx_user" match-name=".*" />
+	<table-filter match-catalog="divx_user" match-name="dcp_token" />
+	<table-filter match-name="osf_users" match-catalog="divx_user"></table-filter>
+	<table-filter match-name="dcp_organization"
+		match-catalog="divx_user">
+	</table-filter>
+	<table-filter match-name="dcp_token" match-catalog="divx_user"></table-filter>
+	<table-filter match-name="dcp_user_ext" match-catalog="divx_user"></table-filter>
+	<table-filter match-name="dcp_orgsite" match-catalog="divx_user"></table-filter>
+	<table-filter match-name="dcp_orgsite" match-catalog="divx_user"></table-filter>
+</hibernate-reverse-engineering>

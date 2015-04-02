@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpTranscode" table="dcp_transcode" catalog="divx_transcode" optimistic-lock="version">
+        <id name="transcodeId" type="java.lang.Integer">
+            <column name="transcode_id" />
+            <generator class="identity" />
+        </id>
+        <property name="assetId" type="int">
+            <column name="asset_id" not-null="true" />
+        </property>
+        <property name="asseturl" type="string">
+            <column name="asseturl" not-null="true" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+        <property name="trycount" type="java.lang.Integer">
+            <column name="trycount" />
+        </property>
+        <property name="log" type="string">
+            <column name="log" length="500" />
+        </property>
+        <property name="errorstatus" type="java.lang.Integer">
+            <column name="errorstatus" />
+        </property>
+        <property name="jobtype" type="java.lang.Integer">
+            <column name="jobtype" />
+        </property>
+        <property name="jobname" type="string">
+            <column name="jobname" />
+        </property>
+    </class>
+</hibernate-mapping>

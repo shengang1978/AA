@@ -1,0 +1,35 @@
+<xs:schema xmlns:tns="http://service.divx.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://service.divx.com/" version="1.0">
+
+  <xs:element name="GetConfigValue" type="tns:GetConfigValue"/>
+
+  <xs:element name="GetConfigValueResponse" type="tns:GetConfigValueResponse"/>
+
+  <xs:element name="GetServiceBaseURL" type="tns:GetServiceBaseURL"/>
+
+  <xs:element name="GetServiceBaseURLResponse" type="tns:GetServiceBaseURLResponse"/>
+
+  <xs:complexType name="GetServiceBaseURL">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GetServiceBaseURLResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GetConfigValue">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GetConfigValueResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

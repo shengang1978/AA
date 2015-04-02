@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpPresetgroup" table="dcp_presetgroup" catalog="divx_transcode" optimistic-lock="version">
+        <id name="pgId" type="java.lang.Integer">
+            <column name="pg_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="dcpRadio" class="com.divx.service.domain.model.DcpRadio" fetch="select">
+            <column name="radio_id" />
+        </many-to-one>
+        <property name="width" type="java.lang.Integer">
+            <column name="width" />
+        </property>
+        <property name="height" type="java.lang.Integer">
+            <column name="height" />
+        </property>
+        <property name="framerate" type="java.lang.Float">
+            <column name="framerate" precision="12" scale="0" />
+        </property>
+        <property name="format" type="java.lang.Integer">
+            <column name="format" />
+        </property>
+        <property name="pgname" type="string">
+            <column name="pgname" length="512" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" />
+        </property>
+        <property name="enable" type="java.lang.Boolean">
+            <column name="enable" />
+        </property>
+    </class>
+</hibernate-mapping>

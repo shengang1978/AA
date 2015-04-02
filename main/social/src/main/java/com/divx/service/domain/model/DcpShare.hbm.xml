@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 17:38:20 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpShare" table="dcp_share" catalog="divx_social" optimistic-lock="version">
+        <id name="shareId" type="java.lang.Integer">
+            <column name="share_id" />
+            <generator class="identity" />
+        </id>
+        <property name="mediaId" type="int">
+            <column name="media_id" not-null="true" />
+        </property>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="sharetype" type="int">
+            <column name="sharetype" not-null="true">
+                <comment>all (public) friend (share to friend) group (share in group)</comment>
+            </column>
+        </property>
+        <property name="friendId" type="java.lang.Integer">
+            <column name="friend_id" />
+        </property>
+        <property name="groupId" type="java.lang.Integer">
+            <column name="group_id" />
+        </property>
+        <property name="datecreated" type="date">
+            <column name="datecreated" length="10" />
+        </property>
+        <property name="datemodified" type="date">
+            <column name="datemodified" length="10" />
+        </property>
+        <property name="mediatitle" type="string">
+            <column name="mediatitle" length="500" />
+        </property>
+        <property name="mediadescription" type="string">
+            <column name="mediadescription" length="500" />
+        </property>
+        <property name="snapshoturl" type="string">
+            <column name="snapshoturl" />
+        </property>
+        <property name="assettype" type="java.lang.Integer">
+            <column name="assettype" />
+        </property>
+        <property name="deleted" type="java.lang.Boolean">
+            <column name="deleted" />
+        </property>
+        <property name="status" type="java.lang.Integer">
+            <column name="status" />
+        </property>
+        <property name="contenttype" type="java.lang.Integer">
+            <column name="contenttype" />
+        </property>
+        <property name="content" type="string">
+            <column name="content" length="500" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,168 @@
+<xs:schema xmlns:tns="http://service.divx.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://service.divx.com/" version="1.0">
+
+  <xs:element name="FriendResquests" type="tns:FriendResquests"/>
+
+  <xs:element name="GroupResponse" type="tns:GroupResponse"/>
+
+  <xs:element name="InviteUser" type="tns:InviteUser"/>
+
+  <xs:element name="InviteUserResponse" type="tns:InviteUserResponse"/>
+
+  <xs:element name="MyFriendRequests" type="tns:MyFriendRequests"/>
+
+  <xs:element name="MyFriendRequestsResponse" type="tns:MyFriendRequestsResponse"/>
+
+  <xs:element name="MyFriends" type="tns:MyFriends"/>
+
+  <xs:element name="MyFriendsResponse" type="tns:MyFriendsResponse"/>
+
+  <xs:element name="RequestFriend" type="tns:RequestFriend"/>
+
+  <xs:element name="RequestFriendResponse" type="tns:RequestFriendResponse"/>
+
+  <xs:element name="RespondRequestFriend" type="tns:RespondRequestFriend"/>
+
+  <xs:element name="RespondRequestFriendResponse" type="tns:RespondRequestFriendResponse"/>
+
+  <xs:element name="ServiceResponse" type="tns:ServiceResponse"/>
+
+  <xs:element name="UnbindFriend" type="tns:UnbindFriend"/>
+
+  <xs:element name="UnbindFriendResponse" type="tns:UnbindFriendResponse"/>
+
+  <xs:element name="UsersResponse" type="tns:UsersResponse"/>
+
+  <xs:complexType name="RequestFriend">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RequestFriendResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:GroupResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GroupResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:ServiceResponse">
+        <xs:sequence>
+          <xs:element name="groupId" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceResponse">
+    <xs:sequence>
+      <xs:element name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UnbindFriend">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UnbindFriendResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RespondRequestFriend">
+    <xs:sequence>
+      <xs:element name="arg0" type="xs:int"/>
+      <xs:element name="arg1" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RespondRequestFriendResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InviteUser">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:inviteOption"/>
+      <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+      <xs:element minOccurs="0" name="arg2" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InviteUserResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MyFriends">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="MyFriendsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:UsersResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UsersResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:ServiceResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="users" nillable="true" type="tns:user"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="user">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="photoUrl" type="xs:string"/>
+      <xs:element minOccurs="0" name="showname" type="xs:string"/>
+      <xs:element name="userId" type="xs:int"/>
+      <xs:element minOccurs="0" name="username" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MyFriendRequests">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="MyFriendRequestsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:FriendResquests"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FriendResquests">
+    <xs:complexContent>
+      <xs:extension base="tns:ServiceResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="reqList" nillable="true" type="tns:friendRequest"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="friendRequest">
+    <xs:sequence>
+      <xs:element name="fromUser" type="xs:int"/>
+      <xs:element minOccurs="0" name="requestDate" type="xs:dateTime"/>
+      <xs:element name="requestId" type="xs:int"/>
+      <xs:element minOccurs="0" name="toUser" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="inviteOption">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="email"/>
+      <xs:enumeration value="mobile"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

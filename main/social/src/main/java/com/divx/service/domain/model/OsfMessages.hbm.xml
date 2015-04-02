@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 17:38:20 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfMessages" table="osf_messages" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="content" type="string">
+            <column name="_content" not-null="true" />
+        </property>
+        <property name="entered" type="timestamp">
+            <column name="_entered" length="19" not-null="true" />
+        </property>
+        <property name="read" type="java.lang.Boolean">
+            <column name="_read" />
+        </property>
+        <property name="subject" type="string">
+            <column name="_subject" not-null="true" />
+        </property>
+        <property name="enteredById" type="long">
+            <column name="_entered_by_id" not-null="true" />
+        </property>
+        <property name="fromId" type="long">
+            <column name="_from_id" not-null="true" />
+        </property>
+        <property name="readById" type="java.lang.Long">
+            <column name="_read_by_id" />
+        </property>
+        <property name="toId" type="long">
+            <column name="_to_id" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-4 15:36:18 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfKeywords" table="osf_keywords" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="entered" type="timestamp">
+            <column name="_entered" length="19" />
+        </property>
+        <property name="keyword" type="string">
+            <column name="_keyword" not-null="true" />
+        </property>
+        <property name="number" type="long">
+            <column name="_number" not-null="true" />
+        </property>
+        <property name="type" type="string">
+            <column name="_type" not-null="true" />
+        </property>
+        <property name="categoryId" type="java.lang.Long">
+            <column name="_category_id" />
+        </property>
+        <property name="enteredById" type="java.lang.Long">
+            <column name="_entered_by_id" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,99 @@
+<xs:schema xmlns:tns="http://service.divx.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://service.divx.com/" version="1.0">
+
+  <xs:element name="MyMessages" type="tns:MyMessages"/>
+
+  <xs:element name="MyMessagesResponse" type="tns:MyMessagesResponse"/>
+
+  <xs:element name="ResponseMessages" type="tns:ResponseMessages"/>
+
+  <xs:element name="ResponseMessagesResponse" type="tns:ResponseMessagesResponse"/>
+
+  <xs:element name="SendMessage" type="tns:SendMessage"/>
+
+  <xs:element name="SendMessageResponse" type="tns:SendMessageResponse"/>
+
+  <xs:element name="ServiceResponse" type="tns:ServiceResponse"/>
+
+  <xs:complexType name="MyMessages">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="MyMessagesResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:myMessagesResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="myMessagesResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:ServiceResponse">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="myMessages" nillable="true" type="tns:myMessage"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceResponse">
+    <xs:sequence>
+      <xs:element name="code" type="xs:int"/>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="myMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="content" type="xs:string"/>
+      <xs:element minOccurs="0" name="date" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="from" type="xs:string"/>
+      <xs:element name="messageId" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SendMessage">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:message"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="message">
+    <xs:sequence>
+      <xs:element name="content" type="xs:int"/>
+      <xs:element minOccurs="0" name="messageType" type="tns:eMessageType"/>
+      <xs:element name="senderId" type="xs:int"/>
+      <xs:element name="targetId" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SendMessageResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ResponseMessages">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="tns:responseOption"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="responseOption">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="ResponseMessagesResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:ServiceResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="eMessageType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="System"/>
+      <xs:enumeration value="Person2Person"/>
+      <xs:enumeration value="Person2Group"/>
+      <xs:enumeration value="Person2Friends"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

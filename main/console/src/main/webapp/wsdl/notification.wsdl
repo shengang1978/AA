@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="notification" targetNamespace="http://service.androidpn.org/" xmlns:ns1="http://service.androidpn.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.androidpn.org/" schemaLocation="notification_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="sendNotification">
+    <wsdl:part name="parameters" element="ns1:sendNotification">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendNotificationResponse">
+    <wsdl:part name="parameters" element="ns1:sendNotificationResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="notification">
+    <wsdl:operation name="sendNotification">
+      <wsdl:input name="sendNotification" message="ns1:sendNotification">
+    </wsdl:input>
+      <wsdl:output name="sendNotificationResponse" message="ns1:sendNotificationResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

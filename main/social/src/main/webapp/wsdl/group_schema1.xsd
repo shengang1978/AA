@@ -1,0 +1,37 @@
+<xs:schema xmlns:tns="http://service.divx.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://service.divx.com/" version="1.0">
+
+  <xs:element name="CreateGroup" type="tns:CreateGroup"/>
+
+  <xs:element name="CreateGroupResponse" type="tns:CreateGroupResponse"/>
+
+  <xs:complexType name="CreateGroup">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="arg0" type="xs:string"/>
+      <xs:element minOccurs="0" name="arg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreateGroupResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:groupResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="groupResponse">
+    <xs:complexContent>
+      <xs:extension base="tns:serviceResponse">
+        <xs:sequence>
+          <xs:element name="groupID" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="serviceResponse">
+    <xs:sequence>
+      <xs:element name="responseCode" type="xs:int"/>
+      <xs:element minOccurs="0" name="responseMessage" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

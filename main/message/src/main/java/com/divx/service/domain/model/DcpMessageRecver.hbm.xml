@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-12-30 10:29:19 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpMessageRecver" table="dcp_message_recver" catalog="divx_message" optimistic-lock="version">
+        <id name="messageRecverId" type="java.lang.Integer">
+            <column name="message_recver_id" />
+            <generator class="identity" />
+        </id>
+        <property name="status" type="java.lang.Integer">
+            <column name="status" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="messageId" type="int">
+            <column name="message_id" not-null="true" />
+        </property>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="iosStatus" type="int">
+            <column name="ios_status" not-null="true" />
+        </property>
+        <property name="iosAttemps" type="int">
+            <column name="ios_attemps" not-null="true" />
+        </property>
+        <property name="androidStatus" type="int">
+            <column name="android_status" not-null="true" />
+        </property>
+        <property name="androidAttemps" type="int">
+            <column name="android_attemps" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.0.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+		http://cxf.apache.org/jaxrs 
+		http://cxf.apache.org/schemas/jaxrs.xsd
+		http://cxf.apache.org/jaxws 
+		http://cxf.apache.org/schemas/jaxws.xsd">
+		
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+	
+	<context:component-scan base-package="com.divx.service"/>
+	<context:component-scan base-package="com.divx.manager"/>
+	
+	<bean class="org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor"/>
+	
+	<!-- 
+	<jaxws:endpoint id="transcodeimpl" implementor="com.divx.service.impl.transcodeimpl"
+		wsdlLocation="wsdl/transcode.wsdl" address="/transcode">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+	 -->
+	<!--  REST service settings -->
+	<bean id="TranscodeRestService" 
+		class="com.divx.service.impl.transcodeimpl">
+	</bean>
+	
+	<!-- 
+	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" />
+	-->
+	
+	<bean id="jsonProvider" class="org.apache.cxf.jaxrs.provider.json.JSONProvider"> 
+        <property name="dropCollectionWrapperElement" value="true"/> 
+        <property name="serializeAsArray" value="true"/>   
+        <property name="ignoreNamespaces" value="true"/>  
+        <property name="dropRootElement" value="true"/>  
+        <property name="ignoreMixedContent" value="true"/>  
+        <property name="attributesToElements" value="true"/> 
+        <property name="arrayKeys">
+        	<list>
+			  <value>thumbnails</value>
+			</list>
+        </property> 
+	</bean>       
+	
+  	<jaxrs:server id="transcodeRest" address="/rest">
+  		<jaxrs:serviceBeans>
+  			<ref bean="TranscodeRestService"/>
+  		</jaxrs:serviceBeans>
+  		<jaxrs:providers>
+			<ref bean='jsonProvider' />
+		</jaxrs:providers>
+		<!-- 
+		<jaxrs:extensionMappings>
+          <entry key="json" value="application/json"/>
+          <entry key="xml" value="application/xml"/>
+        </jaxrs:extensionMappings>		
+         -->
+  	</jaxrs:server>
+</beans>

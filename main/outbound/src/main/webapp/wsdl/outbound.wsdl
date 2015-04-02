@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="outbound" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="outbound_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="StartSession">
+    <wsdl:part name="parameters" element="ns1:StartSession">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EndSession">
+    <wsdl:part name="parameters" element="ns1:EndSession">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="StartSessionResponse">
+    <wsdl:part name="parameters" element="ns1:StartSessionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="EndSessionResponse">
+    <wsdl:part name="parameters" element="ns1:EndSessionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="outbound">
+    <wsdl:operation name="StartSession">
+      <wsdl:input name="StartSession" message="ns1:StartSession">
+    </wsdl:input>
+      <wsdl:output name="StartSessionResponse" message="ns1:StartSessionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EndSession">
+      <wsdl:input name="EndSession" message="ns1:EndSession">
+    </wsdl:input>
+      <wsdl:output name="EndSessionResponse" message="ns1:EndSessionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

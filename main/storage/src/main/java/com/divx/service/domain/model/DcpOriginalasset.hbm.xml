@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-1 11:50:03 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpOriginalasset" table="dcp_originalasset" catalog="divx_storage" optimistic-lock="version">
+        <id name="originalassetId" type="java.lang.Integer">
+            <column name="originalasset_id" />
+            <generator class="identity" />
+        </id>
+        <property name="mediaId" type="int">
+            <column name="media_id" not-null="true" />
+        </property>
+        <property name="fileurl" type="string">
+            <column name="fileurl" not-null="true" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+        <property name="totalsize" type="int">
+            <column name="totalsize" not-null="true" />
+        </property>
+        <property name="uploadpos" type="int">
+            <column name="uploadpos" not-null="true" />
+        </property>
+        <property name="status" type="int">
+            <column name="status" not-null="true" />
+        </property>
+        <property name="completed" type="boolean">
+            <column name="completed" not-null="true" />
+        </property>
+        <property name="deleted" type="boolean">
+            <column name="deleted" not-null="true" />
+        </property>
+        <property name="filename" type="string">
+            <column name="filename" />
+        </property>
+        <property name="attempts" type="int">
+            <column name="attempts" not-null="true" />
+        </property>
+        <property name="processed" type="boolean">
+            <column name="processed" not-null="true" />
+        </property>
+        <property name="errorMessage" type="string">
+            <column name="error_message" />
+        </property>
+        <property name="contenttype" type="java.lang.Integer">
+            <column name="contenttype" />
+        </property>
+    </class>
+</hibernate-mapping>

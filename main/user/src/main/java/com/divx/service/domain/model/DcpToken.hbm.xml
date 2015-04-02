@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-2-6 15:30:04 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpToken" table="dcp_token" catalog="divx_user" optimistic-lock="version">
+        <id name="tokenId" type="java.lang.Integer">
+            <column name="token_id" />
+            <generator class="identity" />
+        </id>
+        <property name="userId" type="int">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="token" type="string">
+            <column name="token" not-null="true" unique="true" />
+        </property>
+        <property name="devicetype" type="java.lang.Integer">
+            <column name="devicetype" />
+        </property>
+        <property name="deviceguid" type="string">
+            <column name="deviceguid" />
+        </property>
+        <property name="datecreated" type="date">
+            <column name="datecreated" length="10" not-null="true" />
+        </property>
+        <property name="datemodified" type="date">
+            <column name="datemodified" length="10" not-null="true" />
+        </property>
+        <property name="isactive" type="boolean">
+            <column name="isactive" not-null="true" />
+        </property>
+        <property name="expiredate" type="date">
+            <column name="expiredate" length="10" />
+        </property>
+        <property name="deviceuniqueid" type="string">
+            <column name="deviceuniqueid" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

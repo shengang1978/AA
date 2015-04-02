@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="share" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="share_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="ShareToFriend">
+    <wsdl:part name="parameters" element="ns1:ShareToFriend">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="RemoveResponse">
+    <wsdl:part name="parameters" element="ns1:RemoveResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Remove">
+    <wsdl:part name="parameters" element="ns1:Remove">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ShareToFriendResponse">
+    <wsdl:part name="parameters" element="ns1:ShareToFriendResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="History">
+    <wsdl:part name="parameters" element="ns1:History">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Comment">
+    <wsdl:part name="parameters" element="ns1:Comment">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MyShares">
+    <wsdl:part name="parameters" element="ns1:MyShares">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Like">
+    <wsdl:part name="parameters" element="ns1:Like">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="LikeResponse">
+    <wsdl:part name="parameters" element="ns1:LikeResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ShareInGroup">
+    <wsdl:part name="parameters" element="ns1:ShareInGroup">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="CommentResponse">
+    <wsdl:part name="parameters" element="ns1:CommentResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="MySharesResponse">
+    <wsdl:part name="parameters" element="ns1:MySharesResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="HistoryResponse">
+    <wsdl:part name="parameters" element="ns1:HistoryResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ShareInGroupResponse">
+    <wsdl:part name="parameters" element="ns1:ShareInGroupResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="share">
+    <wsdl:operation name="MyShares">
+      <wsdl:input name="MyShares" message="ns1:MyShares">
+    </wsdl:input>
+      <wsdl:output name="MySharesResponse" message="ns1:MySharesResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Remove">
+      <wsdl:input name="Remove" message="ns1:Remove">
+    </wsdl:input>
+      <wsdl:output name="RemoveResponse" message="ns1:RemoveResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ShareInGroup">
+      <wsdl:input name="ShareInGroup" message="ns1:ShareInGroup">
+    </wsdl:input>
+      <wsdl:output name="ShareInGroupResponse" message="ns1:ShareInGroupResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="ShareToFriend">
+      <wsdl:input name="ShareToFriend" message="ns1:ShareToFriend">
+    </wsdl:input>
+      <wsdl:output name="ShareToFriendResponse" message="ns1:ShareToFriendResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="History">
+      <wsdl:input name="History" message="ns1:History">
+    </wsdl:input>
+      <wsdl:output name="HistoryResponse" message="ns1:HistoryResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Like">
+      <wsdl:input name="Like" message="ns1:Like">
+    </wsdl:input>
+      <wsdl:output name="LikeResponse" message="ns1:LikeResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="Comment">
+      <wsdl:input name="Comment" message="ns1:Comment">
+    </wsdl:input>
+      <wsdl:output name="CommentResponse" message="ns1:CommentResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+	<table-filter match-schema="divx_social" match-name=".*" />
+	<table-filter match-catalog="divx_social"
+		match-name="dcp_comment_ext" />
+	<table-filter match-catalog="divx_social"
+		match-name="dcp_email_template" />
+	<table-filter match-catalog="divx_social"
+		match-name="dcp_friend_request" />
+	<table-filter match-catalog="divx_social" match-name="dcp_share" />
+	<table-filter match-catalog="divx_social" match-name="osf_comments" />
+	<table-filter match-catalog="divx_social" match-name="osf_projects" />
+	<table-filter match-catalog="divx_social" match-name="osf_roles" />
+	<table-filter match-catalog="divx_social"
+		match-name="osf_team_members" />
+	<table-filter match-name="osf_messages"
+		match-catalog="divx_social">
+	</table-filter>
+</hibernate-reverse-engineering>

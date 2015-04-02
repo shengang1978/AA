@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
+
+<hibernate-reverse-engineering>
+  <table-filter match-schema="divx_message" match-name=".*"/>
+  <table-filter match-catalog="divx_message" match-name="dcp_message"/>
+  <table-filter match-catalog="divx_message" match-name="dcp_message_recver"/>
+  <table-filter match-catalog="divx_message" match-name="dcp_recver"/>
+  <table-filter match-catalog="divx_message" match-name="dcp_sender"/>
+  <table-filter match-catalog="divx_message" match-name="dcp_userdevice"/>
+</hibernate-reverse-engineering>

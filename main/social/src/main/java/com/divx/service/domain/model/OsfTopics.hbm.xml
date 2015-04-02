@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-4 15:36:18 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfTopics" table="osf_topics" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="content" type="string">
+            <column name="_content" not-null="true" />
+        </property>
+        <property name="enabled" type="java.lang.Boolean">
+            <column name="_enabled" />
+        </property>
+        <property name="entered" type="timestamp">
+            <column name="_entered" length="19" not-null="true" />
+        </property>
+        <property name="modified" type="timestamp">
+            <column name="_modified" length="19" not-null="true" />
+        </property>
+        <property name="question" type="java.lang.Boolean">
+            <column name="_question" />
+        </property>
+        <property name="subject" type="string">
+            <column name="_subject" not-null="true" />
+        </property>
+        <property name="answerId" type="java.lang.Long">
+            <column name="_answer_id" />
+        </property>
+        <property name="categoryId" type="java.lang.Long">
+            <column name="_category_id" />
+        </property>
+        <property name="enteredById" type="long">
+            <column name="_entered_by_id" not-null="true" />
+        </property>
+        <property name="forumId" type="long">
+            <column name="_forum_id" not-null="true" />
+        </property>
+        <property name="modifiedById" type="long">
+            <column name="_modified_by_id" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

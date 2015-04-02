@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="transcode" targetNamespace="http://service.divx.com/" xmlns:ns1="http://service.divx.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <wsdl:types>
+<schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://service.divx.com/" schemaLocation="transcode_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="GetPrecess">
+    <wsdl:part name="parameters" element="ns1:GetPrecess">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="GetPrecessResponse">
+    <wsdl:part name="parameters" element="ns1:GetPrecessResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="transcode">
+    <wsdl:operation name="GetPrecess">
+      <wsdl:input name="GetPrecess" message="ns1:GetPrecess">
+    </wsdl:input>
+      <wsdl:output name="GetPrecessResponse" message="ns1:GetPrecessResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

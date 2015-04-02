@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-4 15:36:18 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfActivities" table="osf_activities" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="description" type="string">
+            <column name="_description" not-null="true" />
+        </property>
+        <property name="entered" type="timestamp">
+            <column name="_entered" length="19" not-null="true" />
+        </property>
+        <property name="entity" type="string">
+            <column name="_entity" />
+        </property>
+        <property name="format" type="string">
+            <column name="_format" not-null="true" />
+        </property>
+        <property name="linkedId" type="java.lang.Long">
+            <column name="_linked_id" />
+        </property>
+        <property name="modified" type="timestamp">
+            <column name="_modified" length="19" not-null="true" />
+        </property>
+        <property name="type" type="string">
+            <column name="_type" not-null="true" />
+        </property>
+        <property name="enteredById" type="java.lang.Long">
+            <column name="_entered_by_id" />
+        </property>
+        <property name="parentId" type="java.lang.Long">
+            <column name="_parent_id" />
+        </property>
+        <property name="projectId" type="java.lang.Long">
+            <column name="_project_id" />
+        </property>
+    </class>
+</hibernate-mapping>
