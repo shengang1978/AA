@@ -1,9 +1,11 @@
-package com.divx.service.model;
+package com.divx.service.model.party;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import com.divx.service.model.ServiceResponse;
 
 @XmlRootElement(name = "PartyResponse")
 @XmlAccessorType(XmlAccessType.FIELD)

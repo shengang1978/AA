@@ -8,11 +8,13 @@ import com.divx.service.AuthHelper;
 import com.divx.service.Util;
 import com.divx.service.party;
 import com.divx.service.domain.manager.PartyManager;
-import com.divx.service.model.PartiesResponse;
-import com.divx.service.model.Party;
-import com.divx.service.model.PartyBaseType.ePartyQueryType;
+import com.divx.service.model.party.PartiesResponse;
+import com.divx.service.model.party.Party;
+import com.divx.service.model.party.PartyResponse;
+import com.divx.service.model.party.PartyBaseType.ePartyQueryType;
+import com.divx.service.model.party.PartyUser;
+import com.divx.service.model.party.PartyUsersOption;
 import com.divx.service.model.GroupResponse;
-import com.divx.service.model.PartyResponse;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 
@@ -93,6 +95,21 @@ public class partyImpl implements party {
 		}
 		
 		return Util.ServiceResponseToResponse(partyManager.GetParties(helper.getUserId(), queryType, startPos, endPos));
+	}
+	@Override
+	public Response AddUsers(PartyUsersOption option) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Response GetUsers(int partyId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Response RemoveUser(PartyUser user) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	

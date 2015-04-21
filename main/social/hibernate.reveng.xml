@@ -19,4 +19,10 @@
 	<table-filter match-name="osf_messages"
 		match-catalog="divx_social">
 	</table-filter>
+	<table-filter match-name="dcp_party_user"
+		match-catalog="divx_social">
+	</table-filter>
+	<table-filter match-name="dcp_email_job"
+		match-catalog="divx_social">
+	</table-filter>
 </hibernate-reverse-engineering>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-4-2 23:00:14 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-4-20 23:30:30 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpFriendRequest" table="dcp_friend_request" catalog="divx_social" optimistic-lock="version">
         <id name="requestId" type="java.lang.Integer">

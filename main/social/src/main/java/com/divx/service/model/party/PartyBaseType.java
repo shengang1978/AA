@@ -1,4 +1,4 @@
-package com.divx.service.model;
+package com.divx.service.model.party;
 
 public class PartyBaseType {
 	public enum ePartyType

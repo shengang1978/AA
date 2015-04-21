@@ -1,10 +1,10 @@
-package com.divx.service.model;
+package com.divx.service.model.party;
 
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.divx.service.model.PartyBaseType.ePartyType;
+import com.divx.service.model.party.PartyBaseType.ePartyType;
 
 @XmlRootElement(name = "Party")
 public class Party {	

@@ -1,4 +1,4 @@
-package com.divx.service.model;
+package com.divx.service.model.party;
 
 import java.util.List;
 
@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import com.divx.service.model.ServiceResponse;
 
 @XmlRootElement(name = "PartiesResponse")
 @XmlAccessorType(XmlAccessType.FIELD)

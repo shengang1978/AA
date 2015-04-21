@@ -7,20 +7,8 @@
         <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
         <property name="hibernate.connection.password">dcpd1vxd1vx</property>
-        <property name="hibernate.connection.url">jdbc:mysql://database_ip_addr:3306/divx_social</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/divx_social</property>
         <property name="hibernate.connection.username">dcp_db</property>
-        
-        <property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider
-		</property>
-		<property name="hibernate.c3p0.max_size">20</property>
-		<property name="hibernate.c3p0.min_size">5</property>
-		<property name="hibernate.c3p0.timeout">120</property>
-		<property name="hibernate.c3p0.max_statements">100</property>
-		<property name="hibernate.c3p0.idle_test_period">120</property>
-		<property name="hibernate.c3p0.acquire_increment">2</property>
-		<property name="connection.useUnicode">true</property> 
-		<property name="connection.characterEncoding">UTF-8</property>
-        
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.ejb.classcache.org.osforce.connect.entity.blog.Post">read-write</property>
         <property name="hibernate.ejb.classcache.org.osforce.connect.entity.blog.PostCategory">read-write</property>
@@ -69,12 +57,14 @@
         <property name="hibernate.validator.apply_to_ddl">false</property>
         <mapping resource="com/divx/service/domain/model/OsfProjects.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/OsfComments.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpEmailJob.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpEmailTemplate.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpShare.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpParty.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpFriendRequest.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpCommentExt.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/OsfRoles.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpPartyUser.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/OsfTeamMembers.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/OsfMessages.hbm.xml" />
     </session-factory>

@@ -3,6 +3,7 @@ package com.divx.service.domain.dao;
 import java.util.List;
 
 import com.divx.service.domain.model.DcpParty;
+import com.divx.service.domain.model.DcpPartyUser;
 
 public interface PartyDao {
 	int CreateParty(DcpParty obj);
@@ -14,4 +15,10 @@ public interface PartyDao {
 	DcpParty GetParty(int partyId);
 	
 	List<DcpParty> GetParties(int userId);
+	
+	List<DcpPartyUser> GetUsersInParty(int partyId);
+	
+	int RemoveUser(int partyId, int userType, String value);
+	
+	int AddUsers(int partyId, List<DcpPartyUser> users);
 }
