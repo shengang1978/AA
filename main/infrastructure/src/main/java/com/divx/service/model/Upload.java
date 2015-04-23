@@ -2,6 +2,8 @@ package com.divx.service.model;
 
 
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.divx.service.model.MediaBaseType.eFileType;
 @XmlRootElement(name = "Upload")
 public class Upload {
 	public enum eUploadStatus
@@ -21,7 +23,9 @@ public class Upload {
 	private String filename;
 	private String fileurl;
 	private String shareJson;
+	private String v2gJson;
 	private MediaBaseType.eContentType contentType;
+	private MediaBaseType.eFileType	fileType;
 
 	public String getFileurl() {
 		return fileurl;
@@ -86,5 +90,44 @@ public class Upload {
 
 	public void setContentType(MediaBaseType.eContentType contentType) {
 		this.contentType = contentType;
+	}
+
+	public String getV2gJson() {
+		return v2gJson;
+	}
+
+	public void setV2gJson(String v2gJson) {
+		this.v2gJson = v2gJson;
+	}
+
+	public MediaBaseType.eFileType getFileType() {
+		return fileType;
+	}
+
+	public void setFileType(MediaBaseType.eFileType fileType) {
+		this.fileType = fileType;
+	}
+	
+	public MediaBaseType.eFileType GetFileTypeByContentType()
+	{
+		if (fileType == null || fileType == eFileType.Auto)
+		{
+			MediaBaseType.eFileType ft = eFileType.Auto;
+			switch(contentType)
+			{
+			case Gif:
+			case Video4Gif:
+				ft = eFileType.Gif;
+				break;
+			case EduBook:
+				ft = eFileType.EduBook;
+				break;
+			}
+			return ft;
+		}
+		else
+		{
+			return fileType;
+		}
 	}
 }

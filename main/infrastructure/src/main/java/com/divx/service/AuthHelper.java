@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.divx.service.model.AuthHelperModel;
+import com.divx.service.model.DcpBaseType;
 import com.divx.service.model.ResponseCode;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -23,8 +24,11 @@ public class AuthHelper {
 					
 					if (obj.getResponseCode() == ResponseCode.SUCCESS)
 					{
-						this.userId = obj.getUserId();
-						this.token = obj.getToken();
+						userId = obj.getUserId();
+						token = obj.getToken();
+						deviceGuid = obj.getDeviceGuid();
+						deviceType = DcpBaseType.eDeviceType.values()[obj.getDeviceType()];
+						deviceUniqueId = obj.getDeviceUniqueId();
 					}
 						
 			} catch (Exception e) {
@@ -69,7 +73,7 @@ public class AuthHelper {
 		this.userId = -1;
 		isServiceToken = false;
 		
-		deviceType = 0;
+		deviceType = DcpBaseType.eDeviceType.Android;
 		
 		ServiceHeaderHelper helper = new ServiceHeaderHelper();
 
@@ -79,7 +83,7 @@ public class AuthHelper {
 		String strServiceToken = helper.getHeader("ServiceToken");
 
 		if (strToken != null && !strToken.isEmpty())
-		{	
+		{
 			try{
 				AuthHelperModel.CheckUserResponse obj = CheckUserResponseCallable(strToken);
 				
@@ -88,7 +92,7 @@ public class AuthHelper {
 					this.userId = obj.getUserId();
 					this.token = obj.getToken();
 					this.deviceGuid = obj.getDeviceGuid();
-					deviceType = obj.getDeviceType();
+					deviceType = DcpBaseType.eDeviceType.values()[obj.getDeviceType()];
 					deviceUniqueId = obj.getDeviceUniqueId();
 				}
 			}catch(Exception ex){
@@ -98,8 +102,14 @@ public class AuthHelper {
 		else if (strServiceToken != null && !strServiceToken.isEmpty())
 		{
 			isServiceToken = ConfigurationManager.GetInstance().IsServiceToken(strServiceToken);
-			serviceToken = strServiceToken;
+			setServiceToken(strServiceToken);
 		}
+		else
+		{
+			deviceType = DcpBaseType.eDeviceType.values()[GetHeadValue(helper, "DeviceType", 0)];
+		}
+		
+		appType = DcpBaseType.eAppType.values()[GetHeadValue(helper, "AppType", 0)];
 	}	
 	
 	public boolean isGuest()
@@ -121,11 +131,11 @@ public class AuthHelper {
 	{
 		return token;
 	}
-	public int getDeviceType() {
+	public DcpBaseType.eDeviceType getDeviceType() {
 		return deviceType;
 	}
 
-	public void setDeviceType(int deviceType) {
+	public void setDeviceType(DcpBaseType.eDeviceType deviceType) {
 		this.deviceType = deviceType;
 	}
 	public String getDeviceGuid() {
@@ -151,10 +161,25 @@ public class AuthHelper {
 		this.localAddr = localAddr;
 	}
 
+	public DcpBaseType.eAppType getAppType() {
+		return appType;
+	}
+
+	public void setAppType(DcpBaseType.eAppType appType) {
+		this.appType = appType;
+	}
+	public String getServiceToken() {
+		return serviceToken;
+	}
+
+	public void setServiceToken(String serviceToken) {
+		this.serviceToken = serviceToken;
+	}
 	// Here are the properties of the client if the request is from the client;
 	private String token;
 	private int userId;
-	private int deviceType;
+	private DcpBaseType.eDeviceType deviceType;
+	private DcpBaseType.eAppType appType;
 	private String deviceGuid;
 	private String deviceUniqueId;
 	
@@ -163,4 +188,22 @@ public class AuthHelper {
 	// Here are the properties of the service if the request is from the service.
 	private String serviceToken;
 	private boolean isServiceToken;
+	
+	private int GetHeadValue(ServiceHeaderHelper helper, String headName, int defaultValue)
+	{
+		int value = defaultValue;
+		String strValue = helper.getHeader(headName);
+		if (strValue != null && !strValue.isEmpty()){
+			try
+			{
+				value = Integer.parseInt(strValue);
+			}
+			catch(Exception e)
+			{
+				value = defaultValue;
+			}
+		}
+		
+		return value;
+	}
 }

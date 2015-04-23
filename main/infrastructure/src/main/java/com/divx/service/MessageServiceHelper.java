@@ -3,34 +3,10 @@ package com.divx.service;
 import java.util.Date;
 
 import com.divx.service.model.ResponseCode;
+import com.divx.service.model.ServiceResponse;
+import com.divx.service.model.SysMessage;
 
 public class MessageServiceHelper{
-	class ServiceResponse
-	{
-		private int code;
-		
-		public int getResponseCode()
-		{
-			return code;
-		}
-		
-		public void setResponseCode(int nCode)
-		{
-			code = nCode;
-		}
-		
-		private String message;
-		
-		public String getResponseMessage()
-		{
-			return message;
-		}
-		
-		public void setResponseMessage(String msg)
-		{
-			message = msg;
-		}
-	}	
 	
 	public enum eMessageType
 	{
@@ -61,44 +37,6 @@ public class MessageServiceHelper{
 		}
 		public void setContent(String content) {
 			this.content = content;
-		}
-	}
-	
-	public enum eSysMessageType
-	{
-		ToAll,
-		ToPerson,
-		ToGroup
-	}
-	
-	class SysMessage {
-		private eSysMessageType messageType;
-		private String content;
-		private int targetId;
-		private int messageCategory;
-		public eSysMessageType getMessageType() {
-			return messageType;
-		}
-		public void setMessageType(eSysMessageType messageType) {
-			this.messageType = messageType;
-		}
-		public String getContent() {
-			return content;
-		}
-		public void setContent(String content) {
-			this.content = content;
-		}
-		public int getTargetId() {
-			return targetId;
-		}
-		public void setTargetId(int targetId) {
-			this.targetId = targetId;
-		}
-		public int getMessageCategory() {
-			return messageCategory;
-		}
-		public void setMessageCategory(int messageCategory) {
-			this.messageCategory = messageCategory;
 		}
 	}
 	
@@ -181,7 +119,7 @@ public class MessageServiceHelper{
 				}
 				else
 				{
-					MessageServiceHelper.ServiceResponse sr = Util.JsonToObject(ret, MessageServiceHelper.ServiceResponse.class);
+					ServiceResponse sr = Util.JsonToObject(ret, ServiceResponse.class);
 					if (sr.getResponseCode() != ResponseCode.SUCCESS)
 					{
 						//Log error
@@ -250,17 +188,7 @@ public class MessageServiceHelper{
 			
 			res.setResponseCode(ResponseCode.SUCCESS);
 			res.setResponseMessage("Success");
-			
-//			String ret = Util.HttpGet(reqUrl);
-//			if (ret.isEmpty())
-//			{
-//				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-//				res.setResponseMessage("Fail to call UnregisterDevice()");
-//				return res;
-//			}
-//			MessageServiceHelper.ServiceResponse sr = Util.JsonToObject(ret, MessageServiceHelper.ServiceResponse.class);
-//			res.setResponseCode(sr.getResponseCode());
-//			res.setResponseMessage(sr.getResponseMessage());
+
 		}
 		catch(Exception ex)
 		{
@@ -270,8 +198,8 @@ public class MessageServiceHelper{
 		}
 		return res;
 	}
-	
-	public com.divx.service.model.ServiceResponse SendSysMessage(eSysMessageType msgType, int messageCategory, int targetId, String content)
+
+	public com.divx.service.model.ServiceResponse SendSysMessage(SysMessage msg)
 	{
 		com.divx.service.model.ServiceResponse res = new com.divx.service.model.ServiceResponse();
 		try
@@ -280,11 +208,6 @@ public class MessageServiceHelper{
 			String reqUrl = baseUrl + "/message/SysMessage";
 			MessageServiceHelper msh = new MessageServiceHelper();
 			
-			SysMessage msg = new SysMessage();
-			msg.setContent(content);
-			msg.setMessageType(msgType);
-			msg.setTargetId(targetId);
-			msg.setMessageCategory(messageCategory);
 			msh.SysMessage = msg;
 			
 			new Thread(new AnsycCall("POST", reqUrl, msh)).start();
@@ -311,6 +234,18 @@ public class MessageServiceHelper{
 		}
 
 		return res;
+	}
+	
+	public com.divx.service.model.ServiceResponse SendSysMessage(SysMessage.eSysMessageType msgType, int messageCategory, int targetId, int senderId, String content)
+	{
+		SysMessage msg = new SysMessage();
+		msg.setContent(content);
+		msg.setMessageType(msgType);
+		msg.setTargetId(targetId);
+		msg.setSenderId(senderId);
+		msg.setMessageCategory(messageCategory);
+		
+		return SendSysMessage(msg);
 	}
 	
 	public com.divx.service.model.ServiceResponse SendUserMessage(eMessageType msgType, int targetId, String content)

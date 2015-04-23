@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2014-11-17 15:59:33 by Hibernate Tools 4.3.1
+// Generated 2015-4-15 10:25:09 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -18,9 +18,10 @@ public class DcpEmailTemplate implements java.io.Serializable {
 	public DcpEmailTemplate() {
 	}
 
-	public DcpEmailTemplate(Date createdate, Date modifydate) {
+	public DcpEmailTemplate(Date createdate, Date modifydate, String emailType) {
 		this.createdate = createdate;
 		this.modifydate = modifydate;
+		this.emailType = emailType;
 	}
 
 	public DcpEmailTemplate(Date createdate, Date modifydate, String emailType,

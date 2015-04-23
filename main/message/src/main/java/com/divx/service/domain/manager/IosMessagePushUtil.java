@@ -44,12 +44,15 @@ public class IosMessagePushUtil {
 			pushManager.initializeConnection(new AppleNotificationServerBasicImpl(certificatePath, certificatePassword, Message_Is_iOS_ProdCert));
 			
 			// ∑¢ÀÕpushœ˚œ¢
-			
-				Device device = new BasicDevice();
-				device.setToken(tokens.get(0));
-				PushedNotification notification = pushManager.sendNotification(device, payLoad, true);		
-				result.setKey(notification.isSuccessful() ? 1 : 0);
-				result.setValue(device.getToken());
+				String token = tokens.get(0);
+				if(token.length() == 64){
+					Device device = new BasicDevice();
+					device.setToken(token);
+					PushedNotification notification = pushManager.sendNotification(device, payLoad, true);		
+					result.setKey(notification.isSuccessful() ? 1 : 0);
+					result.setValue(device.getToken());
+				}
+				
 			
 			
 
@@ -87,23 +90,25 @@ public class IosMessagePushUtil {
 			
 				List<Device> device = new LinkedList<Device>();
 				HashMap<String, Integer> map = new  HashMap<String, Integer>();
+				List<KeyValuePair<String, Integer>> errorTokenList = new  LinkedList<KeyValuePair<String, Integer>>();
 				for(int i=0;i< tokens.size(); i++){
 					String token = tokens.get(i);
-					device.add(new BasicDevice(token));
 					int recverId = messageRecverIds.get(i);
-					if(!map.containsKey(token)){
-						map.put(token, recverId);
+					try{
+						device.add(new BasicDevice(token));	
+						if(!map.containsKey(token)){
+							map.put(token, recverId);
+						}
+					}catch(Exception e){
+						KeyValuePair<String, Integer> errorToken = new KeyValuePair<String, Integer>();
+						errorToken.setKey(token);
+						errorToken.setValue(recverId);
+						errorTokenList.add(errorToken);
 					}
 				}
-				/*for (String token : tokens) {
-					device.add(new BasicDevice(token));
-					
-				}*/
+				
 				notifications = pushManager.sendNotifications(payLoad, device);
-			
-				
-				
-				
+
 			for (PushedNotification notification : notifications) {
 				if (notification.isSuccessful()) {
 					if(!results.containsKey(0)){
@@ -127,6 +132,11 @@ public class IosMessagePushUtil {
 					results.get(1).getValue().add(notification.getDevice().getToken());
 					
 				}
+			}
+			//return error token
+			for(KeyValuePair<String, Integer> errorToken: errorTokenList){
+				results.get(1).getKey().add(errorToken.getValue());
+				results.get(1).getValue().add(errorToken.getKey());	
 			}
 
 		} catch (Exception ex) {

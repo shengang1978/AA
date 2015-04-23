@@ -17,6 +17,7 @@ import com.divx.service.BaseDao;
 import com.divx.service.domain.model.*;
 import com.divx.service.domain.repository.*;
 import com.divx.service.model.*;
+import com.divx.service.model.MediaBaseType.eFileType;
 
 @Repository
 public class MediaDaoImpl extends BaseDao  implements MediaDao {
@@ -241,7 +242,7 @@ public class MediaDaoImpl extends BaseDao  implements MediaDao {
 	}
 	
 	@Override
-	public List<KeyValuePair<DcpMedia,DcpDivxassets>> GetMyMedias(int userId, int startPos, int endPos) {
+	public List<KeyValuePair<DcpMedia,DcpDivxassets>> GetMyMedias(List<Integer> contentType, int userId, int startPos, int endPos) {
 		Session ss = getSession();
 		try
 		{
@@ -249,9 +250,31 @@ public class MediaDaoImpl extends BaseDao  implements MediaDao {
 			DcpDivxassets asset = null;
 			KeyValuePair<DcpMedia,DcpDivxassets> ret= null;
 			Transaction trans = ss.beginTransaction();
-			String hql = String.format("FROM DcpMedia m, DcpDivxassets d WHERE m.mediaId = d.mediaId and m.userId = %d and m.deleted = 0 order by m.mediaId desc", userId);
+			//String hql = String.format("FROM DcpMedia m, DcpDivxassets d WHERE m.mediaId = d.mediaId and m.userId = %d and m.deleted = 0 order by m.mediaId desc group by m.mediaId", userId);
+			String hql = "";
+			if (contentType == null || contentType.size() == 0)
+				hql = String.format("select m.*, d.* FROM dcp_media m left join dcp_divxassets d on m.media_id = d.media_id where m.user_id = %d and m.deleted = 0 and m.parent_id = 0 group by m.media_id order by m.media_id desc", userId);
+			else
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.append(" m.contenttype in (");
+				for(Integer ct: contentType)
+				{
+					sb.append(ct);
+					sb.append(",");
+				}
+				sb.deleteCharAt(sb.length() - 1);
+				sb.append(") ");
+				hql = String.format("select m.*, d.* FROM dcp_media m left join dcp_divxassets d on m.media_id = d.media_id where m.user_id = %d and m.deleted = 0 and m.parent_id = 0 and %s group by m.media_id order by m.media_id desc", 
+										userId,
+										sb.toString());
+			}
 			int maxRestult = endPos - startPos;
-			List<?> objs = ss.createQuery(hql).setFirstResult(startPos).setMaxResults(maxRestult).list();
+			//List<?> objs = ss.createQuery(hql).setFirstResult(startPos).setMaxResults(maxRestult).list();
+			List<?> objs = ss.createSQLQuery(hql)
+							.addEntity("m", DcpMedia.class)
+							.addEntity("d", DcpDivxassets.class)
+							.setFirstResult(startPos).setMaxResults(maxRestult).list();
 			
 			List<KeyValuePair<DcpMedia,DcpDivxassets>> mediaList = new LinkedList<>();
 			for (Iterator<?> it = objs.iterator(); it.hasNext(); )
@@ -335,35 +358,45 @@ public class MediaDaoImpl extends BaseDao  implements MediaDao {
 	}
 
 	@Override
-	public DcpDivxassets GetDivxAsset(int mediaId, int videoformat) {
+	public List<DcpDivxassets> GetDivxAsset(int mediaId, MediaBaseType.eFileType fileType) {
 		Session ss = getSession();
 		
 		try
 		{
-			DcpDivxassets asset = null;
+			List<DcpDivxassets> assets = new LinkedList<DcpDivxassets>();
 			Transaction trans = ss.beginTransaction();
 			//String hql = String.format("FROM DcpDivxassets m WHERE m.mediaId = %d and m.videoformat = %d and m.status = 0 order by m.assetsId desc", mediaId, videoformat);
-			String hql = String.format("FROM DcpDivxassets m WHERE m.mediaId = %d and m.status = 0 order by m.assetsId desc", mediaId);
+			String hql = "";
+			if (fileType == null || fileType == eFileType.Auto)
+			{
+				hql = String.format("FROM DcpDivxassets m WHERE m.mediaId = %d and m.status = 0 order by m.assetsId desc", mediaId);
+			}
+			else
+			{
+				hql = String.format("FROM DcpDivxassets m WHERE m.mediaId = %d and m.status = 0 and m.videoformat = %d order by m.assetsId desc", mediaId, fileType.ordinal());
+			}
 			List<?> objs = ss.createQuery(hql).list();
 			
 			for (Iterator<?> it = objs.iterator(); it.hasNext(); )
 			{
 				DcpDivxassets obj = (DcpDivxassets)it.next();
-				if (obj.getVideoformat() == videoformat)
-				{//Prior to get the request video format
-					asset = obj;
-					break;
-				}
-				else
+				boolean needAdd = true;
+				for(DcpDivxassets asset: assets)
 				{
-					// If not find the same format, get the latest.
-					if (asset == null)
-						asset = obj;
+					if (obj.getVideoformat() == asset.getVideoformat())
+					{
+						needAdd = false;
+						break;
+					}
+				}
+				if (needAdd)
+				{
+					assets.add(obj);
 				}
 			}
 			
 			trans.commit();
-			return asset;
+			return assets;
 		}
 		finally
 		{

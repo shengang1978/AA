@@ -9,9 +9,31 @@ public class Media extends MediaBase{
 
 	//private Date expireDate;
 	private MediaBaseType.eMediaStatus status;
-	private String snapshotUrl;
-	
 	private Date createDate;
+	private String snapshotUrl;
+	// Yingyueguan elements
+	private String recordUrl;
+	private String picBookUrl;
+	private String configUrl;
+	
+	public String getRecordUrl() {
+		return recordUrl;
+	}
+	public void setRecordUrl(String recordUrl) {
+		this.recordUrl = recordUrl;
+	}
+	public String getPicBookUrl() {
+		return picBookUrl;
+	}
+	public void setPicBookUrl(String picBookUrl) {
+		this.picBookUrl = picBookUrl;
+	}
+	public String getConfigUrl() {
+		return configUrl;
+	}
+	public void setConfigUrl(String configUrl) {
+		this.configUrl = configUrl;
+	}
 	public int getUserId() {
 		return userId;
 	}

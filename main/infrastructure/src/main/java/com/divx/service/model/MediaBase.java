@@ -10,6 +10,8 @@ public class MediaBase {
 	private String keywords;
 	private String smileUrl;
 	private MediaBaseType.eContentType contentType;
+	private int parentId;	//parent media
+							// 0: no parent
 	
 	public int getMediaId() {
 		return mediaId;
@@ -46,6 +48,12 @@ public class MediaBase {
 	}
 	public void setSmileUrl(String smileUrl) {
 		this.smileUrl = smileUrl;
+	}
+	public int getParentId() {
+		return parentId;
+	}
+	public void setParentId(int parentId) {
+		this.parentId = parentId;
 	}
 	
 }

@@ -86,7 +86,7 @@ public class DeviceManager {
 				//dev.setUserId(kvp.getKey());
 				deviceDao.UpdateDevice(dev);
 			}
-			dev.setDatecreated(new Date());
+
 			res.setResponseCode(ResponseCode.SUCCESS);
 			res.setResponseMessage("Success");
 		}
@@ -116,8 +116,16 @@ public class DeviceManager {
 			}
 			
 			dev.setIsactive(false);
-			res.setResponseCode(ResponseCode.SUCCESS);
-			res.setResponseMessage("Success");
+			int devId = deviceDao.UpdateDevice(dev);
+			if(devId > 0){
+				res.setResponseCode(ResponseCode.SUCCESS);
+				res.setResponseMessage("Success");
+			}else{
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("UnregisterDevice  Device Guid");
+				
+			}
+			
 		}
 		catch(Exception ex)
 		{

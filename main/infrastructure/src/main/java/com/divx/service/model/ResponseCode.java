@@ -84,6 +84,15 @@ public abstract class ResponseCode {
 	// Transcode failed when publishing the media.
 	public static final int ERROR_PUBLISH_MEDIA_FAILED = -3400;
 	
+	public static final int ERROR_TRANSCODE_GENERATE_THUMB_TIMEOUT = -3401;
+	
+	public static final int ERROR_TRANSCODE_THUMB_NOT_EXIST = -3402;
+	
+	public static final int ERROR_TRANSCODE_GENERATE_THUMB_FAIL = -3403;
+	
 	// Transcode failed. No smil file is generated.
 	public static final int ERROR_PUBLISH_MEDIA_INVALID_SMIL = -3401;
+	
+	//the group is not existed
+	public static final int ERROR_GROUP_NOT_EXIST = -3501;
 }

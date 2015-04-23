@@ -45,6 +45,9 @@ class EmailTemplateConfigHandler extends ConfigHandler{
 			return true;
 		if("ResetPasswordEmailTemplate".equals(key))
 			return true;
+		if("WelcomeEmailTemplate".equals(key))
+			return true;
+		
 		return false;
 	}
 	

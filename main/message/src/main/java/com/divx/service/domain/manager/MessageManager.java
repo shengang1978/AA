@@ -124,7 +124,8 @@ public class MessageManager {
 				
 				for(SocialServiceHelper.User u : ur.getUsers())
 				{
-					userIds.add(u.getUserId());
+					if (u.getUserId() != userId)
+						userIds.add(u.getUserId());
 				}
 
 				//userIds.add(msg.getTargetId());
@@ -144,7 +145,8 @@ public class MessageManager {
 				
 				for(SocialServiceHelper.User u : ur.getUsers())
 				{
-					userIds.add(u.getUserId());
+					if (u.getUserId() != userId)
+						userIds.add(u.getUserId());
 				}
 				break;
 			}
@@ -232,6 +234,7 @@ public class MessageManager {
 				
 				for(SocialServiceHelper.User u : ur.getUsers())
 				{
+					if (u.getUserId() != msg.getSenderId())
 					userIds.add(u.getUserId());
 				}
 

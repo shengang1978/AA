@@ -1,5 +1,6 @@
 package com.divx.service.domain.repository.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -130,6 +131,7 @@ public class DeviceDaoImpl extends BaseDao implements DeviceDao {
 		try
 		{
 			trans = ss.beginTransaction();
+			dev.setDatemodified(new Date());
 			ss.update(dev);
 			trans.commit();
 		

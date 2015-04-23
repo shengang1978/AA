@@ -25,6 +25,7 @@ import com.divx.service.media;
 import com.divx.service.domain.manager.MediaManager;
 import com.divx.service.domain.repository.MediaDao;
 import com.divx.service.model.*;
+import com.divx.service.model.MediaBaseType.eContentType;
 import com.divx.service.model.Upload.eUploadStatus;
 
 public class mediaimpl implements media {
@@ -79,7 +80,7 @@ public class mediaimpl implements media {
 	public Response GetMedia(int mediaId) {
 		AuthHelper helper = new AuthHelper();
 		int userId = 0;
-		int deviceType = 0;
+		DcpBaseType.eDeviceType deviceType = DcpBaseType.eDeviceType.Android;
 		if (!helper.isGuest())
 		{
 			userId = helper.getUserId();
@@ -93,7 +94,7 @@ public class mediaimpl implements media {
 			{
 				try
 				{
-					deviceType = Integer.parseInt(strDeviceType);
+					deviceType = DcpBaseType.eDeviceType.values()[Integer.parseInt(strDeviceType)];
 				}
 				catch(Exception ex)
 				{
@@ -110,6 +111,11 @@ public class mediaimpl implements media {
 			
 			if (m != null)
 			{
+				if (m.getContentType() == eContentType.EduBook ||
+						m.getContentType() == eContentType.EduBookURL)
+				{//英阅馆Media, set the Lesson & score.
+					
+				}
 				res.setMedia(m);
 				res.setResponseCode(ResponseCode.SUCCESS);
 				res.setResponseMessage("Success");
@@ -227,7 +233,7 @@ public class mediaimpl implements media {
 	
 
 	@Override
-	public Response GetMyMedias(int startPos, int endPos) {
+	public Response MyMedias(int startPos, int endPos) {
 		MediasResponse res = new MediasResponse();
 		AuthHelper helper = new AuthHelper();
 		if (helper.isGuest())
@@ -244,7 +250,7 @@ public class mediaimpl implements media {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
 		}
 		
-		List<Media> medias = mediaManager.GetMyMedias(helper.getUserId(), startPos, endPos);
+		List<Media> medias = mediaManager.GetMyMedias(helper.getAppType(), helper.getUserId(), startPos, endPos);
 		res.setMedias(medias);
 		res.setStartPos(startPos);
 		res.setEndPos(startPos + medias.size() - 1);
@@ -254,6 +260,34 @@ public class mediaimpl implements media {
 		return Util.ServiceResponseToResponse(res);
 	}
 
+
+	@Override
+	public Response MyStories(int startPos, int endPos) {
+		MediasResponse res = new MediasResponse();
+		AuthHelper helper = new AuthHelper();
+		if (helper.isGuest())
+		{
+			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+			res.setResponseMessage("Token is invalid or not login.");
+			return Response.status(Response.Status.UNAUTHORIZED).entity(res).build();
+		}		
+		
+		if (startPos > endPos || startPos < 0 || endPos < 0) {
+			res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+			res.setResponseMessage("Error startPos or endPos");
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
+		}
+		
+		List<Media> medias = mediaManager.MyStories(helper.getAppType(), helper.getUserId(), startPos, endPos);
+		res.setMedias(medias);
+		res.setStartPos(startPos);
+		res.setEndPos(startPos + medias.size() - 1);
+		res.setResponseCode(ResponseCode.SUCCESS);
+		res.setResponseMessage("Success");
+		
+		return Util.ServiceResponseToResponse(res);
+	}
+	
 	@Override
 	public Response UpdateMedia(MediaBase media) {
 		ServiceResponse res = new ServiceResponse();
@@ -311,7 +345,36 @@ public class mediaimpl implements media {
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(res).build();
 		}*/
 		AuthHelper helper = new AuthHelper();
-		return Util.ServiceResponseToResponse(mediaManager.UpdateUploadInfo(uploadinfo,helper.getToken()));
+		return Util.ServiceResponseToResponse(mediaManager.UpdateUploadInfo(helper.getToken(), uploadinfo));
 	}
+	
+	@Override
+	public Response TransferMedia(TransferOption option) {
+		AuthHelper helper = new AuthHelper();
+		if (helper.isGuest())
+		{
+			ServiceResponse res = new ServiceResponse();
+			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+			res.setResponseMessage("Invalid Token or Not Login");
+			return Util.ServiceResponseToResponse(res);
+		}	
+		
+
+		return Util.ServiceResponseToResponse(mediaManager.TransferMedia(helper.getUserId(), option));
+	}
+
+	@Override
+	public Response MyScores() {
+		AuthHelper helper = new AuthHelper();
+		if (helper.isGuest())
+		{
+			ServiceResponse res = new ServiceResponse();
+			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+			res.setResponseMessage("Invalid Token or Not Login");
+			return Util.ServiceResponseToResponse(res);
+		}
+		return Util.ServiceResponseToResponse(mediaManager.MyScores(helper.getUserId()));
+	}
+
 
 }

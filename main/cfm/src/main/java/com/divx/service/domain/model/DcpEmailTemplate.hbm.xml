@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2014-11-17 15:59:34 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-4-15 10:25:09 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpEmailTemplate" table="dcp_email_template" catalog="divx_cfm" optimistic-lock="version">
         <id name="emailId" type="java.lang.Integer">
@@ -15,7 +15,7 @@
             <column name="modifydate" length="19" not-null="true" />
         </property>
         <property name="emailType" type="string">
-            <column name="email_type" length="20" />
+            <column name="email_type" not-null="true" />
         </property>
         <property name="emailContent" type="string">
             <column name="email_content" length="65535" />

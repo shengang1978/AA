@@ -236,11 +236,11 @@ public class MessageDaoImpl extends BaseDao implements MessageDao {
 			String hql = "";
 			if (deviceType == 1)
 			{
-				hql = String.format("select b.message_id,b.message_recver_id,a.content,c.deviceuniqueid from dcp_message as a join dcp_message_recver as b on a.message_id = b.message_id join dcp_userdevice as c on b.user_id = c.user_id where b.ios_status = 0 and c.devicetype = 1 and ios_attemps < 5 limit %d", tasksize);
+				hql = String.format("select b.message_id,b.message_recver_id,a.content,c.deviceuniqueid from dcp_message as a join dcp_message_recver as b on a.message_id = b.message_id join dcp_userdevice as c on b.user_id = c.user_id where b.ios_status = 0 and c.devicetype = 1 and c.isactive = 1 and ios_attemps < 5 limit %d", tasksize);
 			}
 			else if (deviceType == 0)
 			{
-				hql = String.format("select b.message_id,b.message_recver_id,a.content,c.deviceuniqueid from dcp_message as a join dcp_message_recver as b on a.message_id = b.message_id join dcp_userdevice as c on b.user_id = c.user_id where b.android_status = 0 and c.devicetype = 0 and b.android_attemps < 5 limit %d", tasksize);
+				hql = String.format("select b.message_id,b.message_recver_id,a.content,c.deviceuniqueid from dcp_message as a join dcp_message_recver as b on a.message_id = b.message_id join dcp_userdevice as c on b.user_id = c.user_id where b.android_status = 0 and c.devicetype = 0 and c.isactive = 1 and b.android_attemps < 5 limit %d", tasksize);
 			}
 			else
 			{

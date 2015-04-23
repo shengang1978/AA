@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
@@ -22,6 +23,10 @@ import com.divx.service.domain.model.*;
 import com.divx.service.domain.repository.MediaDao;
 import com.divx.service.domain.repository.impl.MediaDaoImpl;
 import com.divx.service.model.*;
+import com.divx.service.model.MediaBaseType.eContentType;
+import com.divx.service.model.MediaBaseType.eFileType;
+import com.divx.service.model.SysMessage.eSysMessageType;
+import com.divx.service.model.edu.EduStatResponse;
 
 @Service
 public class MediaManager {
@@ -98,11 +103,13 @@ public class MediaManager {
 		media.setDatemodified(now);
 		media.setExpiredate(Util.GetDate(now,  Calendar.MONTH, 3));	
 		
-		if(MediaBaseType.eContentType.URL == obj.getContentType()){
+		if(MediaBaseType.eContentType.EduBookURL == obj.getContentType()){
 			media.setStatus(MediaBaseType.eMediaStatus.done.ordinal());	
 		}else{
 			media.setStatus(MediaBaseType.eMediaStatus.creating.ordinal());	//0 means the media metadata is created. <-> MediaBaseType.eMediaStatus
 		}
+		
+		media.setParentId(obj.getParentId());
 		
 		media.setDeleted(false);
 		int contentType = MediaBaseType.eContentType.SMIL.ordinal();
@@ -113,7 +120,7 @@ public class MediaManager {
 		int mediaId = mediaDao.CreateMedia(media);
 		if (mediaId > 0)
 		{
-			if(MediaBaseType.eContentType.URL.ordinal() == media.getContenttype()){
+			if(MediaBaseType.eContentType.EduBookURL.ordinal() == media.getContenttype()){
 				DcpDivxassets dcpAsset = new DcpDivxassets();
 				
 				dcpAsset.setOriginalassetId(0);
@@ -125,12 +132,10 @@ public class MediaManager {
 				dcpAsset.setDatemodified(new Date());
 				
 				mediaDao.CreateDivxAsset(dcpAsset); 
-					
-				
 			}
 			
 			String keywords = obj.getKeywords();
-			if (!keywords.trim().isEmpty())
+			if (keywords != null && !keywords.trim().isEmpty())
 			{
 				List<DcpMediaKeywords> words = new ArrayList<DcpMediaKeywords>();
 
@@ -155,7 +160,7 @@ public class MediaManager {
 		return mediaId;
 	}
 	
-	public Media GetMedia(int userId, int mediaId, int deviceType)
+	public Media GetMedia(int userId, int mediaId, DcpBaseType.eDeviceType deviceType)
 	{		
 		DcpMedia obj = mediaDao.GetMedia(mediaId);
 		String configUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().THUMBNAIL_OUTPUT_PREFIX());
@@ -180,21 +185,43 @@ public class MediaManager {
 			{
 				// device type to video format rules
 				// Need be configurable...
-				int videoFormat = MediaBaseType.eFileType.H264.ordinal();
+				MediaBaseType.eFileType fileType = MediaBaseType.eFileType.H264;
 				switch(deviceType)
 				{
-				case 0: //MediaBaseType.eDeviceType.Android.ordinal():
-				case 1: //MediaBaseType.eDeviceType.iOS.ordinal():
-					videoFormat = MediaBaseType.eFileType.H264.ordinal();
+				case Android: //MediaBaseType.eDeviceType.Android.ordinal():
+				case iOS: //MediaBaseType.eDeviceType.iOS.ordinal():
+					fileType = MediaBaseType.eFileType.H264;
 					break;
-				case 2: // MediaBaseType.eDeviceType.CE.ordinal():
-					videoFormat = MediaBaseType.eFileType.H265.ordinal();
+				case CE: // MediaBaseType.eDeviceType.CE.ordinal():
+					fileType = MediaBaseType.eFileType.H265;
 					break;
 				}
-				DcpDivxassets asset = mediaDao.GetDivxAsset(mediaId, videoFormat);
-				if (asset != null)
+				List<DcpDivxassets> assets = mediaDao.GetDivxAsset(mediaId, null);
+				if (assets != null && assets.size() > 0)
 				{
-					m.setSmileUrl(asset.getLocation());
+					switch (m.getContentType())
+					{
+					case EduStory:
+						for(DcpDivxassets a: assets)
+						{
+							switch(eFileType.values()[a.getVideoformat()])
+							{
+							case EduStoryAudio:
+								m.setRecordUrl(a.getLocation());
+								break;
+							case EduStoryZip:
+								m.setPicBookUrl(a.getLocation());
+								break;
+							case EduStoryConfig:
+								m.setConfigUrl(a.getLocation());
+								break;
+							}
+						}
+						break;
+					default:
+						m.setSmileUrl(assets.get(0).getLocation());
+						break;
+					}
 				}
 			}
 			
@@ -204,13 +231,40 @@ public class MediaManager {
 		return null;
 	}
 	
-	public List<Media> GetMyMedias(int userId, int startPos, int endPos)
+	public List<Media> GetMyMedias(DcpBaseType.eAppType appType, int userId, int startPos, int endPos)
 	{		
 		if (startPos > endPos || startPos < 0 || endPos < 0) {
 			return null;
 		}
 		
-		List<KeyValuePair<DcpMedia,DcpDivxassets>> objlist = mediaDao.GetMyMedias(userId, startPos,endPos);
+		List<Integer> contentTypes = new LinkedList<Integer>();
+		if (appType == DcpBaseType.eAppType.Yingyueguan)
+		{
+			contentTypes.add(MediaBaseType.eContentType.EduBook.ordinal());
+			contentTypes.add(MediaBaseType.eContentType.EduBookURL.ordinal());
+		}
+		
+		return GetMedias(contentTypes, userId, startPos, endPos);
+	}
+	
+	public List<Media> MyStories(DcpBaseType.eAppType appType, int userId, int startPos, int endPos)
+	{		
+		if (startPos > endPos || startPos < 0 || endPos < 0) {
+			return null;
+		}
+		
+		List<Integer> contentTypes = new LinkedList<Integer>();
+		if (appType == DcpBaseType.eAppType.Yingyueguan)
+		{
+			contentTypes.add(MediaBaseType.eContentType.EduStory.ordinal());
+		}
+		
+		return GetMedias(contentTypes, userId, startPos, endPos);
+	}
+	
+	private List<Media> GetMedias(List<Integer> contentTypes, int userId, int startPos, int endPos)
+	{
+		List<KeyValuePair<DcpMedia,DcpDivxassets>> objlist = mediaDao.GetMyMedias(contentTypes, userId, startPos,endPos);
 		ArrayList<Media> mediaList = new ArrayList<>();
 		String configUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().THUMBNAIL_OUTPUT_PREFIX());
 		for (KeyValuePair<DcpMedia,DcpDivxassets> it : objlist )
@@ -223,8 +277,9 @@ public class MediaManager {
 			m.setDescription(obj.getDescription());
 			m.setStatus(obj.getStatus());
 			m.setUserId(obj.getUserId());
-			m.setContentType(MediaBaseType.eContentType.values()[obj.getContenttype()]);		
-			m.setSmileUrl(it.getValue().getLocation());
+			m.setContentType(MediaBaseType.eContentType.values()[obj.getContenttype()]);
+			if (it.getValue() != null)
+				m.setSmileUrl(it.getValue().getLocation());
 				
 			if(obj.getSnapshoturl() != null && !obj.getSnapshoturl().isEmpty()){
 					m.setSnapshotUrl(configUrl + obj.getSnapshoturl());
@@ -391,44 +446,68 @@ public class MediaManager {
 		return res;
 	}
 	
-	public ServiceResponse UpdateUploadInfo(Upload info,String token){
+	public ServiceResponse UpdateUploadInfo(String token, Upload info){
 		ServiceResponse res  = new ServiceResponse();
 		try{
 			DcpMedia m = mediaDao.GetMedia(info.getMediaId());
 			if(null == m){
 				res.setResponseCode(ResponseCode.MEDIA_NOT_EXISTED);
 				res.setResponseMessage("the media is not existed.");
+				log.warn(String.format("MediaID NOT Exist: UpdateUploadInfo(%s)", Util.ObjectToJson(info)));
 				return res;
 			}
-			//DcpOriginalasset obj = mediaDao.GetOriginalasset(info.getUploadId());
-			//log.info(String.format("UpdateUploadInfo(%s)", Util.ObjectToJson(info)));
 			
 			switch(info.getStatus())
 			{
 			case done:
-				if (info.getContentType() == MediaBaseType.eContentType.Gif)
+			case predone:
+				switch(info.getContentType())
+				{
+				case Gif:
+				case EduBook:
 					m.setStatus(MediaBaseType.eMediaStatus.done.ordinal());
-				else if (MediaBaseType.eContentType.File == info.getContentType())
+					break;
+				case EduStory:
+					List<DcpDivxassets> assets = mediaDao.GetDivxAsset(m.getMediaId(), null);
+					if (UploadInfoHelper.DoesStoryHaveAllFiles(assets, info.getFileType()))
+					{
 						m.setStatus(MediaBaseType.eMediaStatus.done.ordinal());
-				else
+					}
+					else
+					{
+						m.setStatus(MediaBaseType.eMediaStatus.uploading.ordinal());
+					}
+					break;
+				default:
 					m.setStatus(MediaBaseType.eMediaStatus.uploaded.ordinal());
+					break;
+				}
 				break;
 			default:
 				m.setStatus(MediaBaseType.eMediaStatus.uploading.ordinal());
 				break;
 			}
-			if(MediaBaseType.eContentType.File != info.getContentType()){
-				if(info.getStatus() == Upload.eUploadStatus.done){
-					TranscodeServiceHelper.ThumbnailsResponse tsh = new TranscodeServiceHelper().GenerateThumbnails(info.getUploadId(), info.getFileurl());
-					if(tsh.getResponseCode() == 0 && tsh.getThumbnails() != null && tsh.getThumbnails().size() > 0){
-						m.setSnapshoturl( tsh.getThumbnails().get(0).getFilename());					
-					}else{
-						m.setSnapshoturl("");
-					}
-				}else{
-					m.setSnapshoturl("");
+			
+			m.setSnapshoturl("");
+			if (UploadInfoHelper.NeedGenerateThumbnail(info))
+			{
+				TranscodeServiceHelper.ThumbnailsResponse tsh = new TranscodeServiceHelper().GenerateThumbnails(info.getUploadId(), info.getFileurl());
+				if(tsh.getResponseCode() == 0 && tsh.getThumbnails() != null && tsh.getThumbnails().size() > 0){
+					m.setSnapshoturl( tsh.getThumbnails().get(0).getFilename());					
 				}
 			}
+//			if(MediaBaseType.eContentType.EduBook != info.getContentType()){
+//				if(info.getStatus() == Upload.eUploadStatus.done){
+//					TranscodeServiceHelper.ThumbnailsResponse tsh = new TranscodeServiceHelper().GenerateThumbnails(info.getUploadId(), info.getFileurl());
+//					if(tsh.getResponseCode() == 0 && tsh.getThumbnails() != null && tsh.getThumbnails().size() > 0){
+//						m.setSnapshoturl( tsh.getThumbnails().get(0).getFilename());					
+//					}else{
+//						m.setSnapshoturl("");
+//					}
+//				}else{
+//					m.setSnapshoturl("");
+//				}
+//			}
 			
 			m.setDatemodified(new Date());
 			if (info.getContentType() != null)
@@ -445,95 +524,81 @@ public class MediaManager {
 				asset.setDeleted(false);
 				int uid =  mediaDao.UpdateUploadInfo(asset);
 				
-				if (info.getContentType() != MediaBaseType.eContentType.Gif &&MediaBaseType.eContentType.File != info.getContentType())
-				{	
-					ServiceResponse sr = this.Publish(m.getUserId(), info.getMediaId());
-					if(sr.getResponseCode() != ResponseCode.SUCCESS){
-						log.warn(sr.getResponseMessage());
+				switch(info.getContentType())
+				{
+				case SMIL:
+					{
+						ServiceResponse sr = Publish(m.getUserId(), info.getMediaId());
+						if(sr.getResponseCode() != ResponseCode.SUCCESS){
+							log.warn(sr.getResponseMessage());
+						}
+						//after publish success, auto share media.
+						
+						if(sr.getResponseCode() == ResponseCode.SUCCESS){
+							if (info.getShareJson() != null && !info.getShareJson().isEmpty())
+							{
+								String ss = String.format("{\"ShareOption\":%s}",new String(DatatypeConverter.parseBase64Binary(info.getShareJson())));
+								ServiceResponse srh = new SocialServiceHelper().ShareMedia(ss,token);
+							}
+						}
+						break;
 					}
-					//after publish success, auto share media.
-					
-					if(sr.getResponseCode() == ResponseCode.SUCCESS){
-						String ss = String.format("{\"ShareOption\":%s}",new String(DatatypeConverter.parseBase64Binary(info.getShareJson())));
-						ServiceResponse srh = new SocialServiceHelper().ShareMedia(ss,token);
+				case Video4Gif:
+					{
+						ServiceResponse sr = Publish(m.getUserId(), info);
+						if(sr.getResponseCode() != ResponseCode.SUCCESS){
+							log.warn(sr.getResponseMessage());
+						}
+						
+						if(sr.getResponseCode() == ResponseCode.SUCCESS){
+							if (info.getShareJson() != null && !info.getShareJson().isEmpty())
+							{
+								String ss = String.format("{\"ShareOption\":%s}",new String(DatatypeConverter.parseBase64Binary(info.getShareJson())));
+								ServiceResponse srh = new SocialServiceHelper().ShareMedia(ss,token);
+							}
+						}
+						break;
 					}
-				}else{
-					
-					DcpDivxassets dcpAsset = new DcpDivxassets();
-					
-					dcpAsset.setOriginalassetId(0);
-					dcpAsset.setMediaId(info.getMediaId());
-					String baseUrl = ConfigurationManager.GetInstance().SMIL_OUT_FILE_PREFIX();
-					String fileNmae = info.getFileurl().substring(info.getFileurl().lastIndexOf('/'));
-					dcpAsset.setLocation(Util.UrlWithSlashes(baseUrl) + fileNmae);
-					dcpAsset.setVideoformat(0);
-					
-					dcpAsset.setDatecreated(new Date());
-					dcpAsset.setDatemodified(new Date());
-					
-					mediaDao.CreateDivxAsset(dcpAsset);
+				default:	//Gif, EduBook, EduStory. It needn't do the transcoding work.
+					{
+						DcpDivxassets dcpAsset = new DcpDivxassets();
+						
+						dcpAsset.setOriginalassetId(0);
+						dcpAsset.setMediaId(info.getMediaId());
+						String baseUrl = ConfigurationManager.GetInstance().SMIL_OUT_FILE_PREFIX();
+						String fileNmae = info.getFileurl().substring(info.getFileurl().lastIndexOf('/'));
+						dcpAsset.setLocation(Util.UrlWithSlashes(baseUrl) + fileNmae);
+						
+						dcpAsset.setVideoformat(info.GetFileTypeByContentType().ordinal());
+						
+						dcpAsset.setDatecreated(new Date());
+						dcpAsset.setDatemodified(new Date());
+						
+						mediaDao.CreateDivxAsset(dcpAsset);
+						if (info.getShareJson() != null && !info.getShareJson().isEmpty())
+						{
+							String ss = String.format("{\"ShareOption\":%s}",new String(DatatypeConverter.parseBase64Binary(info.getShareJson())));
+							ServiceResponse srh = new SocialServiceHelper().ShareMedia(ss,token);
+						}
+						break;
+					}
 				}
+				
 				res.setResponseCode(ResponseCode.SUCCESS);
 				res.setResponseMessage("success");
-				
-				
-			}else{
+			}
+			else
+			{
 				res.setResponseCode(ResponseCode.ERROR_UPDATE_MEDIA);
 				res.setResponseMessage("Faile to update media.");
 			}
 		}catch(Exception ex){
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-			res.setResponseMessage(ex.getMessage());
+			res.setResponseMessage("UpdateUploadInfo exception: " + Util.getStackTrace(ex));
+			Util.LogError(log, String.format("UpdateUploadInfo(%s)", Util.ObjectToJson(info)), ex);
 		}
 		return res;
 	}
-	/*public int SetUploadInfo(Upload info)
-	{
-		DcpOriginalasset obj = null;
-		if (info.getUploadId() <= 0)
-		{
-			obj = new DcpOriginalasset();
-			obj.setDatecreated(new Date());
-			obj.setOriginalassetId(info.getUploadId());
-			obj.setDeleted(false);
-			obj.setCompleted(false);
-			obj.setMediaId(info.getMediaId());
-		}
-		else
-		{
-			obj = mediaDao.GetOriginalasset(info.getUploadId());
-		}
-		
-		obj.setDatemodified(new Date());
-		obj.setStatus(info.getStatus().ordinal());
-		obj.setTotalsize(info.getTotalSize());
-		obj.setFileurl(info.getFileurl());
-		obj.setUploadpos(info.getEndPosition());
-		obj.setFilename(info.getFilename());
-		
-		int uiId = mediaDao.UpdateUploadInfo(obj);
-		if (uiId > 0)
-		{
-			DcpMedia m = mediaDao.GetMedia(info.getMediaId());
-			m.setStatus(info.getStatus() == Upload.eUploadStatus.done ? MediaBaseType.eMediaStatus.uploaded.ordinal() : MediaBaseType.eMediaStatus.uploading.ordinal());
-			if(info.getStatus() == Upload.eUploadStatus.done){
-				TranscodeServiceHelper.ThumbnailsResponse tsh = new TranscodeServiceHelper().GenerateThumbnails(obj.getOriginalassetId(), obj.getFileurl());
-				if(tsh.getResponseCode() == 0 && tsh.getThumbnails() != null && tsh.getThumbnails().size() > 0){
-					m.setSnapshoturl( tsh.getThumbnails().get(0).getFilename());
-					
-				}else{
-					m.setSnapshoturl("");
-				}
-			}else{
-				m.setSnapshoturl("");
-			}
-			m.setDatemodified(new Date());
-			mediaDao.UpdateMedia(m);
-			return uiId;
-		}
-		
-		return 0;
-	}*/
 	
 	class PublishResult
 	{
@@ -548,6 +613,84 @@ public class MediaManager {
 		}
 		
 	}
+	public ServiceResponse Publish(int userId, Upload info)
+	{
+		ServiceResponse res = new ServiceResponse();
+		try
+		{
+			DcpMedia obj = mediaDao.GetMedia(info.getMediaId());
+			if (obj == null)
+			{
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("Cannot find the media");
+				return res;
+			}
+			
+			if (obj.getUserId() != userId)
+			{
+				res.setResponseCode(ResponseCode.ERROR_NO_PERMISSION);
+				res.setResponseMessage("No permission");
+				return res;
+			}
+			
+			String reqRet = "";
+			ServiceResponse ret = null;
+			MediaBaseType.eMediaStatus status = MediaBaseType.eMediaStatus.values()[obj.getStatus()];
+			switch(status)
+			{
+			case uploaded:
+			case error_transcode_fail:
+				DcpOriginalasset oriAsset = mediaDao.GetUploadInfo(info.getMediaId());
+				String baseUrl = ConfigurationManager.GetInstance().TranscodeServiceBaseUrl();
+				TransOption option = new TransOption();
+				option.setAssetId(oriAsset.getId());
+				option.setContentType(info.getContentType());
+				List<String> locations = new LinkedList<String>();
+				locations.add(info.getFileurl());
+				option.setLocations(locations);
+				option.setV2gOption(info.getV2gJson());
+				
+				PublishOption po = new PublishOption();
+				po.setTransOption(option);
+				reqRet = Util.HttpPost(baseUrl + "/transcode/transcodeExt", Util.ObjectToJson(po));
+				ret = Util.JsonToObject(reqRet, ServiceResponse.class);
+			case edited:
+				
+				break;
+			default:
+				res.setResponseCode(ResponseCode.ERROR_MEDIA_STATUS_TO_PUBLISH);
+				res.setResponseMessage(String.format("Wrong media status \"%s\" to publish.", status.toString()));
+				return res;
+			}
+			
+			if (ret != null && ret.getResponseCode() == ResponseCode.SUCCESS)
+			{
+				obj.setStatus(MediaBaseType.eMediaStatus.publishing.ordinal());
+				mediaDao.UpdateMedia(obj);
+				
+				res.setResponseCode(ResponseCode.SUCCESS);
+				res.setResponseMessage("Success");
+			}
+			else if (ret != null)
+			{
+				res.setResponseCode(ResponseCode.ERROR_PUBLISH_MEDIA_FAILED);
+				res.setResponseMessage(ret.getResponseMessage());
+			}
+			else
+			{
+				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				res.setResponseMessage("JsonToObject error. " + reqRet);
+			}
+		}
+		catch(Exception e)
+		{
+			MediaManager.log.error("MediaManager.Publish", e);
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage(e.getMessage());
+		}
+		return res;
+	}
+	
 	public ServiceResponse Publish(int userId, int mediaId)
 	{
 		ServiceResponse res = new ServiceResponse();
@@ -665,10 +808,14 @@ public class MediaManager {
 				res.setResponseMessage("Success");
 				
 				MessageServiceHelper helper = new MessageServiceHelper();
-				helper.SendSysMessage(MessageServiceHelper.eSysMessageType.ToPerson, 
-									  MessageCategory.MEDIA_SERVICE_MESSAGE_TRANSCODE_FAILED, 
-									  m.getUserId(), 
-									  String.format("Media \"%s\" fails to publish. Unsupport file or bad file.", m.getTitle()));
+				SysMessage msg = new SysMessage();
+				msg.setMessageType(eSysMessageType.ToPerson);
+				msg.setMessageCategory(MessageCategory.MEDIA_SERVICE_MESSAGE_TRANSCODE_FAILED);
+				msg.setSenderId(0);
+				msg.setTargetId(m.getUserId());
+				msg.setContent(String.format("Media \"%s\" fails to publish. Unsupport file or bad file.", m.getTitle()));
+				
+				helper.SendSysMessage(msg);
 				
 				return res;
 			}
@@ -686,10 +833,14 @@ public class MediaManager {
 				res.setResponseMessage("Smil path is empty");
 				
 				MessageServiceHelper helper = new MessageServiceHelper();
-				helper.SendSysMessage(MessageServiceHelper.eSysMessageType.ToPerson, 
-									  MessageCategory.MEDIA_SERVICE_MESSAGE_TRANSCODE_FAILED, 
-									  m.getUserId(), 
-									  String.format("Media \"%s\" fails to publish. Please try later.", m.getTitle()));
+				SysMessage msg = new SysMessage();
+				msg.setMessageType(eSysMessageType.ToPerson);
+				msg.setMessageCategory(MessageCategory.MEDIA_SERVICE_MESSAGE_TRANSCODE_FAILED);
+				msg.setSenderId(0);
+				msg.setTargetId(m.getUserId());
+				msg.setContent(String.format("Media \"%s\" fails to publish. Please try later.", m.getTitle()));
+
+				helper.SendSysMessage(msg);
 				
 				return res;
 			}
@@ -717,9 +868,14 @@ public class MediaManager {
 					res.setResponseCode(ResponseCode.SUCCESS);
 					res.setResponseMessage("Success");
 					MessageServiceHelper helper = new MessageServiceHelper();
-					ServiceResponse sr = helper.SendSysMessage(MessageServiceHelper.eSysMessageType.ToPerson, 
-										  MessageCategory.MEDIA_SERVICE_MESSAGE_PUBLISH_COMPLETED, 
-										  m.getUserId(),"Your video is ready to be viewed.");
+					SysMessage msg = new SysMessage();
+					msg.setMessageType(eSysMessageType.ToPerson);
+					msg.setMessageCategory(MessageCategory.MEDIA_SERVICE_MESSAGE_PUBLISH_COMPLETED);
+					msg.setSenderId(0);
+					msg.setTargetId(m.getUserId());
+					msg.setContent("Your video is ready to be viewed.");
+					
+					ServiceResponse sr = helper.SendSysMessage(msg);
 					if (sr.getResponseCode() != ResponseCode.SUCCESS)
 					{
 						res.setResponseMessage(String.format("Fail to send message. %d, %s", sr.getResponseCode(), sr.getResponseMessage()));
@@ -793,6 +949,79 @@ public class MediaManager {
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			res.setResponseMessage(ex.getMessage());
 		}
+		return res;
+	}
+	
+	public ServiceResponse TransferMedia(int userId, TransferOption option) {
+		ServiceResponse res = new ServiceResponse();
+		try{
+			DcpMedia m = mediaDao.GetMedia(option.getMediaId());
+			List<DcpDivxassets> assets = mediaDao.GetDivxAsset(option.getMediaId(), null);
+			if (m == null || assets == null || assets.size() == 0)
+			{
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("Cannot find the media");
+				return res;
+			}
+			DcpMedia tm = new DcpMedia();
+			tm.setContenttype(m.getContenttype());
+			tm.setDatecreated(new Date());
+			tm.setDatemodified(new Date());
+			tm.setDeleted(m.isDeleted());
+			tm.setDescription(m.getDescription());
+			tm.setErrorlog(m.getErrorlog());
+			tm.setExpiredate(m.getExpiredate());
+			tm.setParentId(m.getParentId());
+			tm.setSnapshoturl(m.getSnapshoturl());
+			tm.setStatus(m.getStatus());
+			tm.setTitle(m.getTitle());
+			tm.setUserId(option.getDestId());
+			tm.setContenttype(m.getContenttype());
+			int mediaId = mediaDao.CreateMedia(tm);
+			if(mediaId <= 0){
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("Cannot Transfer the media");
+				return res;
+			}
+			
+			int assetId = 0;
+			for(DcpDivxassets asset: assets)
+			{
+				DcpDivxassets newAssets = new DcpDivxassets();
+				newAssets.setCandownload(asset.isCandownload());
+				newAssets.setCanstreaming(asset.isCanstreaming());
+				newAssets.setDatecreated(new Date());
+				newAssets.setDatemodified(new Date());
+				newAssets.setLocation(asset.getLocation());
+				newAssets.setMediaId(mediaId);
+				newAssets.setOriginalassetId(asset.getOriginalassetId());
+				newAssets.setStatus(asset.getStatus());
+				newAssets.setVideoformat(asset.getVideoformat());
+				newAssets.setVideosolution(asset.getVideosolution());
+				assetId = mediaDao.CreateDivxAsset(newAssets);
+			}
+			if(assetId > 0){
+				res.setResponseCode(ResponseCode.SUCCESS);
+				res.setResponseMessage("success");	
+			}
+			else
+			{
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("Cannot Transfer the media");
+				
+			}
+
+		}catch(Exception ex){
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage(Util.getStackTrace(ex));
+		}
+		return res;
+	}
+	
+	public EduStatResponse MyScores(int userId)
+	{
+		EduStatResponse res = new EduStatResponse();
+		
 		return res;
 	}
 }

@@ -1,6 +1,5 @@
 package com.divx.service.model;
 
-import javax.activation.DataHandler;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "FileUpload")
@@ -11,6 +10,7 @@ public class FileUpload {
 	private int userId;
 	private int mediaId;
 	private MediaBaseType.eContentType contentType;
+	private MediaBaseType.eFileType	fileType;
 	private String filename;
 	
 	public int getTotalSize() {
@@ -48,5 +48,11 @@ public class FileUpload {
 	}
 	public void setContentType(MediaBaseType.eContentType contentType) {
 		this.contentType = contentType;
+	}
+	public MediaBaseType.eFileType getFileType() {
+		return fileType;
+	}
+	public void setFileType(MediaBaseType.eFileType fileType) {
+		this.fileType = fileType;
 	}
 }

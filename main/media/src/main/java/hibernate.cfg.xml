@@ -20,13 +20,15 @@
 		<property name="hibernate.c3p0.acquire_increment">2</property>
 		<property name="connection.useUnicode">true</property> 
 		<property name="connection.characterEncoding">UTF-8</property>
-		
+        
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.search.autoregister_listeners">false</property>
         <property name="hibernate.validator.apply_to_ddl">false</property>
         <mapping resource="com/divx/service/domain/model/DcpDivxassets.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpMediaKeywords.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpLesson.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpMedia.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpScore.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpOriginalasset.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

@@ -4,13 +4,14 @@ import java.util.List;
 
 import com.divx.service.domain.model.*;
 import com.divx.service.model.KeyValuePair;
+import com.divx.service.model.MediaBaseType;
 
 public interface MediaDao {
 	int CreateMedia(DcpMedia obj);
 	
 	DcpMedia GetMedia(int mediaId);
 	
-	List<KeyValuePair<DcpMedia,DcpDivxassets>> GetMyMedias(int userId, int startPos, int endPos);
+	List<KeyValuePair<DcpMedia,DcpDivxassets>> GetMyMedias(List<Integer> contentType, int userId, int startPos, int endPos);
 	
 	List<DcpMedia> GetPublicMedias(int startPos, int endPos);
 	
@@ -28,5 +29,5 @@ public interface MediaDao {
 	
 	int CreateDivxAsset(DcpDivxassets obj);
 	
-	DcpDivxassets GetDivxAsset(int mediaId, int videoformat);
+	List<DcpDivxassets> GetDivxAsset(int mediaId, MediaBaseType.eFileType fileType);
 }

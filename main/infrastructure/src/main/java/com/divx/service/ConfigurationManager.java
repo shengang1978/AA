@@ -146,6 +146,17 @@ public class ConfigurationManager {
 		
 		return val;
 	}
+	private String welcomeEmailTemplate = "";
+	public String WelcomeEmailTemplate()
+	{
+		String val = GetConfigValue("WelcomeEmailTemplate", welcomeEmailTemplate);
+		if (!val.isEmpty())
+		{
+			welcomeEmailTemplate = val;
+		}
+		
+		return val;
+	}
 	private String resetPasswordEmailTemplate = "";
 	public String ResetPasswordEmailTemplate()
 	{
@@ -563,6 +574,51 @@ public class ConfigurationManager {
 		if (!val.isEmpty())
 		{
 			awsRegions = val;
+		}
+		
+		return val;
+	}
+	private String checkWeixinTokenUrl = "";
+	public String CheckWeixinTokenUrl()
+	{
+		String val = GetConfigValue("CheckWeixinTokenUrl", checkWeixinTokenUrl);
+		if (!val.isEmpty())
+		{
+			checkWeixinTokenUrl = val;
+		}
+		
+		return val;
+	}
+	private String getWeixinUserInfoUrl = "";
+	public String GetWeixinUserInfoUrl()
+	{
+		String val = GetConfigValue("GetWeixinUserInfoUrl", getWeixinUserInfoUrl);
+		if (!val.isEmpty())
+		{
+			getWeixinUserInfoUrl = val;
+		}
+		
+		return val;
+	}
+	private String getQQUserInfoUrl = "";
+	public String GetQQUserInfoUrl()
+	{
+		String val = GetConfigValue("GetQQUserInfoUrl", getQQUserInfoUrl);
+		if (!val.isEmpty())
+		{
+			getQQUserInfoUrl = val;
+		}
+		
+		return val;
+	}
+	
+	private String getOauth_consumer_key = "";
+	public String GetOauth_consumer_key()
+	{
+		String val = GetConfigValue("GetOauth_consumer_key", getOauth_consumer_key);
+		if (!val.isEmpty())
+		{
+			getOauth_consumer_key = val;
 		}
 		
 		return val;

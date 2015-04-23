@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-4-1 10:40:53 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-4-23 19:07:38 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpMedia" table="dcp_media" catalog="divx_content" optimistic-lock="version">
         <id name="mediaId" type="java.lang.Integer">
@@ -43,5 +43,14 @@
         <property name="contenttype" type="java.lang.Integer">
             <column name="contenttype" />
         </property>
+        <property name="parentId" type="java.lang.Integer">
+            <column name="parent_id" />
+        </property>
+        <set name="dcpLessons" table="dcp_lesson" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="media_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpLesson" />
+        </set>
     </class>
 </hibernate-mapping>

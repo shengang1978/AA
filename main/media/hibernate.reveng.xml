@@ -2,9 +2,16 @@
 <!DOCTYPE hibernate-reverse-engineering PUBLIC "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-reverse-engineering-3.0.dtd" >
 
 <hibernate-reverse-engineering>
-  <table-filter match-schema="divx_content" match-name=".*"/>
-  <table-filter match-catalog="divx_content" match-name="dcp_divxassets"/>
-  <table-filter match-catalog="divx_content" match-name="dcp_media"/>
-  <table-filter match-catalog="divx_content" match-name="dcp_media_keywords"/>
-  <table-filter match-catalog="divx_content" match-name="dcp_originalasset"/>
+	<table-filter match-schema="divx_content" match-name=".*" />
+	<table-filter match-catalog="divx_content"
+		match-name="dcp_divxassets" />
+	<table-filter match-catalog="divx_content" match-name="dcp_media" />
+	<table-filter match-catalog="divx_content"
+		match-name="dcp_media_keywords" />
+	<table-filter match-catalog="divx_content"
+		match-name="dcp_originalasset" />
+	<table-filter match-name="dcp_lesson"
+		match-catalog="divx_content">
+	</table-filter>
+	<table-filter match-name="dcp_score" match-catalog="divx_content"></table-filter>
 </hibernate-reverse-engineering>

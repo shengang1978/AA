@@ -8,12 +8,15 @@ public class ShareOption {
 	{
 		all,	//Share to all.
 		friend,	//Share to friend
-		group	//Share in group
+		group,	//Share in group
+		myFirends //Share in the "MyFriends" group
 	}
 	
 	private int mediaId;
 	private ShareType shareType;
 	private int destId;
+	private int parentShareId;	//The parent share. 
+								//	0: means no parent.
 	
 	public int getMediaId() {
 		return mediaId;
@@ -34,5 +37,11 @@ public class ShareOption {
 	}
 	public void setDestId(int destId) {
 		this.destId = destId;
+	}
+	public int getParentShareId() {
+		return parentShareId;
+	}
+	public void setParentShareId(int parentShareId) {
+		this.parentShareId = parentShareId;
 	}
 }

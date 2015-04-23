@@ -276,4 +276,47 @@ public class UserServiceHelper extends ServiceResponse{
 		return res;
 			
 	}
+	
+	public UserResponse registerUser(String inviteType,String option)
+	{
+		UserResponse res = new UserResponse();
+		try{
+			String reqUrl = String.format("%s/userInner/createUser", ConfigurationManager.GetInstance().UserServiceBaseUrl());
+			UserServiceHelper ush = new UserServiceHelper();
+			RegisterOption ro = new RegisterOption();
+			eRegisterType type = (eRegisterType) Enum.valueOf(eRegisterType.class, inviteType);
+			switch(type){
+			case username:
+				ro.setRegisterType(eRegisterType.username);
+				break;
+			case email:
+				ro.setRegisterType(eRegisterType.email);
+				break;
+			case mobile:
+				ro.setRegisterType(eRegisterType.mobile);
+				break;
+			}
+		
+			ro.setUsername(option);
+			ro.setPassword(option);
+			ro.setRepassword(option);
+			
+			ush.RegisterOption = ro;
+			
+			System.out.println(Util.ObjectToJson(ro));
+			String ret = Util.HttpPostJson(reqUrl, ush);
+			if (ret.isEmpty())
+			{
+				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				res.setResponseMessage("Fail to create user.");
+				return res;
+			}
+			res = Util.JsonToObject(ret, UserResponse.class);
+		}catch(Exception ex){
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage(ex.getMessage());	
+		}
+		return res;
+			
+	}
 }

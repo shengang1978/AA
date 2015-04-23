@@ -38,12 +38,23 @@ public interface media {
 	@Consumes("application/json")
 	Response GetRecommendMedias(@QueryParam("startPos") int startPos, @QueryParam("endPos") int endPos);
 	
-	
 	@GET
 	@Path("/MyMedias")
 	@Produces("application/json")
 	@Consumes("application/json")
-	Response GetMyMedias(@QueryParam("startPos") int startPos, @QueryParam("endPos") int endPos);
+	Response MyMedias(@QueryParam("startPos") int startPos, @QueryParam("endPos") int endPos);
+	
+	@GET
+	@Path("/MyScores")
+	@Produces("application/json")
+	@Consumes("application/json")
+	Response MyScores();
+	
+	@GET
+	@Path("/MyStories")
+	@Produces("application/json")
+	@Consumes("application/json")
+	Response MyStories(@QueryParam("startPos") int startPos, @QueryParam("endPos") int endPos);
 	
 	@GET
 	@Path("/UploadInfo/{mediaId}")
@@ -108,4 +119,10 @@ public interface media {
 	@Path("/{mediaId}")
 	@Consumes("application/json")
 	Response DeleteMedia(@PathParam("mediaId") int mediaId);
+	
+	@POST
+	@Path("/TransferMedia")
+	@Consumes("application/json")
+	@Produces("application/json")
+	Response TransferMedia(TransferOption option);
 }

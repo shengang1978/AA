@@ -8,7 +8,9 @@ import java.util.UUID;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.log4j.Logger;
+
 import com.divx.service.model.KeyValuePair;
+import com.divx.service.model.MediaBaseType;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.UploadInfoResponse;
@@ -211,34 +213,34 @@ public class MediaServiceHelper extends ServiceResponse {
 		}
 		return res;
 	}
-	public ServiceResponse UpdateMediaStatus(int uploadId,int mediaId,int status,String fileurl,String token,String shareJson)
-	{
-		ServiceResponse res = new ServiceResponse();
-		try{
-			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
-			String reqUrl = baseUrl + "/media/UpdateUploadInfo";
-			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
-			headers.add(new KeyValuePair<String, String>("Token", token));
-			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
-			MediaServiceHelper msh = new MediaServiceHelper();
-			Upload up = new Upload();
-			up.setMediaId(mediaId);
-			up.setUploadId(uploadId);
-			up.setStatus(status);
-			up.setFileurl(fileurl);
-			up.setShareJson(DatatypeConverter.printBase64Binary(shareJson.getBytes()));
-			msh.Upload = up;
-			
-			String strRet = Util.HttpPutJson(reqUrl, msh, headers);
-			if(!strRet.isEmpty()){
-				res = Util.JsonToObject(strRet, ServiceResponse.class);
-			}
-		}catch(Exception ex){
-			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-			res.setResponseMessage(ex.getMessage());
-		}
-		return res;
-	}
+//	public ServiceResponse UpdateMediaStatus(int uploadId,int mediaId,int status,String fileurl,String token,String shareJson)
+//	{
+//		ServiceResponse res = new ServiceResponse();
+//		try{
+//			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+//			String reqUrl = baseUrl + "/media/UpdateUploadInfo";
+//			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
+//			headers.add(new KeyValuePair<String, String>("Token", token));
+//			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
+//			MediaServiceHelper msh = new MediaServiceHelper();
+//			Upload up = new Upload();
+//			up.setMediaId(mediaId);
+//			up.setUploadId(uploadId);
+//			up.setStatus(status);
+//			up.setFileurl(fileurl);
+//			up.setShareJson(DatatypeConverter.printBase64Binary(shareJson.getBytes()));
+//			msh.Upload = up;
+//			
+//			String strRet = Util.HttpPutJson(reqUrl, msh, headers);
+//			if(!strRet.isEmpty()){
+//				res = Util.JsonToObject(strRet, ServiceResponse.class);
+//			}
+//		}catch(Exception ex){
+//			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+//			res.setResponseMessage(ex.getMessage());
+//		}
+//		return res;
+//	}
 	public UploadInfoResponse GetUploadInfo(String token,int mediaId){
 		UploadInfoResponse res = new UploadInfoResponse();
 		try{
@@ -267,19 +269,11 @@ public class MediaServiceHelper extends ServiceResponse {
 		error
 	}
 	
-	public enum eFileType
-	{
-		H264,
-		H265
-	}
-	
-	
-	
 	public class EndPublishOption {		
 		private String	smilPath;
 		private int assetId;
 		private eStatus status;
-		private eFileType fileType;
+		private MediaBaseType.eFileType fileType;
 		private String message;
 		
 		public String getSmilPath() {
@@ -297,10 +291,10 @@ public class MediaServiceHelper extends ServiceResponse {
 		public eStatus getStatus() {
 			return status;
 		}
-		public void setFileType(eFileType filetype) {
+		public void setFileType(MediaBaseType.eFileType filetype) {
 			this.fileType = filetype;
 		}
-		public eFileType getFileType() {
+		public MediaBaseType.eFileType getFileType() {
 			return fileType;
 		}
 		public void setStatus(eStatus status) {
