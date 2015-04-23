@@ -202,15 +202,26 @@ public class ShareDaoImpl  extends BaseDao implements ShareDao {
 	}
 
 	@Override
-	public List<DcpShare> GetPublicShares() {
+	public List<DcpShare> GetPublicShares(List<Integer> contentTypes) {
 		Session session = getSessionFactory().openSession();
 		Transaction tx = null;
 		try
 		{
 			tx = session.beginTransaction();
-			String hql = String.format("FROM DcpShare s WHERE s.sharetype = 0 order by s.shareId DESC");
-			Query query = session.createQuery(hql);
-			return query.list();
+			Query query;
+			String hql;
+			if (contentTypes != null && contentTypes.size() > 0)
+			{
+				hql = String.format("FROM DcpShare s WHERE s.sharetype = 0 and contenttype IN (:contentTypes) order by s.shareId DESC");
+				query = session.createQuery(hql);
+				query.setParameterList("contentTypes", contentTypes);
+			}
+			else
+			{
+				hql = String.format("FROM DcpShare s WHERE s.sharetype = 0 order by s.shareId DESC");
+				query = session.createQuery(hql);
+			}
+			return (List<DcpShare>)query.list();
 		}
 		catch(Throwable ex)
 		{

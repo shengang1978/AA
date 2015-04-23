@@ -497,7 +497,7 @@ public class FriendDaoImpl extends BaseDao
 			if(objs != null && objs.size() > 0){
 				DcpEmailJob  obj = (DcpEmailJob) objs.get(0);
 				obj.setModifydate(new Date());
-				obj.setStatus(job.isStatus());
+				obj.setStatus(job.getStatus());
 				obj.setAttempts(job.getAttempts());
 				session.update(obj);
 				return obj.getId();

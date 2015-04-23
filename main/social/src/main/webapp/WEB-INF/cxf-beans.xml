@@ -67,10 +67,6 @@
 		class="com.divx.service.impl.socialInnerImpl">
 	</bean>
 	
-	<bean id="PartyService" 
-		class="com.divx.service.impl.partyImpl">
-	</bean>
-	
 	<!-- 	
 	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" /> 
 	 -->
@@ -90,7 +86,6 @@
 			  <value>reqList</value>
 			  <value>activities</value>
 			  <value>comments</value>
-			  <value>parties</value>
 			</list>
         </property>  
 	</bean>    
@@ -102,7 +97,6 @@
   			<ref bean="ShareRestService"/>
   			<ref bean="CommentService"/>
   			<ref bean="SocialInnerService" />
-  			<ref bean="PartyService" />
   		</jaxrs:serviceBeans>
   		<jaxrs:providers>
 			<ref bean='jsonProvider' />

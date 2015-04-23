@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.divx.service.ConfigurationManager;
 import com.divx.service.MessageServiceHelper;
+import com.divx.service.UserServiceHelper;
 import com.divx.service.domain.dao.FriendDao;
 import com.divx.service.domain.dao.GroupDao;
 import com.divx.service.domain.model.DcpEmailJob;
@@ -28,6 +31,7 @@ import com.divx.service.model.RequestStatus;
 import com.divx.service.model.RespondOperate;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
+import com.divx.service.model.SysMessage;
 import com.divx.service.model.User;
 import com.divx.service.model.UsersResponse;
 
@@ -153,15 +157,18 @@ public class FriendManager {
 				res.setResponseMessage("Success");
 				MessageServiceHelper msh = new MessageServiceHelper();
 
-				ServiceResponse sr = msh.SendSysMessage(
-						MessageServiceHelper.eSysMessageType.ToPerson,
-						MessageCategory.SOCIAL_SERVICE_MESSAGE_REQUEST_FRIEND,
-						friend.getUserId(), content);
-				if (sr.getResponseCode() != 0) {
-					res.setResponseMessage(String.format(
-							"Fail to send message. (%d) %s",
-							sr.getResponseCode(), sr.getResponseMessage()));
-				}
+//				SysMessage msg = new SysMessage();
+//				msg.setMessageType(SysMessage.eSysMessageType.ToPerson);
+//				msg.setMessageCategory(MessageCategory.SOCIAL_SERVICE_MESSAGE_REQUEST_FRIEND);
+//				msg.setTargetId(friend.getUserId());
+//				msg.setContent(content);
+//				msg.setSenderId(userId);
+//				ServiceResponse sr = msh.SendSysMessage(msg);
+//				if (sr.getResponseCode() != 0) {
+//					res.setResponseMessage(String.format(
+//							"Fail to send message. (%d) %s",
+//							sr.getResponseCode(), sr.getResponseMessage()));
+//				}
 			}else {
 				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			}
@@ -365,12 +372,72 @@ public class FriendManager {
 				return res;
 			}
 			
-			boolean checkStatus = friendDao.CheackEmailJob(userId, option.getIdentify());
+			/*boolean checkStatus = friendDao.CheackEmailJob(userId, option.getIdentify());
 			if(checkStatus){
 				res.setResponseCode(ResponseCode.EMAIL_HAS_BEEN_SENT);
 				res.setResponseMessage("The email address has been invited.");
 				return res;
+			}*/
+			OsfProjects group = groupDao.GetGroup(option.getGroupId());
+			if(group == null){
+				res.setResponseCode(ResponseCode.ERROR_GROUP_NOT_EXIST);
+				res.setResponseMessage("The group is not exist for group id " + option.getGroupId());
+				return res;
 			}
+			UserServiceHelper ush = new UserServiceHelper();
+			
+			UserServiceHelper.eFindOption ef = null;
+			if (option.getInviteType().ordinal() == InviteOption.InviteType.email
+					.ordinal()) {
+				ef = UserServiceHelper.eFindOption.email;
+			} else {
+				ef = UserServiceHelper.eFindOption.mobile;
+			}
+			UserServiceHelper.FindUsersResponse fur = ush.FindUser(ef,
+					option.getIdentify());
+			if (fur.getResponseCode() == 0) {
+				if (fur.getUsers() != null && fur.getUsers().size() > 0) {
+					/*res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_EMAIL_EXIST);
+					res.setResponseMessage("email has existed.");*/
+					OsfTeamMembers obj = new OsfTeamMembers();
+					obj.setProjectId(new Long(option.getGroupId()));
+					obj.setUserId(fur.getUsers().get(0).getUserId());
+					obj.setEnabled(true);
+					obj.setStatus("");
+					obj.setRoleId(GroupRole.groupMember.ordinal());
+					int mid = friendDao.SetUserToGroup(obj);
+					if (mid > 0) {
+						res.setResponseCode(ResponseCode.SUCCESS);
+						res.setResponseMessage("Success");
+					} else {
+						res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+						res.setResponseMessage("Fali to Invite User to the Group");
+					}
+					return res;
+				}else{
+					UserServiceHelper.UserResponse ur = new UserServiceHelper().registerUser(option.getInviteType().toString(),option.getIdentify());
+					if(ur.getResponseCode() == ResponseCode.SUCCESS && ur.getUser() != null){
+						OsfTeamMembers obj = new OsfTeamMembers();
+						obj.setProjectId(new Long(option.getGroupId()));
+						obj.setUserId(ur.getUser().getUserId());
+						obj.setEnabled(true);
+						obj.setStatus("");
+						obj.setRoleId(GroupRole.groupMember.ordinal());
+						int aa = friendDao.SetUserToGroup(obj);
+						//System.out.println("---" + aa);
+						
+					}
+				}
+			} else {
+				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				res.setResponseMessage(String.format(
+						"Fail to FindUsersResponse. %s %s", fur.getResponseCode(),
+						fur.getResponseMessage()));
+				return res;
+				
+			}
+			
+			
 			
 			DcpEmailJob job = new DcpEmailJob();
 			job.setStatus(false);
@@ -378,7 +445,7 @@ public class FriendManager {
 			job.setModifydate(new Date());
 			job.setUserId(userId);
 			job.setEmailAddress(option.getIdentify());
-			job.setContent(option.getMessage());
+			job.setContent(group.getTitle());
 			job.setAttempts(0);
 			int emailJobId = friendDao.SaveEmailJob(job);
 			if (emailJobId > 0) {

@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-20 23:30:30 by Hibernate Tools 4.3.1
+// Generated 2014-12-23 14:37:45 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -48,7 +48,7 @@ public class DcpEmailJob implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public boolean isStatus() {
+	public boolean getStatus() {
 		return this.status;
 	}
 

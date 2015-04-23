@@ -83,38 +83,7 @@ public class friendImpl implements friend {
 			res.setResponseMessage("Invalid Token or Not Login");
 			return Response.status(Status.UNAUTHORIZED).entity(res).build();
 		}
-		UserServiceHelper ush = new UserServiceHelper();
-		/*
-		 * ush.FindUserOption = new UserServiceHelper.FindUserOption();
-		 * ush.FindUserOption.setSearchKey(option.getIdentify());
-		 * ush.FindUserOption.setFindOption(option.getInviteType() ==
-		 * InviteOption.InviteType.email ? UserServiceHelper.eFindOption.email :
-		 * UserServiceHelper.eFindOption.mobile);
-		 */
-		UserServiceHelper.eFindOption ef = null;
-		if (option.getInviteType().ordinal() == InviteOption.InviteType.email
-				.ordinal()) {
-			ef = UserServiceHelper.eFindOption.email;
-		} else {
-			ef = UserServiceHelper.eFindOption.mobile;
-		}
-		UserServiceHelper.FindUsersResponse fur = ush.FindUser(ef,
-				option.getIdentify());
-		if (fur.getResponseCode() == 0) {
-			if (fur.getUsers() != null && fur.getUsers().size() > 0) {
-				res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_EMAIL_EXIST);
-				res.setResponseMessage("email has existed.");
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-						.entity(res).build();
-			}
-		} else {
-			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-			res.setResponseMessage(String.format(
-					"Fail to FindUsersResponse. %s %s", fur.getResponseCode(),
-					fur.getResponseMessage()));
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-					.entity(res).build();
-		}
+		
 
 		return Util.ServiceResponseToResponse(friendManager.InviteUser(
 				helper.getUserId(), option));

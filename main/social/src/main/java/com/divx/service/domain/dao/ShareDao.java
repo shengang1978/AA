@@ -18,7 +18,7 @@ public interface ShareDao {
 	// Get all shares the person created.
 	List<DcpShare> GetShares(int userId,int option);
 	
-	List<DcpShare> GetPublicShares();
+	List<DcpShare> GetPublicShares(List<Integer> contentTypes);
 	
 	// Get all the shares in the group.
 	// 

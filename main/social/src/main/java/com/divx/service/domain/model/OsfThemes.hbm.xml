@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-4 15:36:18 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfThemes" table="osf_themes" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="enabled" type="java.lang.Boolean">
+            <column name="_enabled" />
+        </property>
+        <property name="layout" type="string">
+            <column name="_layout" />
+        </property>
+        <property name="layoutPopup" type="string">
+            <column name="_layout_popup" />
+        </property>
+        <property name="name" type="string">
+            <column name="_name" not-null="true" unique="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -25,11 +25,13 @@ import com.divx.service.domain.model.OsfProjects;
 import com.divx.service.domain.model.OsfTeamMembers;
 import com.divx.service.model.ActivitiesResponse;
 import com.divx.service.model.Activity;
+import com.divx.service.model.DcpBaseType;
 import com.divx.service.model.GetMediaResult;
 import com.divx.service.model.GroupRole;
 import com.divx.service.model.KeyValueTriplePair;
 import com.divx.service.model.LikeOption;
 import com.divx.service.model.MediaBaseType;
+import com.divx.service.model.MediaBaseType.eContentType;
 import com.divx.service.model.MediaResponse;
 import com.divx.service.model.MessageCategory;
 import com.divx.service.model.QueryOption;
@@ -38,6 +40,7 @@ import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.Share;
 import com.divx.service.model.ShareOption;
 import com.divx.service.model.SharesResponse;
+import com.divx.service.model.SysMessage;
 import com.divx.service.model.User;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -267,10 +270,14 @@ public class ShareManager {
 
 				switch (option.getShareType()) {
 				case friend: {
-					ServiceResponse sr = helper.SendSysMessage(
-							MessageServiceHelper.eSysMessageType.ToPerson,
-							MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_PERSON,
-							option.getDestId(), content);
+					SysMessage msg = new SysMessage();
+					msg.setMessageType(SysMessage.eSysMessageType.ToPerson);
+					msg.setMessageCategory(MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_PERSON);
+					msg.setTargetId(option.getDestId());
+					msg.setContent(content);
+					msg.setSenderId(userId);
+					
+					ServiceResponse sr = helper.SendSysMessage(msg);
 					if (sr.getResponseCode() != ResponseCode.SUCCESS) {
 						res.setResponseMessage(String.format(
 								"Send message fail. %d, %s",
@@ -279,10 +286,14 @@ public class ShareManager {
 					break;
 				}
 				case group: {
-					ServiceResponse sr = helper.SendSysMessage(
-							MessageServiceHelper.eSysMessageType.ToGroup,
-							MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_GROUP,
-							option.getDestId(), content);
+					SysMessage msg = new SysMessage();
+					msg.setMessageType(SysMessage.eSysMessageType.ToGroup);
+					msg.setMessageCategory(MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_GROUP);
+					msg.setTargetId(option.getDestId());
+					msg.setContent(content);
+					msg.setSenderId(userId);
+					
+					ServiceResponse sr = helper.SendSysMessage(msg);
 					if (sr.getResponseCode() != ResponseCode.SUCCESS) {
 						res.setResponseMessage(String.format(
 								"Send message fail. %d, %s",
@@ -397,15 +408,43 @@ public class ShareManager {
 		return res;
 	}
 
-	public SharesResponse GetPublicShares(int startPos, int endPos) {
+	public SharesResponse GetPublicShares(DcpBaseType.eAppType appType, int startPos, int endPos) {
 		SharesResponse res = new SharesResponse();
 
 		try {
 			List<DcpShare> shares = null;
-			String key = String.format("public_shares");
+			String key = String.format("public_shares_%d", appType);
 			shares = cachePublic.getIfPresent(key);
 			if (shares == null) {
-				shares = shareDao.GetPublicShares();
+				List<Integer> manshiContentType = new LinkedList<Integer>();
+				manshiContentType.add(eContentType.Gif.ordinal());
+				manshiContentType.add(eContentType.Video4Gif.ordinal());
+				
+				switch(appType)
+				{
+				case Yingyueguan:
+					List<Integer> cts = new LinkedList<Integer>();
+					
+					//Remove the Manshi assets.
+					for(eContentType ct: eContentType.values())
+					{
+						if (!manshiContentType.contains(ct.ordinal()))
+						{
+							cts.add(ct.ordinal());
+						}
+					}
+					shares = shareDao.GetPublicShares(cts);
+					break;
+				case Manshi:
+					shares = shareDao.GetPublicShares(manshiContentType);
+					break;
+				default:
+					if (ConfigurationManager.GetInstance().GetConfigValue("Social_Enable_Manshi", true)){
+						shares = shareDao.GetPublicShares(manshiContentType);
+					}
+					break;
+				}
+				
 				if (shares != null && shares.size() > 0) {
 					cache.put(key, shares);
 				}
@@ -659,10 +698,10 @@ public class ShareManager {
 		dst.setGroupId(obj.getGroupId() == null ? 0 : obj.getGroupId());
 		dst.setStatus(obj.getStatus() == MediaBaseType.eMediaStatus.publishing
 				.ordinal() ? Share.eStatus.publishing : Share.eStatus.done);
-		dst.setLikeCount(likeCount);
-		dst.setCommentCount(commentCount);
 		dst.setContentType(MediaBaseType.eContentType.values()[obj.getContenttype()]);
 		dst.setSmileUrl(obj.getContent());
+		dst.setLikeCount(likeCount);
+		dst.setCommentCount(commentCount);
 		return dst;
 	}
 

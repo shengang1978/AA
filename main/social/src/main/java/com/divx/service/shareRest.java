@@ -37,7 +37,7 @@ public interface shareRest {
 	@Path("/MyShares/{QueryType}")
 	@Consumes("application/json")
 	@Produces("application/json")
-	Response MyShares(@PathParam("QueryType") QueryOption.QueryType option);
+	Response MyShares(@PathParam("QueryType") QueryOption.QueryType option,@QueryParam("startPos") int startPos, @QueryParam("endPos") int endPos);
 	
 	@GET
 	@Path("/PublicShares")

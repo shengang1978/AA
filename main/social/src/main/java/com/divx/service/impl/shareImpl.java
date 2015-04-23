@@ -75,7 +75,7 @@ public class shareImpl implements share {
 	}
 
 	@Override
-	public Response MyShares(QueryOption.QueryType option) {
+	public Response MyShares(QueryOption.QueryType option, int startPos, int endPos) {
 		AuthHelper helper = new AuthHelper();
 		if (helper.isGuest())
 		{
@@ -133,7 +133,8 @@ public class shareImpl implements share {
 
 	@Override
 	public Response GetPublicShares(int startPos, int endPos) {
+		AuthHelper helper = new AuthHelper();
 		
-		return Util.ServiceResponseToResponse(shareManager.GetPublicShares( startPos, endPos));
+		return Util.ServiceResponseToResponse(shareManager.GetPublicShares(helper.getAppType(), startPos, endPos));
 	}
 }

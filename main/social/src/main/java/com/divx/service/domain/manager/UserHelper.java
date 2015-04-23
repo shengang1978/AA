@@ -37,7 +37,7 @@ public class UserHelper {
         		User user =new User();
         		try{
 	        		UserServiceHelper.UserResponse u = new UserServiceHelper().GetUser(Integer.parseInt(key));	        		
-	        		if (u != null)
+	        		if (u != null && u.getUser() != null)
 					{						
 						user.setUserId(new Long(u.getUser().getUserId()).intValue());
 						user.setUsername(u.getUser().getUsername());

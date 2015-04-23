@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2014-11-4 15:36:18 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.OsfPostCategories" table="osf_post_categories" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Long">
+            <column name="_id" />
+            <generator class="identity" />
+        </id>
+        <property name="code" type="string">
+            <column name="_code" />
+        </property>
+        <property name="enabled" type="java.lang.Boolean">
+            <column name="_enabled" />
+        </property>
+        <property name="label" type="string">
+            <column name="_label" not-null="true" />
+        </property>
+        <property name="level" type="java.lang.Integer">
+            <column name="_level" />
+        </property>
+        <property name="projectId" type="long">
+            <column name="_project_id" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

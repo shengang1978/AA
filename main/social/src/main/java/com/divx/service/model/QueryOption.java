@@ -9,8 +9,8 @@ public class QueryOption {
 			all,
 			mine,
 			friend,
-			pseudo
-			
+			pseudo,
+			story
 		}
 		
 		private QueryType queryType;

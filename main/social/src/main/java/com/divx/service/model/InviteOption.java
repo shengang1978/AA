@@ -11,6 +11,7 @@ public class InviteOption {
 	private InviteType inviteType;
 	private String identify; 
 	private String message;
+	private int groupId;
 	public InviteType getInviteType() {
 		return inviteType;
 	}
@@ -28,6 +29,12 @@ public class InviteOption {
 	}
 	public void setMessage(String message) {
 		this.message = message;
+	}
+	public int getGroupId() {
+		return groupId;
+	}
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
 	}
 	
 

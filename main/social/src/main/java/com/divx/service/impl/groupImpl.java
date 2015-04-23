@@ -51,7 +51,7 @@ public class groupImpl implements group {
 			MyGroupsResponse res = new MyGroupsResponse();
 			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
 			res.setResponseMessage("Invalid Token or Not Login");
-			Util.ServiceResponseToResponse(res);
+			return Util.ServiceResponseToResponse(res);
 		}
 		
 		return Util.ServiceResponseToResponse(groupManager.MyGroups(helper.getUserId(), option, startPos, endPos));
@@ -65,7 +65,7 @@ public class groupImpl implements group {
 			ServiceResponse res = new ServiceResponse();
 			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
 			res.setResponseMessage("Invalid Token or Not Login");
-			Util.ServiceResponseToResponse(res);
+			return Util.ServiceResponseToResponse(res);
 		}
 		return Util.ServiceResponseToResponse(groupManager.AddUserToGroup(helper.getUserId(), groupId, userId));
 	}

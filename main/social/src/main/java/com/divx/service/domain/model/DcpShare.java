@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-20 23:30:30 by Hibernate Tools 4.3.1
+// Generated 2015-4-7 16:03:38 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -25,7 +25,6 @@ public class DcpShare implements java.io.Serializable {
 	private Integer status;
 	private Integer contenttype;
 	private String content;
-	private Integer parentId;
 
 	public DcpShare() {
 	}
@@ -40,7 +39,7 @@ public class DcpShare implements java.io.Serializable {
 			Integer groupId, Date datecreated, Date datemodified,
 			String mediatitle, String mediadescription, String snapshoturl,
 			Integer assettype, Boolean deleted, Integer status,
-			Integer contenttype, String content, Integer parentId) {
+			Integer contenttype, String content) {
 		this.mediaId = mediaId;
 		this.userId = userId;
 		this.sharetype = sharetype;
@@ -56,7 +55,6 @@ public class DcpShare implements java.io.Serializable {
 		this.status = status;
 		this.contenttype = contenttype;
 		this.content = content;
-		this.parentId = parentId;
 	}
 
 	public Integer getShareId() {
@@ -185,14 +183,6 @@ public class DcpShare implements java.io.Serializable {
 
 	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public Integer getParentId() {
-		return this.parentId;
-	}
-
-	public void setParentId(Integer parentId) {
-		this.parentId = parentId;
 	}
 
 }

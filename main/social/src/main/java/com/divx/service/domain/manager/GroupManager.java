@@ -242,15 +242,19 @@ public class GroupManager {
 				MessageServiceHelper msh = new MessageServiceHelper();
 				OsfProjects group = groupDao.GetGroup(groupId);
 				if(group != null){
-					ServiceResponse sr = msh.SendSysMessage(
-							MessageServiceHelper.eSysMessageType.ToGroup,
-							MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_GROUP,
-							groupId, String.format("%s has joined %s",userHelper.GetUser(userId).getNickname(),group.getTitle()));
-					if (sr.getResponseCode() != 0) {
-						res.setResponseMessage(String.format(
-								"Fail to send message. (%d) %s",
-								sr.getResponseCode(), sr.getResponseMessage()));
-					}	
+//					SysMessage msg = new SysMessage();
+//					msg.setMessageType(SysMessage.eSysMessageType.ToGroup);
+//					msg.setMessageCategory(MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_GROUP);
+//					msg.setTargetId(groupId);
+//					msg.setContent(String.format("%s has joined %s",userHelper.GetUser(userId).getNickname(),group.getTitle()));
+//					msg.setSenderId(userId);
+//					
+//					ServiceResponse sr = msh.SendSysMessage(msg);
+//					if (sr.getResponseCode() != 0) {
+//						res.setResponseMessage(String.format(
+//								"Fail to send message. (%d) %s",
+//								sr.getResponseCode(), sr.getResponseMessage()));
+//					}	
 				}
 				
 			}
@@ -367,7 +371,10 @@ public class GroupManager {
 						u.setNickname(obj.getNickname());
 						u.setPhotoUrl(obj.getPhotourl());*/
 						User u = userHelper.GetUser((int)obj.getUserId());
-						users.add(u);
+						if(u != null && u.getUserId() > 0){
+							users.add(u);
+						}
+						
 						
 					}					
 				}
@@ -539,10 +546,14 @@ public class GroupManager {
 				}
 				String message = newUsers.size() > 1 ? String.format("%s have joined %s",content,group.getTitle()) : String.format("%s has joined %s",content,group.getTitle());
 				if(group != null){
-					ServiceResponse sr = msh.SendSysMessage(
-							MessageServiceHelper.eSysMessageType.ToGroup,
-							MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_GROUP,
-							usersOption.getGroupId(), message);
+					SysMessage msg = new SysMessage();
+					msg.setMessageType(SysMessage.eSysMessageType.ToGroup);
+					msg.setMessageCategory(MessageCategory.SOCIAL_SERVICE_MESSAGE_TO_GROUP);
+					msg.setTargetId(usersOption.getGroupId());
+					msg.setContent(message);
+					msg.setSenderId(userId);
+					
+					ServiceResponse sr = msh.SendSysMessage(msg);
 					if (sr.getResponseCode() != 0) {
 						res.setResponseMessage(String.format(
 								"Fail to send message. (%d) %s",
