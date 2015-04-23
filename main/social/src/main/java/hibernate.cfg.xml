@@ -81,6 +81,7 @@
         <mapping resource="com/divx/service/domain/model/OsfMessages.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpEmailJob.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpParty.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpPartyUser.hbm.xml" />
     </session-factory>
 
 </hibernate-configuration>
