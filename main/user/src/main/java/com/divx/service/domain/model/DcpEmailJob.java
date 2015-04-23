@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2014-12-23 14:37:45 by Hibernate Tools 4.3.1
+// Generated 2015-4-14 17:45:43 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -17,20 +17,23 @@ public class DcpEmailJob implements java.io.Serializable {
 	private String emailAddress;
 	private String content;
 	private int attempts;
+	private int emailType;
 
 	public DcpEmailJob() {
 	}
 
 	public DcpEmailJob(boolean status, int userId, String emailAddress,
-			int attempts) {
+			int attempts, int emailType) {
 		this.status = status;
 		this.userId = userId;
 		this.emailAddress = emailAddress;
 		this.attempts = attempts;
+		this.emailType = emailType;
 	}
 
 	public DcpEmailJob(boolean status, Date createdate, Date modifydate,
-			int userId, String emailAddress, String content, int attempts) {
+			int userId, String emailAddress, String content, int attempts,
+			int emailType) {
 		this.status = status;
 		this.createdate = createdate;
 		this.modifydate = modifydate;
@@ -38,6 +41,7 @@ public class DcpEmailJob implements java.io.Serializable {
 		this.emailAddress = emailAddress;
 		this.content = content;
 		this.attempts = attempts;
+		this.emailType = emailType;
 	}
 
 	public Integer getId() {
@@ -102,6 +106,14 @@ public class DcpEmailJob implements java.io.Serializable {
 
 	public void setAttempts(int attempts) {
 		this.attempts = attempts;
+	}
+
+	public int getEmailType() {
+		return this.emailType;
+	}
+
+	public void setEmailType(int emailType) {
+		this.emailType = emailType;
 	}
 
 }

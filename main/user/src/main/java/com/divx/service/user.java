@@ -22,6 +22,11 @@ public interface user {
 	Response Login(@PathParam("name") String username, @PathParam("pwd") String password);
 	
 	@PUT
+	@Path("/OAuthLogin")
+	@Consumes("application/json")
+	Response OAuthLogin(OAuthOption option);
+	
+	@PUT
 	@Path("/Logout")
 	@Consumes("application/json")
 	Response Logout();

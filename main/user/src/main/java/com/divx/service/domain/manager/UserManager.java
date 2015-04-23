@@ -15,6 +15,7 @@ import org.eclipse.jetty.util.security.Credential.MD5;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.divx.service.AuthHelper;
 import com.divx.service.Email;
 import com.divx.service.ConfigurationManager;
 import com.divx.service.MessageServiceHelper;
@@ -24,9 +25,12 @@ import com.divx.service.auth.model.DivXAuthToken;
 import com.divx.service.auth.model.DivXAuthUser;
 import com.divx.service.domain.manager.SendEmailHelper.WatchMonitor;
 import com.divx.service.domain.model.DcpEmailJob;
+import com.divx.service.domain.model.DcpOauthUsers;
 import com.divx.service.domain.model.DcpOrganization;
+import com.divx.service.domain.model.DcpRole;
 import com.divx.service.domain.model.DcpToken;
 import com.divx.service.domain.model.DcpUserExt;
+import com.divx.service.domain.model.DcpUserRole;
 import com.divx.service.domain.model.OsfUsers;
 import com.divx.service.domain.repository.DivxUserDao;
 import com.divx.service.domain.repository.TokenDao;
@@ -38,12 +42,18 @@ import com.divx.service.model.FindUserOption;
 import com.divx.service.model.KeyValuePair;
 import com.divx.service.model.KeyValueStringPair;
 import com.divx.service.model.MailSetting;
+import com.divx.service.model.OAuthOption;
+import com.divx.service.model.OAuthOption.eAuthProvider;
 import com.divx.service.model.Organization;
+import com.divx.service.model.QQUserInfo;
 import com.divx.service.model.RegisterOption;
+import com.divx.service.model.RegisterOption.eRegisterType;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.User;
 import com.divx.service.model.UserInfoResponse;
+import com.divx.service.model.WeixinRet;
+import com.divx.service.model.WeixinUserInfo;
 import com.divx.service.model.UserInfoResponse.RegisterType;
 import com.divx.service.model.UserOption;
 import com.divx.service.model.UserOption.OptionType;
@@ -118,56 +128,8 @@ public class UserManager {
 				divxUserDao.UpdateUser(user);
 				res.setResponseMessage("Success");
 
-				DcpToken token = tokenDao.GetToken(deviceUniqueId, user.getId().intValue());
-				if (token == null)
-				{
-					token = new DcpToken();
-					token.setDatecreated(new Date());
-					token.setDatemodified(new Date());
-					token.setDeviceuniqueid(deviceUniqueId);
-					try
-					{
-						int nDeviceType = Integer.parseInt(deviceType);
-						token.setDevicetype(nDeviceType);
-					}
-					catch(Exception ex)
-					{
-						res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
-						res.setResponseMessage("Invalid DeviceType " + deviceType);
-						return res;
-					}
-					token.setDeviceguid(Util.EncryptDeviceUniqueId(deviceUniqueId, user.getId()));
-					token.setIsactive(true);
-					token.setUserId(user.getId().intValue());
-					token.setToken(uid.toString());
-					token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
-					tokenDao.CreateToken(token);
-				}
-				else
-				{
-					token.setDatemodified(new Date());
-					token.setIsactive(true);
-					token.setUserId(user.getId().intValue());
-					token.setToken(uid.toString());
-					token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
-					tokenDao.UpdateToken(token);
-				}
-				
-				MessageServiceHelper helper = new MessageServiceHelper();
-				ServiceResponse sr = helper.RegisterDevice(token.getDeviceguid(), 
-						token.getDevicetype(), 
-						user.getNickname().isEmpty() ? username : user.getNickname(), 
-						user.getNickname(), 
-						user.getPhotourl());
-				if (sr.getResponseCode() != 0)
-				{
-					res.setResponseMessage(String.format("Fail to register device on message service. ResponseCode(%d), %s", sr.getResponseCode(), sr.getResponseMessage()));
-				}
-				res.setDeviceGuid(token.getDeviceguid());
-				res.setToken(new DivXAuthToken(user, token).GetAuthTokenString(new DivXAuthUser(user)));		
-				
-				res.setResponseCode(ResponseCode.SUCCESS);				
-			}
+				res = generateAuthResponse(deviceUniqueId, user, deviceType, user.getToken());
+			}	
 		}
 		catch(Exception ex)
 		{
@@ -178,6 +140,255 @@ public class UserManager {
 		}
 			
 		return  res;
+	}
+	public AuthResponse generateAuthResponse(String deviceUniqueId,OsfUsers user,String deviceType, String strToken){
+		DcpToken token = tokenDao.GetToken(deviceUniqueId, user.getId().intValue());
+		AuthResponse ar = new AuthResponse();
+		if (token == null)
+		{
+			token = new DcpToken();
+			token.setDatecreated(new Date());
+			token.setDatemodified(new Date());
+			token.setDeviceuniqueid(deviceUniqueId);
+			try
+			{
+				int nDeviceType = Integer.parseInt(deviceType);
+				token.setDevicetype(nDeviceType);
+			}
+			catch(Exception ex)
+			{
+				return null;
+			}
+			token.setDeviceguid(Util.EncryptDeviceUniqueId(deviceUniqueId, user.getId()));
+			token.setIsactive(true);
+			token.setUserId(user.getId().intValue());
+			token.setToken(strToken);
+			token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
+			int tokenId = tokenDao.CreateToken(token);
+			if(tokenId <= 0){
+				ar.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				ar.setResponseMessage("Invalid DeviceType " + deviceType);
+				return ar;
+			}
+		}
+		else
+		{
+			token.setDatemodified(new Date());
+			token.setIsactive(true);
+			token.setUserId(user.getId().intValue());
+			token.setToken(strToken);
+			token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
+			int tokenId = tokenDao.UpdateToken(token);
+			if(tokenId <= 0){
+				ar.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				ar.setResponseMessage("Invalid DeviceType " + deviceType);
+				return ar;
+			}
+		}
+		DcpUserRole userRole = divxUserDao.GetRoleByUserId(user.getId().intValue());
+		if(userRole != null){
+			ar.setRoleName(userRole.getDcpRole().getRoleName());
+		}else{
+			ar.setRoleName("");
+		}
+		MessageServiceHelper helper = new MessageServiceHelper();
+		ServiceResponse sr = helper.RegisterDevice(token.getDeviceguid(), 
+				token.getDevicetype(), 
+				user.getNickname().isEmpty() ? user.getUsername() : user.getNickname(), 
+				user.getNickname(), 
+				user.getPhotourl());
+		if (sr.getResponseCode() != 0)
+		{
+			ar.setResponseMessage(String.format("Fail to register device on message service. ResponseCode(%d), %s", sr.getResponseCode(), sr.getResponseMessage()));
+		}
+		ar.setDeviceGuid(token.getDeviceguid());
+		ar.setToken(new DivXAuthToken(user, token).GetAuthTokenString(new DivXAuthUser(user)));		
+		ar.setResponseMessage("success");
+		ar.setResponseCode(ResponseCode.SUCCESS);				
+		return ar;
+		
+	}
+	public AuthResponse OAuthLogin(OAuthOption option, String deviceUniqueId, String deviceType, int orgId,String token)
+	{
+		AuthResponse res = new AuthResponse();
+		try{
+			OsfUsers user  = null;
+			DcpOauthUsers oauthUser = null;
+			if(option.getAccessToken() == null || option.getOpenId() == null ||option.getAuthProvider() == null){
+				res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+				res.setResponseMessage("Not AccessToken or OpenId");
+				return res;
+			}
+			if(token == null || token.isEmpty()){
+				oauthUser = divxUserDao.GetDcpOauthUser(option.getOpenId(), option.getAuthProvider().ordinal());
+				if(oauthUser == null){
+					if(eAuthProvider.QQ == option.getAuthProvider()){
+						user =  QQLogin(option.getAccessToken(),option.getOpenId(),orgId);
+					}else if(eAuthProvider.Weixin == option.getAuthProvider()){
+						user = WeixinLogin(option.getAccessToken(),option.getOpenId(),orgId);
+					}else{
+						res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+						res.setResponseMessage("authProvider type only QQ or Weixin");
+						return res;
+					}	
+					if(user == null){
+						res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+						res.setResponseMessage("error AccessToken or OpenId");
+						return res;
+					}
+					
+					int userId = divxUserDao.CreateUser(user);	
+					if(userId > 0){
+						oauthUser = new DcpOauthUsers();
+						oauthUser.setAccessToken(option.getAccessToken());
+						oauthUser.setOpenId(option.getOpenId());
+						oauthUser.setOsfUsers(user);
+						oauthUser.setOauthType(eAuthProvider.Weixin.ordinal());
+						oauthUser.setCreateDate(new Date());
+						oauthUser.setModifyDate(new Date());
+						int oUId = divxUserDao.createOauthUser(oauthUser);	
+					}
+				}else{
+					oauthUser.setAccessToken(option.getAccessToken());
+					oauthUser.setModifyDate(new Date());
+					int oUId = divxUserDao.createOauthUser(oauthUser);	
+					user = divxUserDao.GetUser(oauthUser.getOsfUsers().getId().intValue());
+				}
+			
+			}else{
+				AuthHelper  helper = new AuthHelper(token);
+				if(helper.isGuest()){
+					res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+					res.setResponseMessage("you must be login befor set QQ or Weixin.");
+					return res;
+				}
+				user = divxUserDao.GetUser(helper.getUserId());
+				oauthUser = divxUserDao.GetDcpOauthUser(option.getOpenId(), option.getAuthProvider().ordinal());
+				if(oauthUser == null){
+					oauthUser = new DcpOauthUsers();
+					oauthUser.setAccessToken(option.getAccessToken());
+					oauthUser.setOpenId(option.getOpenId());
+					oauthUser.setOsfUsers(user);
+					oauthUser.setOauthType(eAuthProvider.Weixin.ordinal());
+					oauthUser.setCreateDate(new Date());
+					oauthUser.setModifyDate(new Date());
+					int oUId = divxUserDao.createOauthUser(oauthUser);
+					
+				}else{
+					if(oauthUser.getOsfUsers().getId().intValue() != helper.getUserId()){
+						res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+						res.setResponseMessage("Your QQ or Weixin has been set for an exist account.");
+						return res;	
+					}
+					oauthUser.setAccessToken(option.getAccessToken());
+					oauthUser.setModifyDate(new Date());
+					int oUId = divxUserDao.createOauthUser(oauthUser);	
+					
+				}
+			
+			}
+			
+	
+			if(user != null){
+				res = generateAuthResponse(deviceUniqueId, user, deviceType, user.getToken());	
+			}else{
+				res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+				res.setResponseMessage("fail to OAuthLogin");
+				return res;
+			}
+			
+		}catch(Exception ex){
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage(ex.getMessage());
+		}
+		
+		return res;
+	}
+	
+	public OsfUsers WeixinLogin(String accessToken,String openId,int orgId){
+		OsfUsers u = null;
+		try{
+			
+				String checkTokenUrl = String.format(ConfigurationManager.GetInstance().CheckWeixinTokenUrl(),accessToken,openId);
+				String checkTokenRet = Util.HttpGet(checkTokenUrl);
+				if(checkTokenRet.isEmpty())
+					return null;
+				WeixinRet obj = Util.JsonToObject(checkTokenRet, WeixinRet.class);
+				if(obj == null)
+					return null;
+				if(obj.getErrcode() == 0 && "ok".equals(obj.getErrmsg())){
+					u = new OsfUsers();
+					String getUserInfoUrl = String.format(ConfigurationManager.GetInstance().GetWeixinUserInfoUrl(), accessToken,openId);
+					String userInfo = Util.HttpGet(getUserInfoUrl);
+					if(userInfo.isEmpty())
+						return null;
+					WeixinUserInfo user = Util.JsonToObject(userInfo, WeixinUserInfo.class);
+					if(user == null)
+						return null;
+					u.setEmail("");
+					u.setEnabled(true);
+					u.setEntered(new Date());
+					u.setLastLogin(new Date());
+					u.setLocale("");
+					u.setMobile("");
+					u.setNickname(user.getNickname());
+					u.setOrganizationId(orgId);
+					u.setPassword("");
+					u.setPhotourl(user.getHeadimgurl());
+					u.setTimezone("");
+					u.setProjectId(new Long(1));
+					UUID uid = UUID.randomUUID();
+					u.setToken(uid.toString());
+					u.setUsername("");
+					u.setUsernametype(eRegisterType.Weixin.ordinal());//0 username,1 email, 2 mobile,3 weixin, 4 QQ
+					
+					
+				}
+			
+				
+			
+		}catch(Exception ex){
+			return null;
+		}
+		
+		return u;
+	}
+	public OsfUsers QQLogin(String accessToken,String openId,int orgId){
+		OsfUsers u = null;
+	
+		try{
+			String oauth_consumer_key = ConfigurationManager.GetInstance().GetOauth_consumer_key();
+			String getUserInfoUrl = String.format(ConfigurationManager.GetInstance().GetQQUserInfoUrl(), accessToken,oauth_consumer_key,openId);
+			String userInfo = Util.HttpGet(getUserInfoUrl);
+			if(userInfo.isEmpty())
+				return null;
+			QQUserInfo user = Util.JsonToObject(userInfo, QQUserInfo.class);
+			if(user == null || user.getRet() != 0)
+				return null;
+			u = new OsfUsers();
+			u.setEmail("");
+			u.setEnabled(true);
+			u.setEntered(new Date());
+			u.setLastLogin(new Date());
+			u.setLocale("");
+			u.setMobile("");
+			u.setNickname(user.getNickname());
+			u.setOrganizationId(orgId);
+			u.setPassword("");
+			u.setPhotourl(user.getFigureurl_qq_1());
+			u.setTimezone("");
+			u.setProjectId(new Long(1));
+			UUID uid = UUID.randomUUID();
+			u.setToken(uid.toString());
+			u.setUsername("");
+			u.setUsernametype(eRegisterType.QQ.ordinal());
+			
+			
+		}catch(Exception ex){
+			return null;
+		}
+		
+		return u;
 	}
 	
 	public AuthResponse Register(RegisterOption option, String deviceUniqueId, String deviceType, int orgId)
@@ -243,57 +454,24 @@ public class UserManager {
 			user.setToken(uid.toString());
 			user.setLastLogin(new Date());
 			int nUserId = divxUserDao.CreateUser(user);
+			if(nUserId > 0){
+				DcpUserRole userRole = new DcpUserRole(); 
+				userRole.setOsfUsers(user);
+				DcpRole role = divxUserDao.GetRole(2);//1 admin 2 user
+				
+				userRole.setDcpRole(role);
+				userRole.setCreateDate(new Date());
+				userRole.setModifyDate(new Date());
+				int roleId = divxUserDao.createUserRole(userRole);
+				
+				res = generateAuthResponse(deviceUniqueId, user, deviceType, user.getToken());
+				
+				
+			}
 			
-			DcpToken token = tokenDao.GetToken(deviceUniqueId, user.getId().intValue());
-			if (token == null)
-			{
-				token = new DcpToken();
-				token.setDatecreated(new Date());
-				token.setDatemodified(new Date());
-				token.setDeviceuniqueid(deviceUniqueId);
-				try
-				{
-					int nDeviceType = Integer.parseInt(deviceType);
-					token.setDevicetype(nDeviceType);
-				}
-				catch(Exception ex)
-				{
-					res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
-					res.setResponseMessage("Invalid DeviceType " + deviceType);
-					return res;
-				}
-				token.setDeviceguid(Util.EncryptDeviceUniqueId(deviceUniqueId, user.getId()));
-				token.setIsactive(true);
-				token.setUserId(user.getId().intValue());
-				token.setToken(uid.toString());
-				token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
-				tokenDao.CreateToken(token);
-			}
-			else
-			{
-				token.setDatemodified(new Date());
-				token.setIsactive(true);
-				token.setUserId(user.getId().intValue());
-				token.setToken(uid.toString());
-				token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
-				tokenDao.UpdateToken(token);
-			}
-			MessageServiceHelper helper = new MessageServiceHelper();
-			ServiceResponse sr = helper.RegisterDevice(token.getDeviceguid(), 
-					token.getDevicetype(), 
-					option.getUsername(), 
-					user.getNickname().isEmpty() ? option.getUsername() : user.getNickname(), 
-					user.getPhotourl());
-			if (sr.getResponseCode() != 0)
-			{
-				res.setResponseMessage(String.format("Fail to register device on message service. ResponseCode(%d), %s", sr.getResponseCode(), sr.getResponseMessage()));
-			}
-			res.setDeviceGuid(token.getDeviceguid());
-
-			res.setToken(new DivXAuthToken(user, token).GetAuthTokenString(new DivXAuthUser(user)));
+		
 			cacheFindUsers.invalidateAll();
-			res.setResponseCode(ResponseCode.SUCCESS);
-			res.setResponseMessage("Success");
+			
 		} 
 		catch (Exception ex) {
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
@@ -1097,4 +1275,7 @@ public class UserManager {
 		}
 		return res;
 	}
+	
+
+	
 }

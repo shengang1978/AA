@@ -7,6 +7,7 @@
         <property name="hibernate.archive.autodetection">none</property>
         <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
         <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+
         <property name="hibernate.connection.password">dcpd1vxd1vx</property>
         <property name="hibernate.connection.url">jdbc:mysql://database_ip_addr/divx_user</property>
         <property name="hibernate.connection.username">dcp_db</property>
@@ -21,8 +22,8 @@
 		<property name="hibernate.c3p0.acquire_increment">2</property>
 		<property name="connection.useUnicode">true</property> 
 		<property name="connection.characterEncoding">UTF-8</property>
-		<property name="hibernate.current_session_context_class">org.hibernate.context.ThreadLocalSessionContext</property>
 		
+
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.ejb.classcache.org.osforce.connect.entity.blog.Post">read-write</property>
         <property name="hibernate.ejb.classcache.org.osforce.connect.entity.blog.PostCategory">read-write</property>
@@ -69,10 +70,15 @@
         <property name="hibernate.ejb.persistenceUnitName">connectPersistenceUnit</property>
         <property name="hibernate.search.autoregister_listeners">false</property>
         <property name="hibernate.validator.apply_to_ddl">false</property>
+        <mapping resource="com/divx/service/domain/model/DcpUserRole.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpToken.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpOrganization.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpRole.hbm.xml" />
+        <mapping resource="com/divx/service/domain/model/DcpOauthUsers.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/DcpUserExt.hbm.xml" />
         <mapping resource="com/divx/service/domain/model/OsfUsers.hbm.xml" />
-        <mapping resource="com/divx/service/domain/model/DcpOrgsite.hbm.xml" />
+
+        <mapping resource="com/divx/service/domain/model/DcpEmailJob.hbm.xml" />
+
     </session-factory>
 </hibernate-configuration>

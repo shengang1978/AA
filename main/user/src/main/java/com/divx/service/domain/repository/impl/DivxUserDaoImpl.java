@@ -6,16 +6,21 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
 import com.divx.service.BaseDao;
 import com.divx.service.domain.model.DcpEmailJob;
+import com.divx.service.domain.model.DcpOauthUsers;
+import com.divx.service.domain.model.DcpRole;
 import com.divx.service.domain.model.DcpUserExt;
 import com.divx.service.domain.model.DcpOrganization;
 import com.divx.service.domain.model.DcpToken;
+import com.divx.service.domain.model.DcpUserRole;
 import com.divx.service.domain.model.OsfUsers;
 import com.divx.service.domain.repository.DivxUserDao;
 import com.divx.service.model.KeyValuePair;
@@ -548,6 +553,169 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		}
 		
 	}
+
+	@Override
+	public int createOauthUser(DcpOauthUsers oauthUser) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+
+		try
+		{
+			trans = ss.beginTransaction();
+			List<?> objs = ss.createCriteria(DcpOauthUsers.class)
+					.add(Restrictions.and(Restrictions.eq("openId", oauthUser.getOpenId()), Restrictions.eq("oauthType", oauthUser.getOauthType())))
+					.list();
+			if(objs != null && objs.size() > 0){
+				DcpOauthUsers obj = (DcpOauthUsers)objs.get(0);
+				obj.setAccessToken(oauthUser.getAccessToken());
+				obj.setModifyDate(oauthUser.getModifyDate());
+				ss.update(obj);
+			}else{
+				ss.save(oauthUser);
+			}
+			
+			trans.commit();
+		
+			return oauthUser.getId();
+		}
+		catch(Exception e)
+		{
+			if (trans != null)
+				trans.rollback();
+			e.printStackTrace();
+			throw e;
+		}
+		finally
+		{
+			ss.close();
+		}	
+		
+	}
+
+	@Override
+	public DcpOauthUsers GetDcpOauthUser(String openId, int oauthType) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+		DcpOauthUsers oauthUser = null;
+		try
+		{
+			trans = ss.beginTransaction();
+			
+			//String hql = String.format("FROM DcpOauthUsers ou WHERE ou.openId = '%s' and ou.oauthType = %d", openId, oauthType); 	
+			List<?> objs = ss.createCriteria(DcpOauthUsers.class)
+					.add(Restrictions.and(Restrictions.eq("openId", openId), Restrictions.eq("oauthType", oauthType)))
+					.list();
+			if(objs != null && objs.size() > 0){
+				oauthUser = (DcpOauthUsers)objs.get(0);
+			}
+
+			return oauthUser;
+		}
+		catch(Exception e)
+		{
+			if (trans != null)
+				trans.rollback();
+			e.printStackTrace();
+			throw e;
+		}
+		finally
+		{
+			trans.commit();
+			ss.close();
+		}	
+	}
+
+	@Override
+	public int createUserRole(DcpUserRole userRole) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+
+		try
+		{
+			trans = ss.beginTransaction();
+			ss.save(userRole);
+			return userRole.getId();
+		}catch(Exception ex){
+			
+			if (trans != null)
+				trans.rollback();
+			ex.printStackTrace();
+			throw ex;
+		}
+		finally
+		{
+			trans.commit();
+			ss.close();
+		}	
+	}
+
+	@Override
+	public DcpRole GetRole(int roleId) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+		DcpRole role = null;
+		try
+		{
+			trans = ss.beginTransaction();
+			List<?> objs = ss.createCriteria(DcpRole.class)
+							 	.add(Restrictions.eq("roleId", roleId)).list();
+			if(objs != null && objs.size() > 0){
+				role = (DcpRole)objs.get(0);
+			}
+		}catch(Exception ex){
+			
+			if (trans != null)
+				trans.rollback();
+			ex.printStackTrace();
+			throw ex;
+		}
+		finally
+		{
+			trans.commit();
+			ss.close();
+		}	
+		return role;
+	}
+
+	@Override
+	public DcpUserRole GetRoleByUserId(int userId) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+		DcpUserRole userRole = null;
+		try
+		{
+			trans = ss.beginTransaction();
+			//String hql = String.format("SELECT *FROM dcp_role as r WHERE r.role_id = (SELECT u.role_id FROM dcp_user_role as u WHERE u.user_id = %d)", userId);
+			
+			Criteria c = ss.createCriteria(DcpUserRole.class);
+			c.createCriteria("dcpRole");
+			List<?> objs = c.createCriteria("osfUsers")
+			.add(Restrictions.eq("id", new Long(userId))).list();
+//			List<?> objs = ss.createCriteria(DcpUserRole.class)
+//					.createCriteria("dcpRole")
+//							 .createCriteria("osfUsers")
+//								.add(Restrictions.eq("id", new Long(userId))).list();
+
+			if(objs != null && objs.size() > 0){
+				userRole = (DcpUserRole)objs.get(0);
+				
+			}
+		}catch(Exception ex){
+			
+			if (trans != null)
+				trans.rollback();
+			ex.printStackTrace();
+			throw ex;
+		}
+		finally
+		{
+			trans.commit();
+			ss.close();
+		}	
+		return userRole;
+	}
+
+	
 
 
 }

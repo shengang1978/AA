@@ -8,7 +8,9 @@ public class RegisterOption {
 	{
 		username,
 		email,
-		mobile
+		mobile,
+		Weixin,
+		QQ
 	}
 	private eRegisterType registerType;
 	private String username;

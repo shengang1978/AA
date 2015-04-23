@@ -63,6 +63,26 @@ public class userimpl implements user {
 		return Util.ServiceResponseToResponse(userManager.Login(username, password, deviceUniqueId, deviceType, helper.getOrganizationId()));
 
 	}
+	
+
+	@Override
+	public Response OAuthLogin(OAuthOption option) {
+		ServiceHeaderHelper helper = new ServiceHeaderHelper();
+
+		String deviceUniqueId = helper.getDeviceUniqueId() ;
+		String deviceType = helper.getDeviceType();
+		String token = helper.getHeader("Token");
+		if (deviceUniqueId == null || deviceUniqueId.isEmpty() ||
+				deviceType == null || deviceType.isEmpty())
+		{
+			AuthResponse res = new AuthResponse();
+			res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+			res.setResponseMessage("DeviceUniqueId or DeviceType is invalid.");
+			return Util.ServiceResponseToResponse(res);
+		}
+		
+		return Util.ServiceResponseToResponse(userManager.OAuthLogin(option, deviceUniqueId, deviceType, helper.getOrganizationId(),token));
+	}
 
 	@Override
 	public Response FindUsers(FindUserOption.eFindOption option,String searchKey, int startPos, int endPos) {
@@ -275,4 +295,5 @@ public class userimpl implements user {
 //		}
 		return Util.ServiceResponseToResponse(userManager.GetUserBaseInfo(user.getUserId()));
 	}
+
 }

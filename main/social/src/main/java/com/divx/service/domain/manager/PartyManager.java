@@ -15,6 +15,8 @@ import com.divx.service.model.party.Party;
 import com.divx.service.model.party.PartyBaseType;
 import com.divx.service.model.party.PartyResponse;
 import com.divx.service.model.party.PartyBaseType.ePartyType;
+import com.divx.service.model.party.PartyUsersOption;
+import com.divx.service.model.party.PartyUsersResponse;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 
@@ -195,6 +197,28 @@ public class PartyManager {
 		return res;
 	}
 	
+	public ServiceResponse AddUsersToParty(int userId, PartyUsersOption option)
+	{
+		ServiceResponse res = new ServiceResponse();
+		
+		
+		
+		return res;
+	}
+	
+	public PartyUsersResponse GetUsersOfParty(int partyId)
+	{
+		PartyUsersResponse res = new PartyUsersResponse();
+		
+		return res;
+	}
+	
+	public ServiceResponse DeleteUserFromParty(int ownerId, int partyId, int targetId)
+	{
+		ServiceResponse res = new ServiceResponse();
+		
+		return res;
+	}
 	private Party ToParty(DcpParty obj)
 	{
 		Party p = new Party();
@@ -207,4 +231,5 @@ public class PartyManager {
 		
 		return p;
 	}
+	
 }

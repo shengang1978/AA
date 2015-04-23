@@ -3,6 +3,7 @@ package com.divx.service.domain.dao.impl;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
@@ -12,7 +13,7 @@ import com.divx.service.BaseDao;
 import com.divx.service.domain.dao.PartyDao;
 import com.divx.service.domain.model.DcpParty;
 import com.divx.service.domain.model.DcpPartyUser;
-import com.divx.service.domain.model.OsfProjects;
+import com.divx.service.model.party.PartyBaseType;
 
 @Repository
 public class PartyDaoImpl extends BaseDao implements PartyDao {
@@ -89,10 +90,10 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 				tx.commit();
 			}
 		}catch(Exception ex){
-			if (tx != null)
-			{
-				tx.rollback();
-			}
+//			if (tx != null)
+//			{
+//				tx.rollback();
+//			}
 			throw new ExceptionInInitializerError(ex);
 		}finally{
 			session.close();
@@ -119,10 +120,10 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 				tx.commit();
 			}
 		}catch(Exception ex){
-			if (tx != null)
-			{
-				tx.rollback();
-			}
+//			if (tx != null)
+//			{
+//				tx.rollback();
+//			}
 			throw new ExceptionInInitializerError(ex);
 		}finally{
 			session.close();
@@ -151,10 +152,10 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 			
 			return group;
 		}catch(Exception ex){
-			if (tx != null)
-			{
-				tx.rollback();
-			}
+//			if (tx != null)
+//			{
+//				tx.rollback();
+//			}
 			throw new ExceptionInInitializerError(ex);
 		}finally{
 			session.close();
@@ -177,6 +178,57 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 			return objs;
 		}
 		catch(Exception ex){
+//			if (tx != null)
+//			{
+//				tx.rollback();
+//			}
+			throw new ExceptionInInitializerError(ex);
+		}
+		finally{
+			session.close();
+		}
+	}
+
+	@Override
+	public int RemoveUser(int partyId, PartyBaseType.ePartyUserType userType, String value) {
+		Session session = getSessionFactory().openSession();
+		Transaction tx = null;
+		try{
+			tx = session.beginTransaction();
+			
+			List<?> objs = session.createCriteria(DcpPartyUser.class)
+				.add(Restrictions.eq(userType.toString(), value))
+				.createCriteria("dcpParty")
+					.add(Restrictions.eq("partyId", partyId)).list();
+			if (objs != null && objs.size() > 0)
+				session.delete(objs.get(0));
+//			String hql = String.format("delete from DcpPartyUser where %s = '%s' ", userType.toString(), value);
+//			switch(userType)
+//			{
+//			case username:
+//				hql = String.format("delete from DcpPartyUser where username = '%s' ", value);
+//				break;
+//			case mobile:
+//				hql = String.format("delete from DcpPartyUser where mobile = '%s' ", value);
+//				break;
+//			case email:
+//				hql = String.format("delete from DcpPartyUser where email = '%s' ", value);
+//				break;
+//			case qq:
+//				hql = String.format("delete from DcpPartyUser where qq = '%s' ", value);
+//				break;
+//			case weixin:
+//				hql = String.format("delete from DcpPartyUser where weixin = '%s' ", value);
+//				break;
+//			}
+			
+//			int ret = session.createQuery(hql).executeUpdate();
+
+			tx.commit();
+			
+			return 0;
+		}
+		catch(Exception ex){
 			if (tx != null)
 			{
 				tx.rollback();
@@ -189,15 +241,37 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 	}
 
 	@Override
-	public int RemoveUser(int partyId, int userType, String value) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public int AddUsers(int partyId, List<DcpPartyUser> users) {
-		// TODO Auto-generated method stub
-		return 0;
+		Session session = getSessionFactory().openSession();
+		Transaction tx = null;
+		try{
+			tx = session.beginTransaction();
+			
+			DcpParty party = (DcpParty)session.createCriteria(DcpParty.class)
+				.add(Restrictions.eq("partyId", partyId)).uniqueResult();
+			if (party != null)
+			{
+				for(DcpPartyUser u: users)
+				{
+					u.setDcpParty(party);
+				}
+				
+				session.saveOrUpdate(party);
+			}
+			tx.commit();
+			
+			return 0;
+		}
+		catch(Exception ex){
+			if (tx != null)
+			{
+				tx.rollback();
+			}
+			throw new ExceptionInInitializerError(ex);
+		}
+		finally{
+			session.close();
+		}
 	}
 
 }

@@ -1,10 +1,10 @@
 package com.divx.service.domain.manager;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.util.security.Credential.MD5;
 
 import com.divx.service.ConfigurationManager;
@@ -19,7 +19,9 @@ import com.divx.service.model.MailSetting;
 
 
 
+
 public class SendEmailHelper {
+	private static final Logger log =  Logger.getLogger(SendEmailHelper.class);
 	public interface IWatch {
 		void Stop();
 		void DoTask();	
@@ -87,48 +89,64 @@ public class SendEmailHelper {
 			}
 			String resetPasswordEmailTemplate = ConfigurationManager
 					.GetInstance().ResetPasswordEmailTemplate();
-			EmailTemplate emailtemplate = Util.JsonToObject(
-					resetPasswordEmailTemplate, EmailTemplate.class);
+			String welcomeEmailTemplate = ConfigurationManager.GetInstance().WelcomeEmailTemplate();
 
 			String mailSettings = ConfigurationManager.GetInstance()
 					.MailSetting();
 			MailSetting mailsetting = Util.JsonToObject(mailSettings,
 					MailSetting.class);
 			boolean status = false;
-			if (mailsetting != null && emailtemplate != null) {
-
+			if (mailsetting != null) {
+				EmailTemplate emailtemplate = null;
 				String servletBaseUrl = ConfigurationManager.GetInstance()
 						.ResetPasswort_ServletBaseUrl();
 				Email.EmailModel emailmdel = new Email.EmailModel();
 				emailmdel.setSmtp(mailsetting.getHost());
 				emailmdel.setFrom(mailsetting.getEmail());
-				emailmdel.setSubject(emailtemplate.getEmailType());
+				
 				emailmdel.setUsername(mailsetting.getUsername());
 				emailmdel.setPassword(mailsetting.getPassword());
 
 				for (DcpEmailJob obj : emailJobs) {
 					try {
-						emailmdel.setTo(obj.getEmailAddress());
-						OsfUsers user = divxUserDao.GetUser(obj.getUserId());
-						if (user != null) {
-							String usernameParameter = DatatypeConverter
-									.printBase64Binary((user.getUsername()
-											+ "|" + user.getOrganizationId()
-											+ "|" + new Date().toString())
-											.getBytes());
-							String userParameter = MD5.digest(user.getId()
-									.toString() + new Date().toString());
-							String parameter = java.net.URLEncoder.encode(
-									usernameParameter + "|" + userParameter,
-									"UTF-8");
-							String name = user.getNickname().isEmpty() ?
-									obj.getEmailAddress().substring(0, obj.getEmailAddress().indexOf('@')) : user.getNickname();
-							emailmdel.setContent(String.format(
-									emailtemplate.getEmailContent(),name,
-									servletBaseUrl, "?p=" + parameter,
-									servletBaseUrl, "?p=" + parameter));
-							status = Email.send(emailmdel);
+						if(1 == obj.getEmailType()){
+							emailtemplate = Util.JsonToObject(welcomeEmailTemplate, EmailTemplate.class);
+							OsfUsers user = divxUserDao.GetUser(obj.getUserId());
+							emailmdel.setSubject(String.format(emailtemplate.getEmailType()));
+							emailmdel.setTo(obj.getEmailAddress());
+							if (user != null) {
+								String name = user.getNickname().isEmpty() ?
+										obj.getEmailAddress() : user.getNickname();
+										
+								emailmdel.setContent(String.format(emailtemplate.getEmailContent(),name));
+							}
+							
+						}else if(2 == obj.getEmailType()){
+							emailtemplate = Util.JsonToObject(resetPasswordEmailTemplate, EmailTemplate.class);
+							emailmdel.setSubject(emailtemplate.getEmailType());
+							emailmdel.setTo(obj.getEmailAddress());
+							OsfUsers user = divxUserDao.GetUser(obj.getUserId());
+							if (user != null) {
+								String usernameParameter = DatatypeConverter
+										.printBase64Binary((user.getUsername()
+												+ "|" + user.getOrganizationId()
+												+ "|" + new Date().toString())
+												.getBytes());
+								String userParameter = MD5.digest(user.getId()
+										.toString() + new Date().toString());
+								String parameter = java.net.URLEncoder.encode(
+										usernameParameter + "|" + userParameter,
+										"UTF-8");
+								String name = user.getNickname().isEmpty() ?
+										obj.getEmailAddress().substring(0, obj.getEmailAddress().indexOf('@')) : user.getNickname();
+								emailmdel.setContent(String.format(
+										emailtemplate.getEmailContent(),name,
+										servletBaseUrl, "?p=" + parameter,
+										servletBaseUrl, "?p=" + parameter));
+								
+							}	
 						}
+						status = Email.send(emailmdel);
 
 						if (status) {
 							obj.setStatus(true);
@@ -137,8 +155,8 @@ public class SendEmailHelper {
 							obj.setAttempts(obj.getAttempts() + 1);
 							divxUserDao.SaveEmailJob(obj);
 						}
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
+					} catch (Exception e) {
+						Util.LogError(log, "send  email exception", e);
 					}
 				}
 

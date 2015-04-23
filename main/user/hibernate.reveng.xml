@@ -10,6 +10,14 @@
 	</table-filter>
 	<table-filter match-name="dcp_token" match-catalog="divx_user"></table-filter>
 	<table-filter match-name="dcp_user_ext" match-catalog="divx_user"></table-filter>
-	<table-filter match-name="dcp_orgsite" match-catalog="divx_user"></table-filter>
-	<table-filter match-name="dcp_orgsite" match-catalog="divx_user"></table-filter>
+	<table-filter match-name="dcp_email_job"
+		match-catalog="divx_user">
+	</table-filter>
+	<table-filter match-name="dcp_role" match-catalog="divx_user"></table-filter>
+	<table-filter match-name="dcp_user_role"
+		match-catalog="divx_user">
+	</table-filter>
+	<table-filter match-name="dcp_oauth_users"
+		match-catalog="divx_user">
+	</table-filter>
 </hibernate-reverse-engineering>

@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-4-22 18:48:52 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpRole" table="dcp_role" catalog="divx_user" optimistic-lock="version">
+        <id name="roleId" type="int">
+            <column name="role_id" />
+            <generator class="assigned" />
+        </id>
+        <property name="roleName" type="string">
+            <column name="role_name" not-null="true" />
+        </property>
+        <property name="createDate" type="timestamp">
+            <column name="create_date" length="19" />
+        </property>
+        <property name="modifyDate" type="timestamp">
+            <column name="modify_date" length="19" />
+        </property>
+        <set name="dcpUserRoles" table="dcp_user_role" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="role_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpUserRole" />
+        </set>
+    </class>
+</hibernate-mapping>

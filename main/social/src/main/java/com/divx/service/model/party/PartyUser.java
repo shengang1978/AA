@@ -4,7 +4,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "PartyUser")
 public class PartyUser {
-	private int userId;
+	private int id;
 	private String username;
 	private String email;
 	private String nickname;
@@ -23,12 +23,7 @@ public class PartyUser {
 	public void setWeixin(String weixin) {
 		this.weixin = weixin;
 	}
-	public int getUserId() {
-		return userId;
-	}
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
+
 	public String getUsername() {
 		return username;
 	}
@@ -52,5 +47,11 @@ public class PartyUser {
 	}
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
+	}
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
 	}
 }

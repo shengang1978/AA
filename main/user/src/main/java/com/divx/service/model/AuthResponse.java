@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.*;
 public class AuthResponse extends ServiceResponse {
 	private String token;
 	private String deviceGuid;
+	private String roleName;
 	
 	public void setToken(String token)
 	{
@@ -25,5 +26,13 @@ public class AuthResponse extends ServiceResponse {
 
 	public void setDeviceGuid(String deviceGuid) {
 		this.deviceGuid = deviceGuid;
+	}
+
+	public String getRoleName() {
+		return roleName;
+	}
+
+	public void setRoleName(String roleName) {
+		this.roleName = roleName;
 	}
 }

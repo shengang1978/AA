@@ -1,5 +1,6 @@
 package com.divx.service.impl;
 
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,18 +99,40 @@ public class partyImpl implements party {
 	}
 	@Override
 	public Response AddUsers(PartyUsersOption option) {
-		// TODO Auto-generated method stub
-		return null;
+		AuthHelper helper = new AuthHelper();
+		if (helper.isGuest())
+		{
+			ServiceResponse res = new PartiesResponse();
+			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+			res.setResponseMessage("Invalid Token or Not Login");
+			return Util.ServiceResponseToResponse(res);
+		}
+		return Util.ServiceResponseToResponse(partyManager.AddUsersToParty(helper.getUserId(), option));
 	}
 	@Override
 	public Response GetUsers(int partyId) {
-		// TODO Auto-generated method stub
-		return null;
+		AuthHelper helper = new AuthHelper();
+		if (helper.isGuest())
+		{
+			ServiceResponse res = new PartiesResponse();
+			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+			res.setResponseMessage("Invalid Token or Not Login");
+			return Util.ServiceResponseToResponse(res);
+		}
+		return Util.ServiceResponseToResponse(partyManager.GetUsersOfParty(partyId));
 	}
 	@Override
-	public Response RemoveUser(PartyUser user) {
-		// TODO Auto-generated method stub
-		return null;
+	public Response RemoveUser(int partyId, int partyUserId) {
+		AuthHelper helper = new AuthHelper();
+		if (helper.isGuest())
+		{
+			ServiceResponse res = new PartiesResponse();
+			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+			res.setResponseMessage("Invalid Token or Not Login");
+			return Util.ServiceResponseToResponse(res);
+		}
+		
+		return Util.ServiceResponseToResponse(partyManager.DeleteUserFromParty(helper.getUserId(), partyId, partyUserId));
 	}
 
 	

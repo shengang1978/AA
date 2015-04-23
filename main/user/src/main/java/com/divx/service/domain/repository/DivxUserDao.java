@@ -4,13 +4,15 @@ package com.divx.service.domain.repository;
 import java.util.List;
 
 
-
 import com.divx.service.domain.model.DcpEmailJob;
+import com.divx.service.domain.model.DcpOauthUsers;
+import com.divx.service.domain.model.DcpRole;
 import com.divx.service.domain.model.DcpUserExt;
 
 
 
 import com.divx.service.domain.model.DcpOrganization;
+import com.divx.service.domain.model.DcpUserRole;
 import com.divx.service.domain.model.OsfUsers;
 import com.divx.service.model.KeyValuePair;
 
@@ -46,5 +48,17 @@ public interface DivxUserDao {
 	List<DcpEmailJob> GetUnSendEmailJobs();
 	
 	int  SaveEmailJob(DcpEmailJob job);
+	
+	int createOauthUser(DcpOauthUsers oauthUser);
+	
+	DcpOauthUsers GetDcpOauthUser(String openId,int oauthType);
+	
+	int createUserRole(DcpUserRole userRole);
+	
+	DcpUserRole GetRoleByUserId(int userId);
+	
+	DcpRole GetRole(int roleId);
+	
+	
 
 }

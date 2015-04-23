@@ -5,7 +5,9 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 						http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 						http://www.springframework.org/schema/security
-						http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+						http://www.springframework.org/schema/security/spring-security-3.2.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx.xsd">
 	<global-method-security secured-annotations="enabled">
 	</global-method-security>
 	
@@ -20,6 +22,7 @@
 			create-session="stateless">
 		<intercept-url pattern="/services/rest/user/login/**" access="permitAll"/>
 		<intercept-url pattern="/services/rest/user/Logout/**" access="permitAll"/>
+		<intercept-url method="PUT" pattern="/services/rest/user/OAuthLogin" access="permitAll"/>
 		<intercept-url method="POST" pattern="/services/rest/user/" access="permitAll"/>
 		<intercept-url method="POST" pattern="/services/rest/user" access="permitAll"/>
 		<intercept-url pattern="/services/rest/user/FindUsers/**" access="permitAll"/>

@@ -62,8 +62,8 @@ public interface party {
 	Response GetUsers(@PathParam("partyId") int partyId);
 	
 	@PUT
-	@Path("/RemoveUser")
+	@Path("/RemoveUser/{partyId}/{partyUserId}")
 	@Consumes("application/json")
 	@Produces("application/json")
-	Response RemoveUser(PartyUser user);
+	Response RemoveUser(@PathParam("partyId") int partyId, @PathParam("partyUserId") int partyUserId);
 }

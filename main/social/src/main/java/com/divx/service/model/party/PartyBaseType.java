@@ -14,4 +14,12 @@ public class PartyBaseType {
 		owner,
 		member
 	}
+	
+	public enum ePartyUserType{
+		username,
+		mobile,
+		email,
+		qq,
+		weixin
+	}
 }
