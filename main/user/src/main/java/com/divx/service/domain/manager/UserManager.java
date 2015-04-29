@@ -489,6 +489,12 @@ public class UserManager {
 		{
 			String authUsername = token.GetAuthUsername();
 			DivXAuthUser user = (DivXAuthUser) userDetailsService.loadUserByUsername(authUsername);
+			if (user == null)
+			{
+				res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+				res.setResponseMessage("Invalid Token");
+				return res;
+			}
 			DivXAuthToken oldToken = new DivXAuthToken();
 			oldToken.setUserId(user.getUserId());
 			oldToken.setUsername(user.getUsername());
