@@ -36,11 +36,11 @@ public class AuthHelper {
 			}			
 		}
 	}
-	public static final Cache<String, AuthHelperModel.CheckUserResponse> cache = CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(1, TimeUnit.HOURS).build(); 
+	private static final Cache<String, AuthHelperModel.CheckUserResponse> cache = CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(12, TimeUnit.HOURS).build(); 
 
-	public AuthHelperModel.CheckUserResponse CheckUserResponseCallable(
+	private AuthHelperModel.CheckUserResponse CheckUserResponseCallable(
 			final String key) throws ExecutionException {
-		// 没有使用CacheLoader
+		//CacheLoader
 		AuthHelperModel.CheckUserResponse resultVal = cache.get(key,new Callable<AuthHelperModel.CheckUserResponse>(){
 					@Override
 					public AuthHelperModel.CheckUserResponse call() {
@@ -110,6 +110,7 @@ public class AuthHelper {
 		}
 		
 		appType = DcpBaseType.eAppType.values()[GetHeadValue(helper, "AppType", 0)];
+		appVersion = helper.getHeader("AppVersion");
 	}	
 	
 	public boolean isGuest()
@@ -180,6 +181,7 @@ public class AuthHelper {
 	private int userId;
 	private DcpBaseType.eDeviceType deviceType;
 	private DcpBaseType.eAppType appType;
+	private String appVersion;
 	private String deviceGuid;
 	private String deviceUniqueId;
 	
@@ -205,5 +207,13 @@ public class AuthHelper {
 		}
 		
 		return value;
+	}
+
+	public String getAppVersion() {
+		return appVersion;
+	}
+
+	public void setAppVersion(String appVersion) {
+		this.appVersion = appVersion;
 	}
 }

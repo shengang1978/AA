@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-7 16:03:38 by Hibernate Tools 4.3.1
+// Generated 2015-6-23 12:26:37 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -19,23 +19,25 @@ public class OsfComments implements java.io.Serializable {
 	private long enteredById;
 	private long modifiedById;
 	private Integer activitytype;
+	private int point;
 
 	public OsfComments() {
 	}
 
 	public OsfComments(String content, Date entered, long linkedId,
-			Date modified, long enteredById, long modifiedById) {
+			Date modified, long enteredById, long modifiedById, int point) {
 		this.content = content;
 		this.entered = entered;
 		this.linkedId = linkedId;
 		this.modified = modified;
 		this.enteredById = enteredById;
 		this.modifiedById = modifiedById;
+		this.point = point;
 	}
 
 	public OsfComments(String content, Boolean enabled, Date entered,
 			String entity, long linkedId, Date modified, long enteredById,
-			long modifiedById, Integer activitytype) {
+			long modifiedById, Integer activitytype, int point) {
 		this.content = content;
 		this.enabled = enabled;
 		this.entered = entered;
@@ -45,6 +47,7 @@ public class OsfComments implements java.io.Serializable {
 		this.enteredById = enteredById;
 		this.modifiedById = modifiedById;
 		this.activitytype = activitytype;
+		this.point = point;
 	}
 
 	public Long getId() {
@@ -125,6 +128,14 @@ public class OsfComments implements java.io.Serializable {
 
 	public void setActivitytype(Integer activitytype) {
 		this.activitytype = activitytype;
+	}
+
+	public int getPoint() {
+		return this.point;
+	}
+
+	public void setPoint(int point) {
+		this.point = point;
 	}
 
 }

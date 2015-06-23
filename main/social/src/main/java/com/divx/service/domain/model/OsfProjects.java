@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-7 16:03:38 by Hibernate Tools 4.3.1
+// Generated 2015-6-23 12:26:37 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -19,11 +19,9 @@ public class OsfProjects implements java.io.Serializable {
 	private long categoryId;
 	private Long enteredById;
 	private Long modifiedById;
-	private Long subCategory1Id;
-	private Long subCategory2Id;
-	private Long subCategory3Id;
 	private String description;
 	private String photourl;
+	private String hxGroupId;
 
 	public OsfProjects() {
 	}
@@ -39,9 +37,8 @@ public class OsfProjects implements java.io.Serializable {
 
 	public OsfProjects(Boolean enabled, Date entered, Date modified,
 			Boolean publish, String title, String uniqueId, long categoryId,
-			Long enteredById, Long modifiedById, Long subCategory1Id,
-			Long subCategory2Id, Long subCategory3Id, String description,
-			String photourl) {
+			Long enteredById, Long modifiedById, String description,
+			String photourl, String hxGroupId) {
 		this.enabled = enabled;
 		this.entered = entered;
 		this.modified = modified;
@@ -51,11 +48,9 @@ public class OsfProjects implements java.io.Serializable {
 		this.categoryId = categoryId;
 		this.enteredById = enteredById;
 		this.modifiedById = modifiedById;
-		this.subCategory1Id = subCategory1Id;
-		this.subCategory2Id = subCategory2Id;
-		this.subCategory3Id = subCategory3Id;
 		this.description = description;
 		this.photourl = photourl;
+		this.hxGroupId = hxGroupId;
 	}
 
 	public Long getId() {
@@ -138,30 +133,6 @@ public class OsfProjects implements java.io.Serializable {
 		this.modifiedById = modifiedById;
 	}
 
-	public Long getSubCategory1Id() {
-		return this.subCategory1Id;
-	}
-
-	public void setSubCategory1Id(Long subCategory1Id) {
-		this.subCategory1Id = subCategory1Id;
-	}
-
-	public Long getSubCategory2Id() {
-		return this.subCategory2Id;
-	}
-
-	public void setSubCategory2Id(Long subCategory2Id) {
-		this.subCategory2Id = subCategory2Id;
-	}
-
-	public Long getSubCategory3Id() {
-		return this.subCategory3Id;
-	}
-
-	public void setSubCategory3Id(Long subCategory3Id) {
-		this.subCategory3Id = subCategory3Id;
-	}
-
 	public String getDescription() {
 		return this.description;
 	}
@@ -176,6 +147,14 @@ public class OsfProjects implements java.io.Serializable {
 
 	public void setPhotourl(String photourl) {
 		this.photourl = photourl;
+	}
+
+	public String getHxGroupId() {
+		return this.hxGroupId;
+	}
+
+	public void setHxGroupId(String hxGroupId) {
+		this.hxGroupId = hxGroupId;
 	}
 
 }

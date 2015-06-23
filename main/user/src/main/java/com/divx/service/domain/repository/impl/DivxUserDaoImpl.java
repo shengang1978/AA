@@ -6,17 +6,23 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.sql.JoinType;
 import org.springframework.stereotype.Repository;
 
 import com.divx.service.BaseDao;
+import com.divx.service.Util;
 import com.divx.service.domain.model.DcpEmailJob;
 import com.divx.service.domain.model.DcpOauthUsers;
 import com.divx.service.domain.model.DcpRole;
+import com.divx.service.domain.model.DcpUserActive;
 import com.divx.service.domain.model.DcpUserExt;
 import com.divx.service.domain.model.DcpOrganization;
 import com.divx.service.domain.model.DcpToken;
@@ -26,7 +32,8 @@ import com.divx.service.domain.repository.DivxUserDao;
 import com.divx.service.model.KeyValuePair;
 @Repository
 public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
-
+	private static final Logger log = Logger.getLogger(DivxUserDaoImpl.class);
+	
 	@Override
 	public OsfUsers GetUser(int userId) {
 		Session ss = this.getSessionFactory().openSession();
@@ -90,6 +97,7 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		try
 		{
 			trans = ss.beginTransaction();
+			user.setModified(new Date());
 			ss.update(user);
 			trans.commit();
 		
@@ -329,7 +337,7 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		try
 		{
 			trans = ss.beginTransaction();
-			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.username LIKE:username ORDER BY u.username", orgId);
+			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.usernametype <> 5 and u.username LIKE:username ORDER BY u.username", orgId);
 			Query query = ss.createQuery(hql);
 			query.setParameter("username", username + '%');
 			List<OsfUsers> objs = query.list();
@@ -356,7 +364,7 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		try
 		{
 			trans = ss.beginTransaction();
-			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.nickname LIKE:nickname ORDER BY u.username", orgId);
+			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.usernametype <> 5 and u.nickname LIKE:nickname ORDER BY u.username", orgId);
 			Query query = ss.createQuery(hql);
 			query.setParameter("nickname", nickname + '%');
 			List<OsfUsers> objs = query.list();
@@ -383,7 +391,7 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		try
 		{
 			trans = ss.beginTransaction();
-			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.email LIKE:email ORDER BY u.username", orgId);
+			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.usernametype <> 5 and u.email LIKE:email ORDER BY u.username", orgId);
 			Query query = ss.createQuery(hql);
 			query.setParameter("email", email + '%');
 			List<OsfUsers> objs = query.list();
@@ -410,7 +418,7 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		try
 		{
 			trans = ss.beginTransaction();
-			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.mobile LIKE:mobile ORDER BY u.username", orgId);
+			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.usernametype <> 5 and u.mobile LIKE:mobile ORDER BY u.username", orgId);
 			Query query = ss.createQuery(hql);
 			query.setParameter("mobile", mobile + '%');
 			List<OsfUsers> objs = query.list();
@@ -530,7 +538,7 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 			if(objs != null && objs.size() > 0){
 				DcpEmailJob  obj = (DcpEmailJob) objs.get(0);
 				obj.setModifydate(new Date());
-				obj.setStatus(job.getStatus());
+				obj.setStatus(job.isStatus());
 				obj.setAttempts(job.getAttempts());
 				session.update(obj);
 				return obj.getId();
@@ -715,7 +723,114 @@ public class DivxUserDaoImpl extends BaseDao implements DivxUserDao {
 		return userRole;
 	}
 
-	
+	@Override
+	public OsfUsers GetUserByDeviceUniqueId(String deviceUniqueId,
+			int registType) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+		OsfUsers user = null;
+		try{
+			trans = ss.beginTransaction();
+			String hql = String.format("Select u From DcpToken d,OsfUsers u Where u.id = d.userId and d.deviceuniqueid = '%s' and u.usernametype = %d and u.enabled = 1", deviceUniqueId,registType);
+			List<?> objs = ss.createQuery(hql).list();
+			if(objs != null && objs.size() > 0){
+				user = (OsfUsers)objs.get(0); 
+			}
+			return user;
+		}catch(Exception ex){
+			if (trans != null)
+				trans.rollback();
+			ex.printStackTrace();
+			throw ex;
+		}
+		finally
+		{
+			trans.commit();
+			ss.close();
+		}	 
+		
+		
+	}
 
+	@Override
+	public List<OsfUsers> ListUsers(int orgId, int startPos, int endPos) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+		try
+		{
+			trans = ss.beginTransaction();
+			Criteria c = ss.createCriteria(OsfUsers.class);
+			c.add(Restrictions.eq("organizationId", orgId))
+			.add(Restrictions.eq("enabled", true))
+			.add(Restrictions.ne("usernametype", 5));
+			c.createAlias("dcpUserActive", "ua", JoinType.LEFT_OUTER_JOIN);
+			//c.setFetchMode("ua.lastAccess", FetchMode.JOIN);
+			c.addOrder(Order.desc("ua.lastAccess"))
+			 .addOrder(Order.desc("id"));
+			List<OsfUsers> objs =c.setFirstResult(startPos)
+								  .setMaxResults(endPos - startPos + 1)
+								  .list();
+//			String hql = String.format("FROM OsfUsers u WHERE u.organizationId = %d and u.usernametype <> 5 and u.username LIKE:username ORDER BY u.username", orgId);
+//			Query query = ss.createQuery(hql);
+//			query.setParameter("username", username + '%');
+//			List<OsfUsers> objs = query.list();
+			
+			trans.commit();
+		
+			return objs;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			throw e;
+		}
+		finally
+		{
+			ss.close();
+		}
+	}
 
+	@Override
+	public int LogLastAccess(String deviceUniqueId) {
+		Session ss = this.getSessionFactory().openSession();
+		Transaction trans = null;
+		try
+		{
+			trans = ss.beginTransaction();
+			
+			String hql = String.format("CALL f_logLastAccess('%s')", deviceUniqueId);
+			Query query = ss.createSQLQuery(hql);
+			//query.setString(0, "'" + deviceUniqueId + "'");
+			
+			query.executeUpdate();
+			
+//			if (lstRet != null && lstRet.size() > 0)
+//			{
+//				//clear the hibernate second level cache.
+//				getSessionFactory().getCache().evictEntityRegion(DcpUserActive.class);
+//				
+//				Object[] objs = (Object[])lstRet.get(0);
+//				int code = Integer.parseInt(objs[0].toString());
+//				String message = objs[1].toString();
+//				if (code < 0)
+//				{
+//					//Error
+//					log.error(String.format("LogLastAccess(%s) = (%d,%s)", deviceUniqueId, code, message));
+//				}
+//				return code;
+//			}
+			trans.commit();
+			
+			return 0;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			throw e;
+		}
+		finally
+		{
+			ss.close();
+		}
+	}
 }

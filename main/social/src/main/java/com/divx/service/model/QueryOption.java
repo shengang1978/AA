@@ -12,16 +12,42 @@ public class QueryOption {
 			pseudo,
 			story
 		}
-		
+		public enum MediaType
+		{
+			book,
+			story
+		}
+		public enum SearchType
+		{
+			newest,
+			hottest
+		}
 		private QueryType queryType;
 		//private int targetId;
-
+		private MediaType mediaType;
+		private SearchType searchType;
 		public QueryType getQueryType() {
 			return queryType;
 		}
 
 		public void setQueryType(QueryType queryType) {
 			this.queryType = queryType;
+		}
+
+		public MediaType getMediaType() {
+			return mediaType;
+		}
+
+		public void setMediaType(MediaType mediaType) {
+			this.mediaType = mediaType;
+		}
+
+		public SearchType getSearchType() {
+			return searchType;
+		}
+
+		public void setSearchType(SearchType searchType) {
+			this.searchType = searchType;
 		}
 
 		/*public int getTargetId() {

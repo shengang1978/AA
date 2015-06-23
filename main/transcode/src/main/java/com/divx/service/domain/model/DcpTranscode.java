@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1
+// Generated 2015-4-3 16:12:38 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -20,6 +20,7 @@ public class DcpTranscode implements java.io.Serializable {
 	private Integer errorstatus;
 	private Integer jobtype;
 	private String jobname;
+	private String transoptionjson;
 
 	public DcpTranscode() {
 	}
@@ -35,7 +36,8 @@ public class DcpTranscode implements java.io.Serializable {
 
 	public DcpTranscode(int assetId, String asseturl, Date datecreated,
 			Date datemodified, int status, Integer trycount, String log,
-			Integer errorstatus, Integer jobtype, String jobname) {
+			Integer errorstatus, Integer jobtype, String jobname,
+			String transoptionjson) {
 		this.assetId = assetId;
 		this.asseturl = asseturl;
 		this.datecreated = datecreated;
@@ -46,6 +48,7 @@ public class DcpTranscode implements java.io.Serializable {
 		this.errorstatus = errorstatus;
 		this.jobtype = jobtype;
 		this.jobname = jobname;
+		this.transoptionjson = transoptionjson;
 	}
 
 	public Integer getTranscodeId() {
@@ -134,6 +137,14 @@ public class DcpTranscode implements java.io.Serializable {
 
 	public void setJobname(String jobname) {
 		this.jobname = jobname;
+	}
+
+	public String getTransoptionjson() {
+		return this.transoptionjson;
+	}
+
+	public void setTransoptionjson(String transoptionjson) {
+		this.transoptionjson = transoptionjson;
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.divx.service.impl;
 
-import com.divx.service.model.EndPublishOptionShell.EndPublishOption;
+import com.divx.service.model.EndPublishOption;
 
 public class HadoopAdapter implements StorageAdapter {
 

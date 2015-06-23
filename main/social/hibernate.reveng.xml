@@ -10,7 +10,6 @@
 	<table-filter match-catalog="divx_social"
 		match-name="dcp_friend_request" />
 	<table-filter match-catalog="divx_social" match-name="dcp_share" />
-	<table-filter match-catalog="divx_social" match-name="dcp_party" />
 	<table-filter match-catalog="divx_social" match-name="osf_comments" />
 	<table-filter match-catalog="divx_social" match-name="osf_projects" />
 	<table-filter match-catalog="divx_social" match-name="osf_roles" />
@@ -19,10 +18,17 @@
 	<table-filter match-name="osf_messages"
 		match-catalog="divx_social">
 	</table-filter>
-	<table-filter match-name="dcp_party_user"
+	<table-filter match-name="dcp_share_user"
 		match-catalog="divx_social">
 	</table-filter>
-	<table-filter match-name="dcp_email_job"
+	<table-filter match-name="dcp_im_sync"
+		match-catalog="divx_social">
+	</table-filter>
+	<table-filter match-name="dcp_like_stat"
+		match-catalog="divx_social">
+	</table-filter>
+	<table-filter match-name="dcp_party" match-catalog="divx_social"></table-filter>
+	<table-filter match-name="dcp_party_user"
 		match-catalog="divx_social">
 	</table-filter>
 </hibernate-reverse-engineering>

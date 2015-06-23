@@ -30,6 +30,18 @@
 	<bean id="MediaRestService" 
 		class="com.divx.service.impl.mediaimpl">
 	</bean>
+	
+	<bean id="ScoreRestService" 
+		class="com.divx.service.impl.scoreImpl">
+	</bean>
+	
+	<bean id="LessonRestService" 
+		class="com.divx.service.impl.lessonImpl">
+	</bean>
+	
+	<bean id="StatRestService" 
+		class="com.divx.service.impl.statImpl">
+	</bean>
 
 	<!-- 
 	<bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" />
@@ -45,6 +57,11 @@
         <property name="arrayKeys">
         	<list>
 			  <value>medias</value>
+			  <value>scores</value>
+			  <value>lessons</value>
+			  <value>items</value>
+			  <value>scoreStat</value>
+			  <value>photoUrls</value>
 			</list>
         </property> 
 	</bean>                    
@@ -52,6 +69,9 @@
   	<jaxrs:server id="mediaRest" address="/rest">
   		<jaxrs:serviceBeans>
   			<ref bean="MediaRestService"/>
+  			<ref bean="ScoreRestService"/>
+  			<ref bean="LessonRestService" />
+  			<ref bean="StatRestService" />
   		</jaxrs:serviceBeans>
   		<jaxrs:providers>
 			<ref bean='jsonProvider' />

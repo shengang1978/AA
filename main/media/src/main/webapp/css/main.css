@@ -1,0 +1,32 @@
+@CHARSET "UTF-8";
+/*数据录入和修改样式*/
+.pn-ftable{background-color:#B4CFCF;margin-top:5px;}
+.pn-flabel{background-color:#e6f2fe;text-align:right;padding-right:3px; color:#000;}
+.pn-flabel-h{height:27px;}
+.pn-fcontent{background-color:#FFFFFF;padding-left:5px;}
+.pn-fbutton{background-color:#FFFFFF;text-align:center;}
+.pn-fhelp{color:#747474;padding:3px 0px;}
+.pn-frequired{color:red}
+.pn-fruler{background:url(../img/theme/ruler.gif) repeat-x 1px 6px;}
+/*数据列表样式*/
+.pn-ltable{background-color:#C8DCF0;margin:5px auto 0px auto;}
+.pn-lthead{}
+.pn-lthead th{height:29px;background-image:url(../img/theme/tit-tdbg.png); color:#3566a9;}
+.pn-ltbody{background-color:#FFFFFF;}
+.pn-ltbody .intd{text-indent:5px;}
+.pn-ltbody tr{height:25px;}
+
+/*数据列表鼠标经过样式*/
+.pn-lhover{background-color:#F2F2F2;}
+.pn-lselected{background-color:#d9e8fb;}
+/*数据列表没有数据样式*/
+.pn-lnoresult{padding:10px;border:#b4cfcf 1px solid;text-align:center;color:red;font-weight:bold;}
+/*数据列表批量操作样式*/
+.pn-lbopt{margin-top:2px;padding:5px;border:#b4cfcf 1px solid;}
+/*数据列表操作链接样式*/
+.pn-lopt{text-align:center;}
+a.pn-opt{text-decoration:underline;}
+a.pn-opt:link {color: #2366A8;}
+a.pn-opt:visited {color: #2366A8;}
+a.pn-opt:hover{color: #2366A8;}
+a.pn-opt:active {color: #2366A8;}

@@ -781,10 +781,15 @@ standard deployment descriptor.
     <servlet-class>org.apache.cxf.transport.servlet.CXFServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
+   <servlet>
+  	<servlet-name>MVC</servlet-name>
+  	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  	<load-on-startup>2</load-on-startup>
+  </servlet>
   <servlet>
-		<servlet-name>FileUploadServlet</servlet-name>
-		<servlet-class>com.divx.service.impl.FileUploadServlet</servlet-class>
-	</servlet>
+    <servlet-name>FileUploadServlet</servlet-name>
+    <servlet-class>com.divx.service.impl.FileUploadServlet</servlet-class>
+  </servlet>
   <servlet>
     <servlet-name>GroupPhotoUploadServlet</servlet-name>
     <servlet-class>com.divx.service.impl.GroupPhotoUploadServlet</servlet-class>
@@ -793,14 +798,26 @@ standard deployment descriptor.
     <servlet-name>UserPhotoUploadServlet</servlet-name>
     <servlet-class>com.divx.service.impl.UserPhotoUploadServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>LessonUploadServlet</servlet-name>
+    <servlet-class>com.divx.service.impl.LessonUploadServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>UploadServlet</servlet-name>
+    <servlet-class>com.divx.service.servlet.UploadServlet</servlet-class>
+  </servlet>
   <servlet-mapping>
     <servlet-name>cxf</servlet-name>
     <url-pattern>/services/*</url-pattern>
   </servlet-mapping>
+   <servlet-mapping>
+  	<servlet-name>MVC</servlet-name>
+  	<url-pattern>*.do</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
-		<servlet-name>FileUploadServlet</servlet-name>
-		<url-pattern>/FileUpload</url-pattern>
-	</servlet-mapping>
+    <servlet-name>FileUploadServlet</servlet-name>
+    <url-pattern>/FileUpload</url-pattern>
+  </servlet-mapping>
   <servlet-mapping>
     <servlet-name>GroupPhotoUploadServlet</servlet-name>
     <url-pattern>/GroupPhotoUpload</url-pattern>
@@ -808,6 +825,14 @@ standard deployment descriptor.
   <servlet-mapping>
     <servlet-name>UserPhotoUploadServlet</servlet-name>
     <url-pattern>/UserPhotoUpload</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>LessonUploadServlet</servlet-name>
+    <url-pattern>/LessonUpload</url-pattern>
+  </servlet-mapping>
+   <servlet-mapping>
+    <servlet-name>UploadServlet</servlet-name>
+    <url-pattern>/Upload</url-pattern>
   </servlet-mapping>
   <session-config>
     <session-timeout>60</session-timeout>

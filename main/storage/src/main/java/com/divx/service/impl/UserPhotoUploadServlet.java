@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.divx.service.ImageFileUpload;
 import com.divx.service.UserServiceHelper;
 import com.divx.service.Util;
+import com.divx.service.model.FileUploadResponse;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 
@@ -40,13 +41,13 @@ public class UserPhotoUploadServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
-		ServiceResponse res = new ServiceResponse();
+		FileUploadResponse res = new FileUploadResponse();
 		ImageFileUpload.PhotoUrlResponse sr = new ImageFileUpload().Upload(request);
 		if(sr.getResponseCode() == ResponseCode.SUCCESS){
-			res = new UserServiceHelper().UpdateUserPhoto(sr.getTargetId(), sr.getPhotoUrl());
+			ServiceResponse uupRes = new UserServiceHelper().UpdateUserPhoto(sr.getTargetId(), sr.getPhotoUrl());
 			
-				if(res.getResponseCode() == ResponseCode.SUCCESS){
-					
+				if(uupRes.getResponseCode() == ResponseCode.SUCCESS){
+					res.setFileurl(Util.UrlWithHttp(sr.getPhotoUrl()));
 					res.setResponseCode(ResponseCode.SUCCESS);
 					res.setResponseMessage("success");
 				}else{

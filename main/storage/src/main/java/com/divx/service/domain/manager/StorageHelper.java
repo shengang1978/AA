@@ -90,17 +90,7 @@ public class StorageHelper {
 					return ;
 				}
 				for(DcpOriginalasset obj : objs){
-					NotifyMediaStatus(obj,"",null);
-//					ServiceResponse sr = new MediaServiceHelper().UpdateMediaStatus(obj.getOriginalassetId(),obj.getMediaId(),obj.getStatus(),obj.getFileurl());
-//					if(sr.getResponseCode() == ResponseCode.SUCCESS){
-//						obj.setProcessed(true);
-//						obj.setErrorMessage("");
-//					}else{
-//						obj.setAttempts(obj.getAttempts() + 1);
-//						obj.setErrorMessage(String.format("code:%d. message:%s", sr.getResponseCode(), sr.getResponseMessage()));
-//					}
-//					obj.setDatemodified(new Date());
-//					uploadDao.UpdateUploadInfo(obj);
+					NotifyMediaStatus(obj, "");
 				}
 				
 			}catch(Exception ex){
@@ -110,7 +100,7 @@ public class StorageHelper {
 			
 		}
 		
-		public void NotifyMediaStatus(DcpOriginalasset obj,String token,ShareOption shareOption)
+		public void NotifyMediaStatus(DcpOriginalasset obj,String token)
 		{
 			try
 			{
@@ -122,8 +112,11 @@ public class StorageHelper {
 				up.setUploadId(obj.getOriginalassetId());
 				up.setStatus(obj.getStatus());
 				up.setFileurl(obj.getFileurl());
-				up.setShareJson(DatatypeConverter.printBase64Binary(Util.ObjectToJson(shareOption).getBytes()));
-				//ServiceResponse sr = new MediaServiceHelper().UpdateMediaStatus(obj.getOriginalassetId(),obj.getMediaId(),obj.getStatus(),obj.getFileurl(),token,Util.ObjectToJson(shareOption));
+				up.setShareJson(obj.getSharejson());
+				up.setV2gJson(obj.getV2gjson());
+				up.setLessonId(obj.getLessonid());
+				up.setContentSettings(obj.getContentSettings());
+				
 				ServiceResponse sr = new MediaServiceHelper().UpdateMediaStatus(token, up);
 				
 				if(sr.getResponseCode() == ResponseCode.SUCCESS){

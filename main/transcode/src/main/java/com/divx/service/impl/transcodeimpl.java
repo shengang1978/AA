@@ -35,5 +35,10 @@ public class transcodeimpl implements transcode {
 		return Util.ServiceResponseToResponse(transcodingMng.generateThumbnails(option.getAssetId(), option.getVideoLocation()));
 	}
 
+	@Override
+	public Response TranscodeExt(TransOption option) {
+		return Util.ServiceResponseToResponse(transcodingMng.startTranscoding(option));
+	}
+
 
 }

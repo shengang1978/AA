@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-4-3 16:12:38 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpTranscode" table="dcp_transcode" catalog="divx_transcode" optimistic-lock="version">
         <id name="transcodeId" type="java.lang.Integer">
@@ -37,6 +37,9 @@
         </property>
         <property name="jobname" type="string">
             <column name="jobname" />
+        </property>
+        <property name="transoptionjson" type="string">
+            <column name="transoptionjson" length="65535" />
         </property>
     </class>
 </hibernate-mapping>

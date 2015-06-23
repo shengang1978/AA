@@ -15,13 +15,18 @@ public final class Constants {
 		FinishSMILCreation,			//7
 		FinsihEndPublish,			//8
 		Error,						//9
-		MediaServiceConnectionError	//10
+		MediaServiceConnectionError,	//10
+		V2GVideo2JpgDoing,			//11
+		V2GVideo2JpgDone,			//12
+		V2GJpg2GifDoing,			//13
+		V2gJpg2GifDone				//14
 	}
 	
 	public enum eJobType {
 		Analyze,				//0
 		H265,					//1
-		H264					//2
+		H264,					//2
+		V2G,					//3 Convert Video to Gif
 	}
 	
 	public enum eJobFormat {
@@ -46,7 +51,9 @@ public final class Constants {
 		CreateFilterError,		//8
 		CreateTranscodeError,	//9
 		WatchAnalyzingJobError,	//10
-		WatchTranscodingJobError//11
+		WatchTranscodingJobError,//11
+		V2GExtractJpgError,
+		V2GJpg2GifError
 	}
 	
 	static{

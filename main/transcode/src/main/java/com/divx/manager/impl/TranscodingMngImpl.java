@@ -15,16 +15,19 @@ import com.divx.common.main.TCESOAPUtils;
 import com.divx.common.main.Constants.eProcessErrorCode;
 import com.divx.manager.TranscodingMng;
 import com.divx.service.ProcessWithTimeout;
+import com.divx.service.Util;
 import com.divx.service.domain.dao.TranscodeDao;
 import com.divx.service.domain.dao.TranscodeOutputDao;
 import com.divx.service.domain.model.DcpTranscode;
 import com.divx.service.domain.model.DcpTranscodeOutput;
 import com.divx.service.model.ProcessResponse;
 import com.divx.service.model.ProcessResponse.Status;
+import com.divx.service.model.MediaBaseType;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.Thumbnail;
 import com.divx.service.model.ThumbnailsResponse;
+import com.divx.service.model.TransOption;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang.RandomStringUtils;
@@ -126,7 +129,7 @@ public class TranscodingMngImpl implements TranscodingMng {
 		String nowDate = formatter.format(new Date());
 					
 		String fileName = file.getName();
-		thumbnailName = fileName.replace('.', '_') + "_" + nowDate + "_" + RandomStringUtils.randomAlphanumeric(5) + ".jpg";
+		thumbnailName = fileName.replace('.', '_') + "_" + nowDate + "_" + RandomStringUtils.randomAlphanumeric(5);
 		
 		return thumbnailName;
 	}
@@ -139,7 +142,8 @@ public class TranscodingMngImpl implements TranscodingMng {
 		
 		File file = new File(filePath);
 		
-		String thumbnailName = GenerateFileName(file);
+		String pathName = GenerateFileName(file);
+		String thumbnailName = pathName + ".jpg";
 
 		String thumbnailOut = Constants.THUMBNAIL_OUTPUT_PATH + thumbnailName;
 
@@ -155,6 +159,18 @@ public class TranscodingMngImpl implements TranscodingMng {
 		if (fileExt.compareToIgnoreCase("gif") == 0)
 		{
 			cmdline = String.format("gm convert \"%s[0]\" %s", filePath, thumbnailOut);
+		}
+		else if (fileExt.compareToIgnoreCase("zip") == 0)
+		{
+			thumbnailOut = Constants.THUMBNAIL_OUTPUT_PATH +  pathName;
+			File f = new File(thumbnailOut);
+			if (!f.exists())
+			{
+				f.mkdir();
+			}
+			String cover = "P0.jpg";
+			cmdline = String.format("unzip -j -o %s *%s -d %s", filePath, cover, thumbnailOut);
+			thumbnailOut += "/" + cover;
 		}
 		else
 		{
@@ -212,32 +228,34 @@ public class TranscodingMngImpl implements TranscodingMng {
 			if (exitCode == Integer.MIN_VALUE)
 			{	
 				log.error(String.format("Generate thumbnail Timeout: %s", cmdline));
+				res.setResponseCode(ResponseCode.ERROR_TRANSCODE_GENERATE_THUMB_TIMEOUT);
+				res.setResponseMessage(String.format("Generate thumbnail Timeout: %s", cmdline));
+				return res;
+			}
+			else if (exitCode != 0)
+			{
+				log.error(String.format("Generate thumbnail fail: %s", cmdline));
+				res.setResponseCode(ResponseCode.ERROR_TRANSCODE_GENERATE_THUMB_FAIL);
+				res.setResponseMessage(String.format("Generate thumbnail Fail: exitCode(%d): %s", exitCode, cmdline));
 				return res;
 			}
 			
 			File fThumb = new File(thumbnailOut);
 			if (!fThumb.exists())
 			{
+				log.error(String.format("The generated thumbnail doesn't exist: %s", cmdline));
+				res.setResponseCode(ResponseCode.ERROR_TRANSCODE_THUMB_NOT_EXIST);
+				res.setResponseMessage(String.format("The generated thumbnail doesn't exist: %s, %s", thumbnailOut, cmdline));
 				return res;
 			}
-//			Runtime rt = Runtime.getRuntime();
-//			Process pr = rt.exec(cmdline);
-//			
-//			String s;
-//			BufferedReader bufferedReader  = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-//			while((s=bufferedReader.readLine()) != null)
-//				//log.info(s);
-//			
-//			pr.waitFor();
-			
 		}
 		catch(Exception e)
 		{
 			String error = e.getMessage();
-			log.error("Failed to generate thumbnail: " + error);
+			Util.LogError(log, String.format("generateThumbnails->Rum cmdLine(%s) exception", cmdline), e);
+			res.setResponseMessage(String.format("generateThumbnails exception: %s", cmdline));
 			return res;
 		}
-
 		
 		List<Thumbnail> thumbs = new ArrayList<Thumbnail>();
 		
@@ -253,6 +271,53 @@ public class TranscodingMngImpl implements TranscodingMng {
 		res.setResponseCode(ResponseCode.SUCCESS);
 		res.setResponseMessage("Success");
 		res.setThumbnails(thumbs);
+		return res;
+	}
+
+	@Override
+	public ServiceResponse startTranscoding(TransOption option) {
+		if(!threadMonitor.isAlive()) {
+			threadMonitor = new Thread(monitor);
+			threadMonitor.start();
+		}
+		
+		ServiceResponse res = new ServiceResponse();
+		try
+		{
+		switch (option.getContentType())
+		{
+		case SMIL:
+		case Video4Gif:
+			if (option.getLocations() != null && option.getLocations().size() > 0)
+			{
+				if(ProcessUtils.addTranscodeJob(option) > 0) {
+					res.setResponseCode(ResponseCode.SUCCESS);
+					res.setResponseMessage("Success");
+				} 
+				else 
+				{
+					res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+					res.setResponseMessage("Error to create transcode job!");
+				}
+			}
+			else {
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("locations cannot be null or empty!");
+			}
+			break;
+		default:
+			res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+			res.setResponseMessage(String.format("Unsupported content type (%s)", option.getContentType().toString()));
+			break;
+		}
+		}
+		catch(Exception ex)
+		{
+			Util.LogError(log, String.format("startTranscoding(%s) exception", Util.ObjectToJson(option)), ex);
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage("Internal Error. " + ex.getMessage());
+		}
+		
 		return res;
 	}
 }

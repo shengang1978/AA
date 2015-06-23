@@ -19,6 +19,7 @@ public class Upload {
 	private eUploadStatus status;
 	private int totalSize;
 	private int mediaId;
+	private int lessonId;
 	private int endPosition;
 	private String filename;
 	private String fileurl;
@@ -26,6 +27,7 @@ public class Upload {
 	private String v2gJson;
 	private MediaBaseType.eContentType contentType;
 	private MediaBaseType.eFileType	fileType;
+	private String contentSettings;
 
 	public String getFileurl() {
 		return fileurl;
@@ -122,6 +124,9 @@ public class Upload {
 			case EduBook:
 				ft = eFileType.EduBook;
 				break;
+			case EduStory:
+				ft = eFileType.EduStoryAudio;
+				break;
 			}
 			return ft;
 		}
@@ -129,5 +134,21 @@ public class Upload {
 		{
 			return fileType;
 		}
+	}
+
+	public int getLessonId() {
+		return lessonId;
+	}
+
+	public void setLessonId(int lessonId) {
+		this.lessonId = lessonId;
+	}
+
+	public String getContentSettings() {
+		return contentSettings;
+	}
+
+	public void setContentSettings(String contentSettings) {
+		this.contentSettings = contentSettings;
 	}
 }

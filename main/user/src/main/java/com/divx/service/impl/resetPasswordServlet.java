@@ -2,39 +2,18 @@ package com.divx.service.impl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
-
-
-
-
-
 import javax.xml.bind.DatatypeConverter;
-
 import org.eclipse.jetty.util.security.Credential.MD5;
-import org.osforce.connect.dao.system.UserDao;
-import org.osforce.connect.dao.system.impl.UserDaoImpl;
-import org.osforce.connect.entity.system.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailSender;
-
 import com.divx.service.ConfigurationManager;
-import com.divx.service.Util;
-import com.divx.service.domain.manager.UserManager;
 import com.divx.service.domain.model.OsfUsers;
 import com.divx.service.domain.repository.DivxUserDao;
-import com.divx.service.domain.repository.TokenDao;
 import com.divx.service.domain.repository.impl.DivxUserDaoImpl;
-import com.divx.service.domain.repository.impl.TokenDaoImpl;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 

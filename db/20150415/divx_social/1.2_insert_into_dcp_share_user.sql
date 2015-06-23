@@ -1,0 +1,2 @@
+insert into `divx_social`.`dcp_share_user`(share_id,user_id,friend_id,group_id,create_date,modify_date,status) 
+	select share_id,user_id,friend_id,group_id,now(),now(),true from `divx_social`.`dcp_share`;

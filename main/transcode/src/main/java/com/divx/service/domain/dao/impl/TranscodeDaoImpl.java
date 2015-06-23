@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.springframework.stereotype.Repository;
@@ -217,6 +218,62 @@ public class TranscodeDaoImpl extends BaseDao implements TranscodeDao {
 		
 		return null;
 	}
+	
+	@Override
+	public List<DcpTranscode> GetUndoneTranscode(int jobType, List<Integer> status) {
+		Session ss = getSession();
+		
+		try
+		{	
+			Transaction trans = ss.beginTransaction();
+			String hql = String.format("FROM DcpTranscode m WHERE m.jobtype = :jobType and m.status in (:status)");
+			Query query = ss.createQuery(hql);
+			query.setParameter("jobType", jobType);
+			query.setParameterList("status", status);
+			//List<?> objs = ss.createQuery(hql).list();
+			List<?> objs = query.list();
+			trans.commit();
+			return (List<DcpTranscode>)objs;
+		}
+		catch(Exception e)
+		{
+			log.error("Fail to get undone transcode", e);
+		}
+		finally
+		{
+			ss.close();
+		}
+		
+		return null;
+	}
+	
+
+	@Override
+	public List<DcpTranscode> GetUndoneTranscode(List<Integer> status) {
+		Session ss = getSession();
+		
+		try
+		{	
+			Transaction trans = ss.beginTransaction();
+			String hql = String.format("FROM DcpTranscode m WHERE m.status in (:status)");
+			Query query = ss.createQuery(hql);
+			query.setParameterList("status", status);
+			//List<?> objs = ss.createQuery(hql).list();
+			List<?> objs = query.list();
+			trans.commit();
+			return (List<DcpTranscode>)objs;
+		}
+		catch(Exception e)
+		{
+			log.error("Fail to get undone transcode", e);
+		}
+		finally
+		{
+			ss.close();
+		}
+		
+		return null;
+	}
 
 	@Override
 	public int CreateFilter(DcpFilter obj) {
@@ -278,4 +335,7 @@ public class TranscodeDaoImpl extends BaseDao implements TranscodeDao {
 		}
 		return obj;
 	}
+
+
+
 }

@@ -10,7 +10,8 @@ public class RegisterOption {
 		email,
 		mobile,
 		Weixin,
-		QQ
+		QQ,
+		Guest
 	}
 	private eRegisterType registerType;
 	private String username;

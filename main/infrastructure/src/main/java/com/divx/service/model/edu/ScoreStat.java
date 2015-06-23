@@ -1,7 +1,8 @@
 package com.divx.service.model.edu;
 
+
 public class ScoreStat {
-	public enum eStatType
+	public enum eStatDuration
 	{
 		Today,
 		Total
@@ -13,7 +14,7 @@ public class ScoreStat {
 	private int listenDuration;	//second
 	private int readDuration;	//second
 	private int recordDuration;	//second
-	private eStatType statType;
+	private eStatDuration statDuration;
 	
 	public int getListen() {
 		return listen;
@@ -57,10 +58,10 @@ public class ScoreStat {
 	public void setRecordDuration(int recordDuration) {
 		this.recordDuration = recordDuration;
 	}
-	public eStatType getStatType() {
-		return statType;
+	public eStatDuration getStatType() {
+		return statDuration;
 	}
-	public void setStatType(eStatType statType) {
-		this.statType = statType;
+	public void setStatType(eStatDuration statDuration) {
+		this.statDuration = statDuration;
 	}
 }

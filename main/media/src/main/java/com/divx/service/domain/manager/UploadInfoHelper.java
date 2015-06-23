@@ -14,8 +14,8 @@ public class UploadInfoHelper {
 	static {
 		storyFileTypes = new LinkedList<eFileType>();
 		storyFileTypes.add(eFileType.EduStoryAudio);
-		storyFileTypes.add(eFileType.EduStoryZip);
-		storyFileTypes.add(eFileType.EduStoryConfig);
+//		storyFileTypes.add(eFileType.EduStoryZip);
+//		storyFileTypes.add(eFileType.EduStoryConfig);
 	}
 	
 	public static boolean DoesStoryHaveAllFiles(List<DcpDivxassets> assets, eFileType ftNew)
@@ -59,8 +59,8 @@ public class UploadInfoHelper {
 		case EduBook:
 			break;
 		case EduStory:
-			if (info.getFileType() == eFileType.EduStoryZip)
-				ret = true;
+//			if (info.getFileType() == eFileType.EduStoryZip)
+//				ret = true;
 			break;
 		default:
 			//SMIL, Gif, Video

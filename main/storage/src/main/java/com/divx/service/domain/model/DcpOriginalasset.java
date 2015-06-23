@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-1 11:50:03 by Hibernate Tools 4.3.1
+// Generated 2015-5-22 20:38:14 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -24,6 +24,11 @@ public class DcpOriginalasset implements java.io.Serializable {
 	private boolean processed;
 	private String errorMessage;
 	private Integer contenttype;
+	private String sharejson;
+	private String v2gjson;
+	private Integer filetype;
+	private String contentSettings;
+	private Integer lessonid;
 
 	public DcpOriginalasset() {
 	}
@@ -47,7 +52,9 @@ public class DcpOriginalasset implements java.io.Serializable {
 	public DcpOriginalasset(int mediaId, String fileurl, Date datecreated,
 			Date datemodified, int totalsize, int uploadpos, int status,
 			boolean completed, boolean deleted, String filename, int attempts,
-			boolean processed, String errorMessage, Integer contenttype) {
+			boolean processed, String errorMessage, Integer contenttype,
+			String sharejson, String v2gjson, Integer filetype,
+			String contentSettings, Integer lessonid) {
 		this.mediaId = mediaId;
 		this.fileurl = fileurl;
 		this.datecreated = datecreated;
@@ -62,6 +69,11 @@ public class DcpOriginalasset implements java.io.Serializable {
 		this.processed = processed;
 		this.errorMessage = errorMessage;
 		this.contenttype = contenttype;
+		this.sharejson = sharejson;
+		this.v2gjson = v2gjson;
+		this.filetype = filetype;
+		this.contentSettings = contentSettings;
+		this.lessonid = lessonid;
 	}
 
 	public Integer getOriginalassetId() {
@@ -182,6 +194,46 @@ public class DcpOriginalasset implements java.io.Serializable {
 
 	public void setContenttype(Integer contenttype) {
 		this.contenttype = contenttype;
+	}
+
+	public String getSharejson() {
+		return this.sharejson;
+	}
+
+	public void setSharejson(String sharejson) {
+		this.sharejson = sharejson;
+	}
+
+	public String getV2gjson() {
+		return this.v2gjson;
+	}
+
+	public void setV2gjson(String v2gjson) {
+		this.v2gjson = v2gjson;
+	}
+
+	public Integer getFiletype() {
+		return this.filetype;
+	}
+
+	public void setFiletype(Integer filetype) {
+		this.filetype = filetype;
+	}
+
+	public String getContentSettings() {
+		return this.contentSettings;
+	}
+
+	public void setContentSettings(String contentSettings) {
+		this.contentSettings = contentSettings;
+	}
+
+	public Integer getLessonid() {
+		return this.lessonid;
+	}
+
+	public void setLessonid(Integer lessonid) {
+		this.lessonid = lessonid;
 	}
 
 }

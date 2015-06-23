@@ -107,14 +107,11 @@ public class friendImpl implements friend {
 	public Response UnbindFriend(int friendId) {
 		AuthHelper helper = new AuthHelper();
 		if (helper.isGuest()) {
-			UsersResponse res = new UsersResponse();
+			ServiceResponse res = new ServiceResponse();
 			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
 			res.setResponseMessage("Token is invalid or not login.");
 			return Response.status(Status.UNAUTHORIZED).entity(res).build();
 		}
-		ServiceResponse res = new ServiceResponse();
-		res.setResponseCode(0);
-		res.setResponseMessage("Success");
 
 		return Util.ServiceResponseToResponse(friendManager.UnbindFriend(helper.getUserId(),friendId));
 	}

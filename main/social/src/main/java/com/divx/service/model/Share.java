@@ -4,9 +4,9 @@ import java.util.Date;
 
 public class Share {
 	private int id;
-	private int ownerId;
+	private User user;
 	private String title;
-	private String description;
+	private String desc;
 	private String snapshotUrl;
 	private MediaBaseType.eContentType contentType;
 	private String smileUrl;
@@ -16,6 +16,8 @@ public class Share {
 	private eStatus status;
 	private int likeCount;
 	private int commentCount;
+	private int likePoint;	//点赞给的Point总数
+	private int lessonId;
 	public enum eStatus
 	{
 		publishing,	// publishing the media (transcoding and uploading the asset)
@@ -27,18 +29,17 @@ public class Share {
 	public void setShareId(int id) {
 		this.id = id;
 	}
-	public int getOwnerId() {
-		return ownerId;
+	public User getUser() {
+		return user;
 	}
-	public void setOwnerId(int ownerId) {
-		this.ownerId = ownerId;
+	public void setUser(User user) {
+		this.user = user;
 	}
-
 	public String getDescription() {
-		return description;
+		return desc;
 	}
 	public void setDescription(String description) {
-		this.description = description;
+		this.desc = description;
 	}
 	public Date getDate() {
 		return date;
@@ -100,6 +101,18 @@ public class Share {
 	}
 	public void setSmileUrl(String smileUrl) {
 		this.smileUrl = smileUrl;
+	}
+	public int getLikePoint() {
+		return likePoint;
+	}
+	public void setLikePoint(int likePoint) {
+		this.likePoint = likePoint;
+	}
+	public int getLessonId() {
+		return lessonId;
+	}
+	public void setLessonId(int lessonId) {
+		this.lessonId = lessonId;
 	}
 
 }

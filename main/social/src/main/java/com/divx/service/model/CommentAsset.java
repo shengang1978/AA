@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class CommentAsset {
 	private int id;
 	private String title;
-	private String description;
+	private String desc;
 	private String snapshotUrl;
 	private Integer assetTypeId;
 	public int getId() {
@@ -22,10 +22,10 @@ public class CommentAsset {
 		this.title = title;
 	}
 	public String getDescription() {
-		return description;
+		return desc;
 	}
 	public void setDescription(String description) {
-		this.description = description;
+		this.desc = description;
 	}
 	public String getSnapshotUrl() {
 		return snapshotUrl;

@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-22 18:48:52 by Hibernate Tools 4.3.1
+// Generated 2015-6-15 17:54:31 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 import java.util.HashSet;
@@ -27,7 +27,11 @@ public class OsfUsers implements java.io.Serializable {
 	private Integer usernametype;
 	private String photourl;
 	private Integer organizationId;
+	private Date modified;
+	private Boolean usernameStatus;
 	private Set dcpOauthUserses = new HashSet(0);
+	private Set dcpImSyncs = new HashSet(0);
+	private DcpUserActive dcpUserActive;
 	private Set dcpUserRoles = new HashSet(0);
 
 	public OsfUsers() {
@@ -47,7 +51,9 @@ public class OsfUsers implements java.io.Serializable {
 			Date lastLogin, String locale, String nickname, String password,
 			String timezone, String token, String username, Long projectId,
 			String mobile, Integer usernametype, String photourl,
-			Integer organizationId, Set dcpOauthUserses, Set dcpUserRoles) {
+			Integer organizationId, Date modified, Boolean usernameStatus,
+			Set dcpOauthUserses, Set dcpImSyncs, DcpUserActive dcpUserActive,
+			Set dcpUserRoles) {
 		this.email = email;
 		this.enabled = enabled;
 		this.entered = entered;
@@ -63,7 +69,11 @@ public class OsfUsers implements java.io.Serializable {
 		this.usernametype = usernametype;
 		this.photourl = photourl;
 		this.organizationId = organizationId;
+		this.modified = modified;
+		this.usernameStatus = usernameStatus;
 		this.dcpOauthUserses = dcpOauthUserses;
+		this.dcpImSyncs = dcpImSyncs;
+		this.dcpUserActive = dcpUserActive;
 		this.dcpUserRoles = dcpUserRoles;
 	}
 
@@ -195,12 +205,44 @@ public class OsfUsers implements java.io.Serializable {
 		this.organizationId = organizationId;
 	}
 
+	public Date getModified() {
+		return this.modified;
+	}
+
+	public void setModified(Date modified) {
+		this.modified = modified;
+	}
+
+	public Boolean getUsernameStatus() {
+		return this.usernameStatus;
+	}
+
+	public void setUsernameStatus(Boolean usernameStatus) {
+		this.usernameStatus = usernameStatus;
+	}
+
 	public Set getDcpOauthUserses() {
 		return this.dcpOauthUserses;
 	}
 
 	public void setDcpOauthUserses(Set dcpOauthUserses) {
 		this.dcpOauthUserses = dcpOauthUserses;
+	}
+
+	public Set getDcpImSyncs() {
+		return this.dcpImSyncs;
+	}
+
+	public void setDcpImSyncs(Set dcpImSyncs) {
+		this.dcpImSyncs = dcpImSyncs;
+	}
+
+	public DcpUserActive getDcpUserActive() {
+		return this.dcpUserActive;
+	}
+
+	public void setDcpUserActive(DcpUserActive dcpUserActive) {
+		this.dcpUserActive = dcpUserActive;
 	}
 
 	public Set getDcpUserRoles() {

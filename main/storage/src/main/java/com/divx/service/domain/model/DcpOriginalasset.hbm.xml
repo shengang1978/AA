@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-4-1 11:50:03 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-5-22 20:38:14 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpOriginalasset" table="dcp_originalasset" catalog="divx_storage" optimistic-lock="version">
         <id name="originalassetId" type="java.lang.Integer">
@@ -49,6 +49,27 @@
         </property>
         <property name="contenttype" type="java.lang.Integer">
             <column name="contenttype" />
+        </property>
+        <property name="sharejson" type="string">
+            <column name="sharejson" length="2000" />
+        </property>
+        <property name="v2gjson" type="string">
+            <column name="v2gjson" length="2000" />
+        </property>
+        <property name="filetype" type="java.lang.Integer">
+            <column name="filetype">
+                <comment>public enum eFileType { H264, H265, V2G, //&#194;&#254;&#202;&#211;Gif&#206;&#196;&#188;&#254; Auto, //
+                &#184;&#249;&#190;&#221;ContentType&#215;&#212;&#182;&#175;&#197;&#208;&#182;&#207; EduBook, //&#211;&#162;&#212;&#196;&#185;&#221; - &#202;&#233;&#188;&#174;
+                zip&#206;&#196;&#188;&#254; EduStoryAudio, //&#211;&#162;&#212;&#196;&#185;&#221; - Story&#181;&#196;&#194;&#188;&#210;&#244;&#206;&#196;&#188;&#254; EduStoryZip,
+                //&#211;&#162;&#212;&#196;&#185;&#221; - Story&#181;&#196;Pic&#161;&#162;video&#181;&#196;zip&#206;&#196;&#188;&#254; EduStoryConfig
+                //&#211;&#162;&#212;&#196;&#185;&#221; - Story&#197;&#228;&#214;&#195;&#206;&#196;&#188;&#254; }</comment>
+            </column>
+        </property>
+        <property name="contentSettings" type="string">
+            <column name="contentSettings" length="2000" />
+        </property>
+        <property name="lessonid" type="java.lang.Integer">
+            <column name="lessonid" />
         </property>
     </class>
 </hibernate-mapping>

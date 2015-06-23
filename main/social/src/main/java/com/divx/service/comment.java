@@ -16,13 +16,9 @@ import com.divx.service.model.CommentOption;
 public interface comment {
 	@POST
 	@Path("/")
-	@Consumes("application/json")
-	@Produces("application/json")
 	Response AddComment(CommentOption option);	
 	
 	@GET
 	@Path("/{assetType}")
-	@Consumes("application/json")
-	@Produces("application/json")
 	Response GetComments(@PathParam("assetType") int assetType, @QueryParam("page") int page, @QueryParam("pageSize") int pageSize, @QueryParam("title") String title);
 }

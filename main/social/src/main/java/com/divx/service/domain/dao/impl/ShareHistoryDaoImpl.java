@@ -12,8 +12,11 @@ import org.springframework.stereotype.Repository;
 
 import com.divx.service.BaseDao;
 import com.divx.service.domain.dao.ShareHistoryDao;
+import com.divx.service.domain.model.ActivityDbInfo;
 import com.divx.service.domain.model.DcpCommentExt;
+import com.divx.service.domain.model.DcpLikeStat;
 import com.divx.service.domain.model.OsfComments;
+import com.divx.service.model.BaseSocialType;
 import com.divx.service.model.KeyValuePair;
 
 @Repository
@@ -200,6 +203,58 @@ public class ShareHistoryDaoImpl extends BaseDao implements ShareHistoryDao {
 			session.close();
 		}
 		return null;
+	}
+
+	@Override
+	public ActivityDbInfo AddComment(int userId, int shareId, BaseSocialType.ActionType at, BaseSocialType.eLikeOption lo, 
+			String content, int point) {
+		Session ss  = getSessionFactory().openSession();
+		Transaction trans = null;
+		try
+		{
+			trans = ss.beginTransaction();
+			
+			String hql = "CALL f_addComment(?,?,?,?,?,?)";
+			Query query = ss.createSQLQuery(hql);
+			query.setInteger(0, userId);
+			query.setInteger(1, shareId);
+			query.setInteger(2, at.ordinal());
+			query.setInteger(3, lo.ordinal());
+			query.setString(4, content);
+			query.setInteger(5, point);
+			
+			List<Object> lstRet = query.list();
+			
+			if (lstRet != null && lstRet.size() > 0)
+			{
+				//clear the hibernate second level cache.
+				getSessionFactory().getCache().evictEntityRegion(OsfComments.class);
+				getSessionFactory().getCache().evictEntityRegion(DcpLikeStat.class);
+				
+				Object[] objs = (Object[])lstRet.get(0);
+				int code = Integer.parseInt(objs[0].toString());
+				String message = objs[1].toString();
+
+				if (code == 0)
+					return new ActivityDbInfo(shareId, Integer.parseInt(objs[2].toString()), Integer.parseInt(objs[3].toString()), Integer.parseInt(objs[4].toString()), Integer.parseInt(objs[5].toString()));
+				else
+					return new ActivityDbInfo();
+			}
+			trans.commit();
+			
+			return new ActivityDbInfo();
+		}
+		catch(Exception ex)
+		{
+			if (trans != null)
+				trans.rollback();
+			
+			throw ex;
+		}
+		finally
+		{	
+			ss.close();
+		}
 	}
 
 }

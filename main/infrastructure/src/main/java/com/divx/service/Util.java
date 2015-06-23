@@ -26,6 +26,13 @@ import java.util.UUID;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.log4j.Logger;
+import org.hibernate.Criteria;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.internal.CriteriaImpl;
+import org.hibernate.loader.criteria.CriteriaJoinWalker;
+import org.hibernate.loader.criteria.CriteriaQueryTranslator;
+import org.hibernate.persister.entity.OuterJoinLoadable;
 
 import com.divx.service.model.AuthHelperModel;
 import com.divx.service.model.KeyValuePair;
@@ -85,6 +92,7 @@ public class Util {
             conn.setRequestProperty("accept", "*/*");
             conn.setRequestProperty("connection", "Keep-Alive");
             conn.setRequestProperty("Content-Type", "application/json");
+           
             
             if (headers != null)
             {
@@ -94,10 +102,9 @@ public class Util {
 	            }
             }
             
-			/*in = url.openStream();
-			return getStringFromInputStream(in);	*/	
             in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream()));
+                    new InputStreamReader(conn.getInputStream(),"UTF-8"));
+
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;
@@ -142,8 +149,12 @@ public class Util {
 
             out.flush();
 
-            in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream()));
+            if (conn.getResponseCode() >= 400)
+            	in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            else
+	            in = new BufferedReader(
+	                    new InputStreamReader(conn.getInputStream()));
+            
             String line;
             while ((line = in.readLine()) != null) {
                 result += line;
@@ -166,7 +177,7 @@ public class Util {
         String result = "";
         try {
             URL realUrl = new URL(reqUrl);
-
+            
             HttpURLConnection conn = (HttpURLConnection)realUrl.openConnection();
             
             conn.setRequestMethod("PUT");
@@ -236,6 +247,11 @@ public class Util {
 	public static <T> T JsonToObject(String json, Class<T> classOfT)
 	{
 		return new Gson().fromJson(json, classOfT);
+	}
+	
+	public static <T> T JsonToObject(String json, Type typeOfT)
+	{
+		return new Gson().fromJson(json, typeOfT);
 	}
 	
 	public static String ObjectToJson(Object obj)
@@ -366,4 +382,52 @@ public class Util {
 	{
 		log.error(message + "\n\r" + getStackTrace(e));
 	}
+	public static String UrlWithHttp(String url){
+		String configUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().THUMBNAIL_OUTPUT_PREFIX());
+		if(url.toLowerCase().startsWith("http")){
+			return url;
+		}
+		return UrlWithSlashes(configUrl) + url;
+	}
+	
+	public static int getStringIndex(String str){
+		int spaceIndex = str.indexOf(' ');
+		int underlineIndex = str.indexOf('_');
+		if(spaceIndex < 0 && underlineIndex < 0){
+			return 0;
+		}
+		if(spaceIndex < 0 && underlineIndex > 0){
+			return underlineIndex;
+		}
+		if(spaceIndex > 0 && underlineIndex < 0){
+			return spaceIndex;
+		}
+		if(spaceIndex > 0 && underlineIndex > 0){
+			if(spaceIndex > underlineIndex){
+				return underlineIndex;
+			}else{
+				return spaceIndex;
+			}
+		}
+		
+		return 0;
+		
+	}
+	
+    public static String getCriteriaSql(Criteria criteria) {  
+        CriteriaImpl criteriaImpl = (CriteriaImpl) criteria;//转型  
+        SessionImplementor session = criteriaImpl.getSession();//获取SESSION  
+        SessionFactoryImplementor factory = session.getFactory();//获取FACTORY  
+        CriteriaQueryTranslator translator = new CriteriaQueryTranslator(factory, criteriaImpl, criteriaImpl  
+            .getEntityOrClassName(), CriteriaQueryTranslator.ROOT_SQL_ALIAS);  
+        String[] implementors = factory.getImplementors(criteriaImpl.getEntityOrClassName());  
+        CriteriaJoinWalker walker = new CriteriaJoinWalker(
+        								(OuterJoinLoadable) factory.getEntityPersister(implementors[0]),
+										translator, 
+										factory, 
+										criteriaImpl, 
+										criteriaImpl.getEntityOrClassName(), 
+										session.getLoadQueryInfluencers());  
+        return walker.getSQLString();  
+    }  
 }

@@ -15,6 +15,8 @@ public abstract class ResponseCode {
 	
 	public static final int ERROR_NOT_IMPLEMENTED = -4;
 	
+	public static final int ERROR_NOT_FOUND = -5;
+	
 	// Login Error: Wrong username or password
 	public static final int AUTH_ERROR_USERNAME_OR_PASSWORD_INVALID	= -1000;
 	
@@ -30,6 +32,11 @@ public abstract class ResponseCode {
 	
 	// The token is expired.
 	public static final int AUTH_ERROR_TOKEN_IS_EXPIRED = -1004;
+	
+	// The third party OAuth has been bound.
+	public static final int AUTH_ERROR_OAUTH_HAS_BOUND = -1005;
+	
+	public static final int AUTH_ERROR_INVALID_OAUTH_TOKEN = -1006;
 	
 	// Register User: username has existed.
 	public static final int ERROR_REGISTER_USER_USERNAME_EXIST = -2001;
@@ -80,6 +87,8 @@ public abstract class ResponseCode {
 	
 	//the media is not existed
 	public static final int MEDIA_NOT_EXISTED = -3303;
+	
+	public static final int MEDIA_HAS_BEEN_IN_LIBRARY = -3304;
 	
 	// Transcode failed when publishing the media.
 	public static final int ERROR_PUBLISH_MEDIA_FAILED = -3400;

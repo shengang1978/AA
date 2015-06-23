@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-4-3 16:12:38 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpTranscodeOutput" table="dcp_transcode_output" catalog="divx_transcode" optimistic-lock="version">
         <id name="transcodeOutputId" type="java.lang.Integer">
@@ -15,7 +15,9 @@
             <column name="fileurl" not-null="true" />
         </property>
         <property name="filetype" type="int">
-            <column name="filetype" not-null="true" />
+            <column name="filetype" not-null="true">
+                <comment>1 is H264, 2 is H265</comment>
+            </column>
         </property>
         <property name="datecreated" type="timestamp">
             <column name="datecreated" length="19" not-null="true" />

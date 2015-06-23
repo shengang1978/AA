@@ -15,7 +15,7 @@ public class ShareOption {
 	private int mediaId;
 	private ShareType shareType;
 	private int destId;
-	private int parentShareId;	//The parent share. 
+	//private int parentShareId;	//The parent share. 
 								//	0: means no parent.
 	
 	public int getMediaId() {
@@ -38,10 +38,10 @@ public class ShareOption {
 	public void setDestId(int destId) {
 		this.destId = destId;
 	}
-	public int getParentShareId() {
+	/*public int getParentShareId() {
 		return parentShareId;
 	}
 	public void setParentShareId(int parentShareId) {
 		this.parentShareId = parentShareId;
-	}
+	}*/
 }

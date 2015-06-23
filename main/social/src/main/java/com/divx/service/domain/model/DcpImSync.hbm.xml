@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-6-23 12:26:37 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpImSync" table="dcp_im_sync" catalog="divx_social" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="synced" type="java.lang.Boolean">
+            <column name="synced" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" />
+        </property>
+        <property name="tryCount" type="java.lang.Integer">
+            <column name="try_count" />
+        </property>
+        <property name="errorMessage" type="string">
+            <column name="error_message" length="2000" />
+        </property>
+        <property name="syncType" type="java.lang.Integer">
+            <column name="sync_type" />
+        </property>
+        <property name="data" type="string">
+            <column name="data" length="2000" />
+        </property>
+    </class>
+</hibernate-mapping>

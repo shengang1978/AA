@@ -41,6 +41,8 @@ public interface DivxUserDao {
 	List<OsfUsers> FindUsersInEmail(int orgId, String email);
 	List<OsfUsers> FindUsersInMobile(int orgId, String mobile);
 	
+	List<OsfUsers> ListUsers(int orgId, int startPos, int endPos);
+	
 	DcpOrganization GetOrganization(int orgId);
 	
 	KeyValuePair<OsfUsers, DcpOrganization>  GetUserInfo(int userId);
@@ -59,6 +61,7 @@ public interface DivxUserDao {
 	
 	DcpRole GetRole(int roleId);
 	
+	OsfUsers GetUserByDeviceUniqueId(String deviceUniqueId,int registType);
 	
-
+	int LogLastAccess(String deviceUniqueId);
 }

@@ -5,7 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.divx.service.ConfigurationManager;
-import com.divx.service.model.EndPublishOptionShell.EndPublishOption;
+import com.divx.service.Util;
+import com.divx.service.model.EndPublishOption;
 import com.divx.service.model.KeyValuePair;
 
 import javax.xml.parsers.DocumentBuilder;  
@@ -16,16 +17,22 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;  
   
 
+
+
+
+import org.apache.log4j.Logger;
+import org.eclipse.jetty.util.log.Log;
 import org.w3c.dom.Document;  
 import org.w3c.dom.Element;  
 import org.w3c.dom.NodeList;
 
 public class CloudAdapter implements StorageAdapter {
-	protected static String InUrl = ConfigurationManager.GetInstance().UploadDestFolder();
+	private Logger log = Logger.getLogger(CloudAdapter.class);
+	protected  String InUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().UploadDestFolder());
 	
-	protected static String OutUrl = ConfigurationManager.GetInstance().TCE_LOCATION_OUT();
+	protected  String OutUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().TCE_LOCATION_OUT());
 	
-	protected static String smilBaseUrl = ConfigurationManager.GetInstance().THUMBNAIL_OUTPUT_PREFIX();
+	protected  String smilBaseUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().SMIL_OUT_FILE_PREFIX());
 	@Override
 	public String process(EndPublishOption endPublishOption) {
 	
@@ -33,6 +40,7 @@ public class CloudAdapter implements StorageAdapter {
 		return "";
 	}
 	public KeyValuePair<String,List<String>> getAllFile(EndPublishOption endPublishOption){
+		
 		String smilUrl  = endPublishOption.getSmilPath();
 		String smilFilePath = smilUrl.replace(smilBaseUrl, OutUrl);
 		String parentFilePath = smilFilePath.substring(0, smilFilePath.lastIndexOf('/'));
@@ -44,9 +52,9 @@ public class CloudAdapter implements StorageAdapter {
 		for(File file : fileList){
 			if(file.getName().endsWith(".mkv")){
 				fileNames.add(file.getName());
-			}
-			
+			}			
 		}
+		
 		KeyValuePair<String,List<String>> fileInfo = new KeyValuePair<>();
 		fileInfo.setKey(parentFolder);
 		fileInfo.setValue(fileNames);
@@ -87,7 +95,7 @@ public class CloudAdapter implements StorageAdapter {
 	       }
 	     
 	       
-	    saveXmlFile(document,smilFilePath);   
+	    saveXmlFile(document,smilFilePath.replace("smil_out.smil", "smil_out1.smil"));   
 	}
 
 	public static boolean saveXmlFile(Document document,String filename)   

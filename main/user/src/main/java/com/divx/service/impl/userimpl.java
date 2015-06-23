@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import com.divx.service.*;
 import com.divx.service.auth.DivXAuthenticationToken;
+import com.divx.service.auth.model.DivXAuthToken;
 import com.divx.service.auth.model.DivXAuthUser;
 import com.divx.service.domain.manager.UserManager;
 import com.divx.service.domain.model.OsfUsers;
@@ -42,6 +43,7 @@ public class userimpl implements user {
 			return Util.ServiceResponseToResponse(res);
 		}
 		
+		
 		return Util.ServiceResponseToResponse(userManager.Register(option, deviceUniqueId, deviceType, helper.getOrganizationId()));
 	}
 
@@ -60,7 +62,7 @@ public class userimpl implements user {
 			res.setResponseMessage("DeviceUniqueId or DeviceType is invalid.");
 			return Util.ServiceResponseToResponse(res);
 		}
-		return Util.ServiceResponseToResponse(userManager.Login(username, password, deviceUniqueId, deviceType, helper.getOrganizationId()));
+		return Util.ServiceResponseToResponse(userManager.Login(username.trim(), password, deviceUniqueId, deviceType, helper.getOrganizationId()));
 
 	}
 	
@@ -85,13 +87,21 @@ public class userimpl implements user {
 	}
 
 	@Override
+	public Response ListUsers(int startPos, int endPos) {
+		ServiceHeaderHelper helper = new ServiceHeaderHelper();
+		
+		int orgId = helper.getOrganizationId();
+		
+		return Util.ServiceResponseToResponse(userManager.ListUsers(orgId, startPos, endPos));
+	}
+
+	@Override
 	public Response FindUsers(FindUserOption.eFindOption option,String searchKey, int startPos, int endPos) {
 		ServiceHeaderHelper helper = new ServiceHeaderHelper();
 		
 		int orgId = helper.getOrganizationId();
 		
-		FindUsersResponse res = new FindUsersResponse();
-
+		UsersResponse res = new UsersResponse();
 		
 		try
 		{
@@ -167,24 +177,8 @@ public class userimpl implements user {
 	@Override
 	public Response UpdateUsername(UserOption option) {
 		DivXAuthUser user = DivXAuthUser.FromSecurityContent();
-//		ServiceHeaderHelper helper = new ServiceHeaderHelper();
-//		ServiceResponse res = new ServiceResponse();
-//		String strToken = helper.getHeader("Token");
-//		if (strToken == null || strToken.trim() == "")
-//		{
-//			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-//			res.setResponseMessage("Invalid Token");
-//			return Util.ServiceResponseToResponse(res);
-//		}
-//		CheckUserResponse cur = userManager.CheckToken(strToken);
-//	
-//		if(cur.getResponseCode() == 0){
-			return Util.ServiceResponseToResponse(userManager.UpdateUser(option,user.getUserId()));
-//		}else{
-//			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-//			res.setResponseMessage("Invalid Token");
-//			return Util.ServiceResponseToResponse(res);
-//		}
+		
+		return Util.ServiceResponseToResponse(userManager.UpdateUser(option,user.getUserId()));
 	}
 
 	@Override
@@ -224,7 +218,9 @@ public class userimpl implements user {
 	
 	@Override
 	public Response Startup() {
-		return Util.ServiceResponseToResponse(userManager.Startup());
+		ServiceHeaderHelper helper = new ServiceHeaderHelper();
+		
+		return Util.ServiceResponseToResponse(userManager.Startup(helper.getDeviceUniqueId()));
 	}
 
 	@Override
@@ -276,24 +272,47 @@ public class userimpl implements user {
 	@Override
 	public Response GetUserInfo() {
 		DivXAuthUser user = DivXAuthUser.FromSecurityContent();
-//		ServiceHeaderHelper helper = new ServiceHeaderHelper();
-//		String strToken = helper.getHeader("Token");
-//		if (strToken == null || strToken.trim() == "")
-//		{
-//			UserInfoResponse res = new UserInfoResponse();
-//			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-//			res.setResponseMessage("Invalid Token");
-//			return Util.ServiceResponseToResponse(res);
-//		}
-//		CheckUserResponse cur = userManager.CheckToken(strToken);
-//		if (cur.getResponseCode() != ResponseCode.SUCCESS)
-//		{
-//			UserInfoResponse res = new UserInfoResponse();
-//			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-//			res.setResponseMessage(String.format("Invalid Token. %d. %s", cur.getResponseCode(), cur.getResponseMessage()));
-//			return Util.ServiceResponseToResponse(res);
-//		}
+
 		return Util.ServiceResponseToResponse(userManager.GetUserBaseInfo(user.getUserId()));
 	}
 
+	@Override
+	public Response ValidateToken() {
+		ValidateTokenResponse res = new ValidateTokenResponse();
+		res.setResponseCode(ResponseCode.SUCCESS);
+		res.setResponseMessage("Success");
+		
+		ServiceHeaderHelper helper = new ServiceHeaderHelper();
+		String strToken = helper.getHeader("Token");
+		if (strToken == null || strToken.trim() == "")
+		{
+			res.setTokenValid(false);
+			return Util.ServiceResponseToResponse(res);
+		}
+		
+		DivXAuthToken at = DivXAuthToken.FromAuthToken(strToken);
+		if (at == null )
+		{
+			res.setTokenValid(false);
+			return Util.ServiceResponseToResponse(res);
+		}
+		
+		CheckUserResponse cuRes = userManager.CheckToken(at);
+		if (cuRes.getResponseCode() != ResponseCode.SUCCESS)
+			res.setTokenValid(false);
+		else
+			res.setTokenValid(true);
+		
+		return Util.ServiceResponseToResponse(res);
+	}
+
+	@Override
+	public Response GetUser(int userId) {
+		
+		
+		return Util.ServiceResponseToResponse(userManager.GetUser(userId));
+	}
+
+	
+	
 }

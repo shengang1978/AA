@@ -7,12 +7,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.divx.service.UserHelper;
 import com.divx.service.domain.dao.ShareDao;
 import com.divx.service.domain.dao.ShareHistoryDao;
 import com.divx.service.domain.model.DcpCommentExt;
 import com.divx.service.domain.model.DcpShare;
+import com.divx.service.domain.model.DcpShareUser;
 import com.divx.service.domain.model.OsfComments;
 import com.divx.service.model.Activity;
+import com.divx.service.model.BaseSocialType.ActionType;
 import com.divx.service.model.Comment;
 import com.divx.service.model.CommentAsset;
 import com.divx.service.model.CommentFull;
@@ -48,20 +51,25 @@ public class CommentManager {
 			share.setAssettype(asset.getAssetTypeId());
 			share.setDatecreated(new Date());
 			share.setDatemodified(new Date());
-			share.setFriendId(0);
-			share.setGroupId(0);
+			/*share.setFriendId(0);
+			share.setGroupId(0);*/
 			share.setMediadescription(asset.getDescription());
 			share.setMediatitle(asset.getTitle());
 			share.setMediaId(asset.getId());
 			share.setSharetype(ShareOption.ShareType.all.ordinal());
 			share.setSnapshoturl(asset.getSnapshotUrl());
-			share.setUserId(userId);
+			//share.setUserId(userId);
 			
 			int shareId = shareDao.SetShareByTitle(share);
+			DcpShareUser shareUser = new DcpShareUser();
+			shareUser.setFriendId(0);
+			shareUser.setGroupId(0);
+			shareUser.setUserId(userId);
+			shareDao.CreateShareUser(ShareOption.ShareType.all, shareUser);
 			
 			OsfComments base = new OsfComments();
 			Comment comment = option.getComment();
-			base.setActivitytype(Activity.ActionType.comment.ordinal());
+			base.setActivitytype(ActionType.comment.ordinal());
 			base.setContent(comment.getContent());
 			base.setEnabled(true);
 			base.setEntered(new Date());
@@ -99,7 +107,7 @@ public class CommentManager {
 			
 			List<CommentFull> comments = new LinkedList<CommentFull>();
 			if(objs.size() == 0){
-				User user = userHelper.GetUser(new Long(userId).intValue());
+				User user = UserHelper.GetUser(new Long(userId).intValue());
 				CommentFull cf = new CommentFull();
 				cf.setUser(user);
 				

@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlType;
 public class MediasResponse extends ServiceResponse {
 	private List<Media>	medias;
 	private int startPos;
-	private int endPos;
+	private int count;
 	public List<Media> getMedias() {
 		return medias;
 	}
@@ -26,10 +26,16 @@ public class MediasResponse extends ServiceResponse {
 	public void setStartPos(int startPos) {
 		this.startPos = startPos;
 	}
-	public int getEndPos() {
-		return endPos;
+//	public int getEndPos() {
+//		return endPos;
+//	}
+//	public void setEndPos(int endPos) {
+//		this.endPos = endPos;
+//	}
+	public int getCount() {
+		return count;
 	}
-	public void setEndPos(int endPos) {
-		this.endPos = endPos;
+	public void setCount(int count) {
+		this.count = count;
 	}
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import com.divx.service.model.KeyValuePair;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
+import com.divx.service.model.User;
 
 public class UserServiceHelper extends ServiceResponse{
 	public class AuthResponse extends ServiceResponse{
@@ -30,6 +31,7 @@ public class UserServiceHelper extends ServiceResponse{
 			this.deviceGuid = deviceGuid;
 		}
 	}
+	public AuthResponse AuthResponse;
 	public class FindUsersResponse extends ServiceResponse{
 		private List<User>	users;
 
@@ -102,38 +104,6 @@ public class UserServiceHelper extends ServiceResponse{
 		}
 		public void setSearchKey(String searchKey) {
 			this.searchKey = searchKey;
-		}
-	}
-
-	public class User {
-		private int userId;
-		private String nickname;
-		private String username;
-		private String photourl;
-		
-		public int getUserId() {
-			return userId;
-		}
-		public void setUserId(int userId) {
-			this.userId = userId;
-		}
-		public String getNickname() {
-			return nickname;
-		}
-		public void setNickname(String nickname) {
-			this.nickname = nickname;
-		}
-		public String getUsername() {
-			return username;
-		}
-		public void setUsername(String username) {
-			this.username = username;
-		}
-		public String getPhotourl() {
-			return photourl;
-		}
-		public void setPhotourl(String photourl) {
-			this.photourl = photourl;
 		}
 	}
 

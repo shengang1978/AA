@@ -17,11 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.divx.service.SessionFactoryHelper;
 import com.divx.service.domain.model.DcpOrganization;
 import com.divx.service.domain.model.DcpOrgsite;
-import com.divx.service.domain.model.DcpOrgsiteHome;
 import com.divx.service.domain.repository.OrgSiteDao;
 
 @Repository
-public class OrgSiteDaoImpl extends DcpOrgsiteHome 
+public class OrgSiteDaoImpl 
 	implements OrgSiteDao {
 
 	protected SessionFactory getSessionFactory() {

@@ -23,14 +23,20 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 		
 		Session session = getSessionFactory().openSession();
 		
-		int groupId = -1;
+		int partyId = -1;
 		Transaction tx = null;
 		try
 		{
 			tx = session.beginTransaction();
 			session.save(obj);
-			tx.commit();
-			groupId = obj.getPartyId().intValue();
+
+			partyId = obj.getPartyId().intValue();
+			
+			DcpPartyUser user = new DcpPartyUser();
+			user.setDcpParty(obj);
+			user.setDatecreated(new Date());
+			user.setDatemodified(new Date());
+			//user.set
 		}
 		catch(Throwable ex)
 		{
@@ -38,16 +44,19 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 			if (tx != null)
 			{
 				tx.rollback();
+				tx = null;
 			}
 			
 			throw new ExceptionInInitializerError(ex);
 		}
 		finally
 		{
+			if (tx != null)
+				tx.commit();
 			session.close();
 		}
 		
-		return groupId;
+		return partyId;
 	}
 
 	@Override
@@ -254,9 +263,9 @@ public class PartyDaoImpl extends BaseDao implements PartyDao {
 				for(DcpPartyUser u: users)
 				{
 					u.setDcpParty(party);
+					session.saveOrUpdate(u);
 				}
 				
-				session.saveOrUpdate(party);
 			}
 			tx.commit();
 			

@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-23 19:07:38 by Hibernate Tools 4.3.1
+// Generated 2015-6-10 13:52:48 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 import java.util.HashSet;
@@ -14,11 +14,16 @@ public class DcpLesson implements java.io.Serializable {
 	private Integer lessonId;
 	private DcpMedia dcpMedia;
 	private String category;
+	private String categoryTitle;
 	private Integer number;
 	private String title;
+	private String config;
 	private Date datecreated;
 	private Date datemodified;
 	private String snapshoturl;
+	private Set dcpStoryplayTotalstats = new HashSet(0);
+	private Set dcpStoryplays = new HashSet(0);
+	private Set dcpLessonAssets = new HashSet(0);
 	private Set dcpScores = new HashSet(0);
 
 	public DcpLesson() {
@@ -28,16 +33,22 @@ public class DcpLesson implements java.io.Serializable {
 		this.dcpMedia = dcpMedia;
 	}
 
-	public DcpLesson(DcpMedia dcpMedia, String category, Integer number,
-			String title, Date datecreated, Date datemodified,
-			String snapshoturl, Set dcpScores) {
+	public DcpLesson(DcpMedia dcpMedia, String category, String categoryTitle,
+			Integer number, String title, String config, Date datecreated,
+			Date datemodified, String snapshoturl, Set dcpStoryplayTotalstats,
+			Set dcpStoryplays, Set dcpLessonAssets, Set dcpScores) {
 		this.dcpMedia = dcpMedia;
 		this.category = category;
+		this.categoryTitle = categoryTitle;
 		this.number = number;
 		this.title = title;
+		this.config = config;
 		this.datecreated = datecreated;
 		this.datemodified = datemodified;
 		this.snapshoturl = snapshoturl;
+		this.dcpStoryplayTotalstats = dcpStoryplayTotalstats;
+		this.dcpStoryplays = dcpStoryplays;
+		this.dcpLessonAssets = dcpLessonAssets;
 		this.dcpScores = dcpScores;
 	}
 
@@ -65,6 +76,14 @@ public class DcpLesson implements java.io.Serializable {
 		this.category = category;
 	}
 
+	public String getCategoryTitle() {
+		return this.categoryTitle;
+	}
+
+	public void setCategoryTitle(String categoryTitle) {
+		this.categoryTitle = categoryTitle;
+	}
+
 	public Integer getNumber() {
 		return this.number;
 	}
@@ -79,6 +98,14 @@ public class DcpLesson implements java.io.Serializable {
 
 	public void setTitle(String title) {
 		this.title = title;
+	}
+
+	public String getConfig() {
+		return this.config;
+	}
+
+	public void setConfig(String config) {
+		this.config = config;
 	}
 
 	public Date getDatecreated() {
@@ -103,6 +130,30 @@ public class DcpLesson implements java.io.Serializable {
 
 	public void setSnapshoturl(String snapshoturl) {
 		this.snapshoturl = snapshoturl;
+	}
+
+	public Set getDcpStoryplayTotalstats() {
+		return this.dcpStoryplayTotalstats;
+	}
+
+	public void setDcpStoryplayTotalstats(Set dcpStoryplayTotalstats) {
+		this.dcpStoryplayTotalstats = dcpStoryplayTotalstats;
+	}
+
+	public Set getDcpStoryplays() {
+		return this.dcpStoryplays;
+	}
+
+	public void setDcpStoryplays(Set dcpStoryplays) {
+		this.dcpStoryplays = dcpStoryplays;
+	}
+
+	public Set getDcpLessonAssets() {
+		return this.dcpLessonAssets;
+	}
+
+	public void setDcpLessonAssets(Set dcpLessonAssets) {
+		this.dcpLessonAssets = dcpLessonAssets;
 	}
 
 	public Set getDcpScores() {

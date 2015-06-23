@@ -37,14 +37,17 @@ import com.divx.service.domain.model.DcpTranscodeJob;
 import com.divx.service.domain.model.DcpTranscodeOutput;
 import com.divx.service.model.AuthHelperModel;
 import com.divx.service.model.EndPublishOptionShell;
+import com.divx.service.model.MediaBaseType;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
+import com.divx.service.model.TransOption;
 import com.divx.manager.impl.MediaServiceHelper;
 import com.divx.common.main.MFSGenerator;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.mainconcept.rewsservice.Job;
 import com.mainconcept.rewsservice.MediaInfo;
+import com.divx.service.model.EndPublishOption;
 
 
 public class ProcessUtils {
@@ -71,20 +74,39 @@ public class ProcessUtils {
 	}
 
 	public static int addTranscodeJob(int assetId, String filePath) {
+		TransOption opt = new TransOption();
+		opt.setContentType(MediaBaseType.eContentType.SMIL);
+		opt.setAssetId(assetId);
+		List<String> locations = new LinkedList<String>();
+		locations.add(filePath);
+		opt.setLocations(locations);
+		return addTranscodeJob(opt);
+	}
+	
+	public static int addTranscodeJob(TransOption option) {
 		try {
 			DcpTranscode dcpTrans = new DcpTranscode();
-			dcpTrans.setAssetId(assetId);
-			dcpTrans.setAsseturl(filePath);
+			dcpTrans.setAssetId(option.getAssetId());
+			if (option.getContentType() == MediaBaseType.eContentType.SMIL)
+			{
+				dcpTrans.setJobtype(eJobType.Analyze.ordinal());
+				dcpTrans.setAsseturl(option.getLocations().get(0));
+				dcpTrans.setTransoptionjson("");
+			}
+			else
+			{
+				dcpTrans.setJobtype(eJobType.V2G.ordinal());
+				dcpTrans.setAsseturl("");
+				dcpTrans.setTransoptionjson(Util.ObjectToJson(option));
+			}
+			dcpTrans.setStatus(eProcessStatus.Uploaded.ordinal());
 			dcpTrans.setDatecreated(new Date());
 			dcpTrans.setDatemodified(new Date());
-			dcpTrans.setStatus(eProcessStatus.Uploaded.ordinal());
-			dcpTrans.setJobtype(eJobType.Analyze.ordinal());
 			dcpTrans.setTrycount(0);
 			
 			return transcodeDao.CreateTranscode(dcpTrans);
 		} catch(Exception ex) {
-			//log.error("Exception to add transocde job for asset id " + assetId);
-			Util.LogError(log, String.format("addTranscodeJob(%d, %s) exception", assetId, filePath), ex);
+			Util.LogError(log, String.format("addTranscodeJob(%s) exception", Util.ObjectToJson(option)), ex);
 			return 0;
 		}
 	}
@@ -544,9 +566,9 @@ public class ProcessUtils {
 				transOutput.setDatemodified(new Date());
 				
 				if(eJobType.H264.ordinal() == dcpInput.getJobtype())
-					transOutput.setFiletype(EndPublishOptionShell.eFileType.H264.ordinal());
+					transOutput.setFiletype(MediaBaseType.eFileType.H264.ordinal());
 				else
-					transOutput.setFiletype(EndPublishOptionShell.eFileType.H265.ordinal());
+					transOutput.setFiletype(MediaBaseType.eFileType.H265.ordinal());
 				
 				transOutput.setFileurl(prefix + SMIL_FILE_NAME);
 				transOutput.setStatus(dcpInput.getStatus());
@@ -589,15 +611,19 @@ public class ProcessUtils {
 				EndPublishOptionShell endOpt = new EndPublishOptionShell();
 				endOpt.EndPublishOption.setAssetId(dcpInput.getAssetId());
 				endOpt.EndPublishOption.setSmilPath(transOutput.getFileurl());
-				endOpt.EndPublishOption.setStatus(EndPublishOptionShell.eStatus.success);
+				endOpt.EndPublishOption.setStatus(EndPublishOption.eStatus.success);
 				endOpt.EndPublishOption.setMessage("Success!");
 				
 				if(dcpInput.getJobtype() == eJobType.H264.ordinal())
-					endOpt.EndPublishOption.setFileType(EndPublishOptionShell.eFileType.H264);
+					endOpt.EndPublishOption.setFileType(MediaBaseType.eFileType.H264);
 				else if (dcpInput.getJobtype() == eJobType.H265.ordinal())
-					endOpt.EndPublishOption.setFileType(EndPublishOptionShell.eFileType.H265);
+					endOpt.EndPublishOption.setFileType(MediaBaseType.eFileType.H265);
+				else if (dcpInput.getJobtype() == eJobType.V2G.ordinal())
+				{
+					endOpt.EndPublishOption.setFileType(MediaBaseType.eFileType.Gif);
+				}
 				
-				ServiceResponse  ret = StorageServiceHelper.EndPublish(Util.ObjectToJson(endOpt.EndPublishOption));
+				ServiceResponse  ret = StorageServiceHelper.EndPublish(Util.ObjectToJson(endOpt));
 				if(ret.getResponseCode() == ResponseCode.SUCCESS) {
 					dcpInput.setDatemodified(new Date());
 					dcpInput.setStatus(eProcessStatus.FinsihEndPublish.ordinal());
@@ -608,15 +634,19 @@ public class ProcessUtils {
 				
 				checkRetryCount(dcpInput, eProcessErrorCode.EndPublishError, "Error to call end publish for asset id " + dcpInput.getAssetId());
 					
-			} else if (eProcessStatus.Error.ordinal() == dcpInput.getStatus()) {
+			} 
+			else if (eProcessStatus.Error.ordinal() == dcpInput.getStatus()) 
+			{
 				DcpTranscodeOutput transOutput = new DcpTranscodeOutput();
 				transOutput.setDatecreated(new Date());
 				transOutput.setDatemodified(new Date());
 				
 				if(eJobType.H264.ordinal() == dcpInput.getJobtype())
-					transOutput.setFiletype(EndPublishOptionShell.eFileType.H264.ordinal());
+					transOutput.setFiletype(MediaBaseType.eFileType.H264.ordinal());
+				else if (eJobType.H265.ordinal() == dcpInput.getJobtype())
+					transOutput.setFiletype(MediaBaseType.eFileType.H265.ordinal());
 				else
-					transOutput.setFiletype(EndPublishOptionShell.eFileType.H265.ordinal());
+					transOutput.setFiletype(MediaBaseType.eFileType.Gif.ordinal());				
 				
 				transOutput.setFileurl("");
 				transOutput.setStatus(dcpInput.getStatus());
@@ -629,13 +659,35 @@ public class ProcessUtils {
 				EndPublishOptionShell endOpt = new EndPublishOptionShell();
 				endOpt.EndPublishOption.setAssetId(dcpInput.getAssetId());
 				endOpt.EndPublishOption.setSmilPath("");
-				endOpt.EndPublishOption.setStatus(EndPublishOptionShell.eStatus.error);
+				endOpt.EndPublishOption.setStatus(EndPublishOption.eStatus.error);
 				endOpt.EndPublishOption.setMessage(dcpInput.getLog());
 				
 				if(dcpInput.getJobtype() == eJobType.H264.ordinal())
-					endOpt.EndPublishOption.setFileType(EndPublishOptionShell.eFileType.H264);
+					endOpt.EndPublishOption.setFileType(MediaBaseType.eFileType.H264);
 				else if (dcpInput.getJobtype() == eJobType.H265.ordinal())
-					endOpt.EndPublishOption.setFileType(EndPublishOptionShell.eFileType.H265);
+					endOpt.EndPublishOption.setFileType(MediaBaseType.eFileType.H265);
+				
+				if(MediaServiceHelper.EndPublish(endOpt)) {
+					dcpInput.setDatemodified(new Date());
+					dcpInput.setStatus(eProcessStatus.FinsihEndPublish.ordinal());
+					dcpInput.setTrycount(0);
+					transcodeDao.UpdateTranscode(dcpInput);
+					return;
+				}
+				
+				checkRetryCount(dcpInput, eProcessErrorCode.EndPublishError, "Error to call end publish for asset id " + dcpInput.getAssetId());
+			}
+			else if (eProcessStatus.V2gJpg2GifDone.ordinal() == dcpInput.getStatus())
+			{
+				DcpTranscodeOutput transOutput = transcodeOutputDao.GetByTranscodeId(dcpInput.getTranscodeId());
+				
+				EndPublishOptionShell endOpt = new EndPublishOptionShell();
+				endOpt.EndPublishOption.setAssetId(dcpInput.getAssetId());
+				endOpt.EndPublishOption.setSmilPath(transOutput.getFileurl());
+				endOpt.getEndPublishOption().setStatus(EndPublishOption.eStatus.success);
+				endOpt.EndPublishOption.setMessage("Success!");
+				
+				endOpt.EndPublishOption.setFileType(MediaBaseType.eFileType.Gif);
 				
 				if(MediaServiceHelper.EndPublish(endOpt)) {
 					dcpInput.setDatemodified(new Date());

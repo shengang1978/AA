@@ -12,6 +12,7 @@ public class UserOption {
 	}
 	private OptionType type;
 	private String value;
+	private String password;
 	
 	public String getValue() {
 		return value;
@@ -24,6 +25,12 @@ public class UserOption {
 	}
 	public void setType(OptionType type) {
 		this.type = type;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	

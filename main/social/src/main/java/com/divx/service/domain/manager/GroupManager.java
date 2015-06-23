@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.divx.service.ConfigurationManager;
 import com.divx.service.MessageServiceHelper;
+import com.divx.service.UserHelper;
 import com.divx.service.Util;
 import com.divx.service.domain.dao.FriendDao;
 import com.divx.service.domain.dao.GroupDao;
@@ -36,7 +37,6 @@ public class GroupManager {
 	}
 	private GroupDao groupDao;
 	private FriendDao friendDao;
-	private UserHelper userHelper = new UserHelper();
 	
 	@Autowired
 	public void setGroupDao(GroupDao groupDao) {
@@ -234,6 +234,7 @@ public class GroupManager {
 			int tmId = friendDao.SetUserToGroup(obj);
 			if (tmId > 0)
 			{
+				ImHelper.AddUserToGroup(groupId, userId);
 				RemoveMyGroupCache(userId);
 				RemoveMyGroupCache(reqUserId);
 				RemoveGroupUsersCache(groupId);
@@ -295,6 +296,7 @@ public class GroupManager {
 			int tmId = friendDao.RemoveUserFromGroup(groupId, reqUserId, userId);
 			if (tmId > 0)
 			{
+				ImHelper.RemoveUserFromGroup(groupId, userId);
 				RemoveMyGroupCache(userId);
 				RemoveMyGroupCache(reqUserId);
 				RemoveGroupUsersCache(groupId);
@@ -365,12 +367,7 @@ public class GroupManager {
 				}
 				if(reqMembers != null && reqMembers.size() > 0){					
 					for(OsfTeamMembers obj : reqMembers){
-						/*User u = new User();
-						u.setUserId((int)obj.getUserId());
-						u.setUsername(obj.getUsername());
-						u.setNickname(obj.getNickname());
-						u.setPhotoUrl(obj.getPhotourl());*/
-						User u = userHelper.GetUser((int)obj.getUserId());
+						User u = UserHelper.GetUser((int)obj.getUserId());
 						if(u != null && u.getUserId() > 0){
 							users.add(u);
 						}
@@ -437,6 +434,7 @@ public class GroupManager {
 			int tmId = groupDao.DeleteGroup(groupId);
 			if (tmId > 0)
 			{
+				ImHelper.DeleteGroup(groupId);
 				RemoveMyGroupCache(reqUserId);
 				RemoveGroupUsersCache(groupId);
 				res.setGroupId(groupId);
@@ -513,7 +511,7 @@ public class GroupManager {
 				us = new LinkedList<User>();
 				List<OsfTeamMembers> reqMembers = friendDao.GetUsers(usersOption.getGroupId(), GroupRole.unknown.ordinal());
 				for(OsfTeamMembers obj : reqMembers){
-					User u = userHelper.GetUser((int)obj.getUserId());
+					User u = UserHelper.GetUser((int)obj.getUserId());
 					us.add(u);	
 				}
 				if (us != null && us.size() > 0)
@@ -532,7 +530,7 @@ public class GroupManager {
 				String content = "";
 				List<User> newUsers = new LinkedList<User>();
 				for(OsfTeamMembers user : users){
-					User u = userHelper.GetUser((int)user.getUserId());
+					User u = UserHelper.GetUser((int)user.getUserId());
 					newUsers.add(u);	
 				}
 				newUsers.removeAll(us);

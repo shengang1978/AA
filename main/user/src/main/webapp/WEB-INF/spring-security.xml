@@ -22,10 +22,14 @@
 			create-session="stateless">
 		<intercept-url pattern="/services/rest/user/login/**" access="permitAll"/>
 		<intercept-url pattern="/services/rest/user/Logout/**" access="permitAll"/>
-		<intercept-url method="PUT" pattern="/services/rest/user/OAuthLogin" access="permitAll"/>
-		<intercept-url method="POST" pattern="/services/rest/user/" access="permitAll"/>
+		<intercept-url method="PUT" pattern="/services/rest/user/**" access="permitAll"/>
+		<intercept-url method="POST" pattern="/services/rest/user/**" access="permitAll"/>
 		<intercept-url method="POST" pattern="/services/rest/user" access="permitAll"/>
+		<intercept-url method="GET" pattern="/services/rest/user/ValidateToken" access="permitAll"/>
+		<intercept-url method="GET" pattern="/services/rest/user/ValidateToken/" access="permitAll"/>
 		<intercept-url pattern="/services/rest/user/FindUsers/**" access="permitAll"/>
+		<intercept-url pattern="/services/rest/user/ListUsers" access="permitAll"/>
+		<intercept-url pattern="/services/rest/user/ListUsers/**" access="permitAll"/>
 		<intercept-url pattern="/services/rest/user/ResetPassword/**" access="permitAll"/>
 		<intercept-url pattern="/services/rest/user/Startup/**" access="permitAll"/>
 		<custom-filter ref="authenticationTokenProcessingFilter" position="FORM_LOGIN_FILTER"/>

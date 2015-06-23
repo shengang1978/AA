@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015-6-1 16:15:49 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="com.divx.service.domain.model.DcpLessonAsset" table="dcp_lesson_asset" catalog="divx_content" optimistic-lock="version">
+        <id name="lessonassetId" type="java.lang.Integer">
+            <column name="lessonasset_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="dcpLesson" class="com.divx.service.domain.model.DcpLesson" fetch="select">
+            <column name="lesson_id" not-null="true" />
+        </many-to-one>
+        <property name="assettype" type="int">
+            <column name="assettype" not-null="true" />
+        </property>
+        <property name="content" type="string">
+            <column name="content" length="2000" />
+        </property>
+        <property name="datecreated" type="timestamp">
+            <column name="datecreated" length="19" not-null="true" />
+        </property>
+        <property name="datemodified" type="timestamp">
+            <column name="datemodified" length="19" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

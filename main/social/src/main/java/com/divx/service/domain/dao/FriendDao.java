@@ -28,6 +28,8 @@ public interface FriendDao {
 	OsfTeamMembers GetMyFriend(int userId, int friendId);
 	
 	int UnbindFriend(OsfTeamMembers osfTeamMembers);
+	
+	int UnbindFriend(int userId, int friendId);
 
 	int SaveRequset(DcpFriendRequest friendRequest);
 	

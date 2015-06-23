@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import com.divx.service.ConfigurationManager;
 import com.divx.service.Email;
+import com.divx.service.UserHelper;
 import com.divx.service.Util;
 import com.divx.service.domain.dao.FriendDao;
 import com.divx.service.domain.dao.impl.FriendDaoImpl;
@@ -106,7 +107,7 @@ public class SendEmailHelper {
 				
 				for (DcpEmailJob obj : emailJobs) {
 					try {
-						User u = new UserHelper().GetUser(obj.getUserId());
+						User u = UserHelper.GetUser(obj.getUserId());
 						
 						emailmdel.setSubject(String.format(emailtemplate.getEmailType(),u.getNickname()));
 						emailmdel.setTo(obj.getEmailAddress());

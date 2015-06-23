@@ -10,7 +10,7 @@ import com.divx.service.AuthHelper;
 import com.divx.service.Util;
 import com.divx.service.storage;
 import com.divx.service.model.*;
-import com.divx.service.model.EndPublishOptionShell.EndPublishOption;
+import com.divx.service.model.EndPublishOption;
 import com.divx.service.domain.manager.StorageManager;
 import com.divx.service.domain.manager.UploadManager;
 
@@ -41,7 +41,7 @@ public class storageimpl implements storage {
 			return Response.status(Status.UNAUTHORIZED).entity(res).build();
 		}*/
 		
-		return  Util.ServiceResponseToResponse(uploadManager.GetUploadInfo(mediaId));
+		return  Util.ServiceResponseToResponse(uploadManager.GetUploadInfo(mediaId, null));
 		
 	}
 

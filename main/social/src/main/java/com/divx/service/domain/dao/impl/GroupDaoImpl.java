@@ -18,6 +18,7 @@ import com.divx.service.domain.dao.GroupDao;
 import com.divx.service.domain.model.DcpShare;
 import com.divx.service.domain.model.OsfProjects;
 import com.divx.service.domain.model.OsfTeamMembers;
+import com.divx.service.model.GroupRole;
 import com.divx.service.model.KeyValuePair;
 import com.divx.service.model.KeyValueTriplePair;
 
@@ -37,22 +38,46 @@ public class GroupDaoImpl  extends BaseDao implements GroupDao {
 			String hql = String.format("FROM OsfProjects s WHERE s.enteredById = %d and s.categoryId = 1", userId);
 			List<?> shares = session.createQuery(hql).list();
 
-			if (shares.size() > 0)
+			if (shares != null && shares.size() > 0)
 			{
 				for (Iterator<?> it = shares.iterator(); it.hasNext(); )
 				{
 					return ((OsfProjects)it.next());
 				}
 			}
-			
+			else
+			{
+				OsfProjects group = new OsfProjects();
+				group.setCategoryId(1);
+				group.setEnabled(true);
+				group.setEntered(new Date());
+				group.setModified(new Date());
+				group.setModifiedById(new Long(userId));
+				group.setEnteredById(new Long(userId));
+				group.setTitle("MyFriends");
+				group.setUniqueId(String.format("MyFriend-%d", userId));
+				
+				session.save(group);
+				
+				OsfTeamMembers obj = new OsfTeamMembers();
+				obj.setEnabled(true);
+				obj.setStatus("");
+				obj.setProjectId(group.getId());
+				obj.setRoleId(GroupRole.admin.ordinal());
+				obj.setUserId(userId);
+				
+				session.save(obj);
+				
+				return group;
+			}
 		}
 		catch(Throwable ex)
 		{
 			// Log exception
-//			if (tx != null)
-//			{
-//				tx.rollback();
-//			}
+			if (tx != null)
+			{
+				tx.rollback();
+			}
 			tx = null;
 			throw new ExceptionInInitializerError(ex);
 		}
@@ -126,7 +151,7 @@ public class GroupDaoImpl  extends BaseDao implements GroupDao {
 			List<OsfProjects> objs = session.createSQLQuery(hql).addEntity(OsfProjects.class).list();
 			hql = hql.replace("p.*", "p._id");
 			String hql2 = String.format("select p._id,count(d._project_id) from osf_projects p left join osf_team_members d on d._project_id = p._id where p._id in (%s) group by p._id order by p._id desc",hql);	
-			String hql3 = String.format("select p._id,count(d.group_id) from osf_projects p left join dcp_share d on d.group_id = p._id where p._id in (%s) group by p._id order by p._id desc",hql);	
+			String hql3 = String.format("select p._id,count(d.group_id) from osf_projects p left join dcp_share_user d on d.group_id = p._id where p._id in (%s) group by p._id order by p._id desc",hql);	
 			List<?> userCounts = session.createSQLQuery(hql2).list();
 			List<?> shareCounts = session.createSQLQuery(hql3).list();
 		    if (objs != null && objs.size() > 0 && userCounts != null && shareCounts!= null)

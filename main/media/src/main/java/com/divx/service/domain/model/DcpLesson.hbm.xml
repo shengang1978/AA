@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-4-23 19:07:38 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-6-10 13:52:48 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpLesson" table="dcp_lesson" catalog="divx_content" optimistic-lock="version">
         <id name="lessonId" type="java.lang.Integer">
@@ -14,11 +14,17 @@
         <property name="category" type="string">
             <column name="category" length="45" />
         </property>
+        <property name="categoryTitle" type="string">
+            <column name="category_title" />
+        </property>
         <property name="number" type="java.lang.Integer">
             <column name="number" />
         </property>
         <property name="title" type="string">
             <column name="title" />
+        </property>
+        <property name="config" type="string">
+            <column name="config" length="4000" />
         </property>
         <property name="datecreated" type="timestamp">
             <column name="datecreated" length="19" />
@@ -29,6 +35,24 @@
         <property name="snapshoturl" type="string">
             <column name="snapshoturl" />
         </property>
+        <set name="dcpStoryplayTotalstats" table="dcp_storyplay_totalstat" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="lesson_id" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpStoryplayTotalstat" />
+        </set>
+        <set name="dcpStoryplays" table="dcp_storyplay" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="lesson_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpStoryplay" />
+        </set>
+        <set name="dcpLessonAssets" table="dcp_lesson_asset" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="lesson_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpLessonAsset" />
+        </set>
         <set name="dcpScores" table="dcp_score" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="lesson_id" not-null="true" />

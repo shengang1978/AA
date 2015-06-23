@@ -15,6 +15,12 @@ public interface transcode {
 	@Produces("application/json")
 	Response BeginTranscode(@PathParam("assetId") int assetId, String location);
 	
+	@POST
+	@Path("/transcodeExt")
+	@Consumes("application/json")
+	@Produces("application/json")
+	Response TranscodeExt(TransOption option);
+	
 	@GET
 	@Path("/process/{assetId}")
 	@Consumes("application/json")

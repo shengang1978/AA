@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-4-22 18:48:52 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-6-15 17:54:31 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.OsfUsers" table="osf_users" catalog="divx_user" optimistic-lock="version">
         <id name="id" type="java.lang.Long">
@@ -53,12 +53,25 @@
         <property name="organizationId" type="java.lang.Integer">
             <column name="_organization_id" />
         </property>
+        <property name="modified" type="timestamp">
+            <column name="_modified" length="19" />
+        </property>
+        <property name="usernameStatus" type="java.lang.Boolean">
+            <column name="_username_status" />
+        </property>
         <set name="dcpOauthUserses" table="dcp_oauth_users" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="user_id" not-null="true" />
             </key>
             <one-to-many class="com.divx.service.domain.model.DcpOauthUsers" />
         </set>
+        <set name="dcpImSyncs" table="dcp_im_sync" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="user_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpImSync" />
+        </set>
+        <one-to-one name="dcpUserActive" class="com.divx.service.domain.model.DcpUserActive"></one-to-one>
         <set name="dcpUserRoles" table="dcp_user_role" inverse="true" lazy="true" fetch="select">
             <key>
                 <column name="user_id" not-null="true" />

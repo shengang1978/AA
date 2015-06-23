@@ -2,6 +2,7 @@ package com.divx.service.domain.manager;
 
 
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.divx.service.Util;
 import com.divx.service.domain.model.DcpOriginalasset;
 import com.divx.service.domain.repository.UploadDao;
-import com.divx.service.impl.FileUploadServlet;
+import com.divx.service.model.MediaBaseType;
 import com.divx.service.model.MediaBaseType.eContentType;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
@@ -39,7 +40,7 @@ public class UploadManager {
 		threadMonitor = new Thread(monitor);
 		threadMonitor.start();
 	  }
-	public UploadInfoResponse GetUploadInfo(int mediaId)
+	public UploadInfoResponse GetUploadInfo(int mediaId, MediaBaseType.eFileType fileType)
 	{
 		if(!threadMonitor.isAlive()) {
 			threadMonitor = new Thread(monitor);
@@ -48,21 +49,25 @@ public class UploadManager {
 		UploadInfoResponse  res= new UploadInfoResponse();
 		try{
 			Upload info = new Upload();
-			DcpOriginalasset asset = uploadDao.GetUploadInfo(mediaId);
-			if (asset != null)
-			{			
+			List<DcpOriginalasset> assets = uploadDao.GetUploadInfo(mediaId, fileType);
+			if (assets != null && assets.size() > 0)
+			{		
+				DcpOriginalasset asset = assets.get(0);
 				info.setUploadId(asset.getOriginalassetId());
 				info.setMediaId(asset.getMediaId());
 				info.setTotalSize(asset.getTotalsize());
 				info.setEndPosition(asset.getUploadpos());
 				info.setStatus(asset.getStatus());
 				info.setFileurl(asset.getFileurl());
+				info.setContentType(eContentType.values()[asset.getContenttype()]);
+				info.setFileType(MediaBaseType.eFileType.values()[asset.getFiletype()]);
 			}
 			else
 			{
 				info.setMediaId(mediaId);
 				info.setContentType(eContentType.SMIL);
 				info.setStatus(Upload.eUploadStatus.none);
+				info.setFileType(MediaBaseType.eFileType.Auto);
 			}
 
 			res.setUploadInfo(info);
@@ -77,7 +82,7 @@ public class UploadManager {
 		return res;
 	}
 	
-	public ServiceResponse SetUploadInfo(Upload info,String token,ShareOption shareOption)
+	public ServiceResponse SetUploadInfo(String token, Upload info)
 	{
 		ServiceResponse res = new ServiceResponse();
 		try{
@@ -105,9 +110,17 @@ public class UploadManager {
 			obj.setProcessed(false);
 			obj.setAttempts(0);
 			obj.setContenttype(info.getContentType().ordinal());
+			obj.setSharejson(info.getShareJson());
+			obj.setV2gjson(info.getV2gJson());
+			obj.setLessonid(info.getLessonId());
+			obj.setContentSettings(info.getContentSettings());
+			if (info.getFileType() == null)
+				obj.setFiletype(MediaBaseType.eFileType.Auto.ordinal());
+			else
+				obj.setFiletype(info.getFileType().ordinal());
 			int uiId = uploadDao.UpdateUploadInfo(obj);
 			if(uiId > 0){
-				new StorageHelper().new ProcessWatch().NotifyMediaStatus(obj,token,shareOption);
+				new StorageHelper().new ProcessWatch().NotifyMediaStatus(obj,token);
 
 				res.setResponseCode(ResponseCode.SUCCESS);
 				res.setResponseMessage("success");
@@ -127,16 +140,21 @@ public class UploadManager {
 	public ServiceResponse CancelUpload(int mediaId){
 		ServiceResponse res = new ServiceResponse();
 		try{
-			DcpOriginalasset obj = uploadDao.GetUploadInfo(mediaId);
+			List<DcpOriginalasset> objs = uploadDao.GetUploadInfo(mediaId, null);
 
-			if(obj == null){
+			if(objs == null || objs.size() == 0){
 				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 				res.setResponseMessage("Fail to get Upload media info.");
 				return res;
 			}
-			obj.setDeleted(true);
-			obj.setDatemodified(new Date());
-			int uiId = uploadDao.UpdateUploadInfo(obj);
+			
+			int uiId = 0;
+			for(DcpOriginalasset obj: objs)
+			{
+				obj.setDeleted(true);
+				obj.setDatemodified(new Date());
+				uiId = uploadDao.UpdateUploadInfo(obj);
+			}
 			if(uiId > 0){
 				res.setResponseCode(ResponseCode.SUCCESS);
 				res.setResponseMessage("Success");

@@ -11,10 +11,20 @@ public class DcpBaseType {
 	
 	public enum eAppType
 	{
-		Unknown,		//0. Ref App, Ohana, ÂþÊÓµÈµÈ, µç×Ó»­²á
+		Unknown,		//0. Ref App, Ohana, ï¿½ï¿½ï¿½ÓµÈµï¿½, ï¿½ï¿½ï¿½Ó»ï¿½ï¿½ï¿½
 		RefApp,			//1. Ref App - DivX DCP
-		Manshi,			//2. ÂþÊÓ
-		Dianzihuace,	//3. µç×Ó»­²á
-		Yingyueguan,	//4. Ó¢ÔÄ¹Ý
+		Manshi,			//2. ï¿½ï¿½ï¿½ï¿½
+		Dianzihuace,	//3. ï¿½ï¿½ï¿½Ó»ï¿½ï¿½ï¿½
+		Yingyueguan,	//4. Ó¢ï¿½Ä¹ï¿½
+	}
+	
+	//AppVersion field in the dcp_media table
+	// It's bitwise field. 
+	public abstract class BookBitwise
+	{
+		public static final int Normal = 0x0001;
+		public static final int AppStore = 0x0002;
+		
+		public static final int All = 0xFFFF;
 	}
 }

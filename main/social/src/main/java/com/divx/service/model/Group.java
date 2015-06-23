@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Group {
 	private int id;
 	private String title;
-	private String description;
+	private String desc;
 	private Date createDate;
 	private String photoUrl;
 	private int userCount;
@@ -32,11 +32,11 @@ public class Group {
 	}
 	public void setDescription(String desc)
 	{
-		description = desc;
+		desc = desc;
 	}
 	public String getDescription()
 	{
-		return description;
+		return desc;
 	}
 	public Date getCreateDate() {
 		return createDate;

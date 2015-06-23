@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-2-5 15:50:16 by Hibernate Tools 4.3.1
+// Generated 2015-4-3 16:12:38 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 

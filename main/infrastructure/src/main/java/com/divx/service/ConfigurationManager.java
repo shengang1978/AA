@@ -623,6 +623,17 @@ public class ConfigurationManager {
 		
 		return val;
 	}
+	private String storageServletBaseUrl = "";
+	public String StorageServletBaseUrl()
+	{
+		String val = GetConfigValue("StorageServletBaseUrl", storageServletBaseUrl);
+		if (!val.isEmpty())
+		{
+			storageServletBaseUrl = val;
+		}
+		
+		return val;
+	}
 	public String GetConfigValue(String key, String defaultVal)
 	{
 		return DynamicPropertyFactory.getInstance().getStringProperty(key, defaultVal).getValue();

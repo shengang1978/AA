@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.divx.service</groupId>
   <artifactId>storage</artifactId>
@@ -8,37 +8,19 @@
   <name>storage Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
+    
      <dependency>
     	<groupId>com.divx.service</groupId>
     	<artifactId>infrastructure</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
-    </dependency>
-	<dependency>
-		<groupId>javassist</groupId>
-		<artifactId>javassist</artifactId>
-		<version>3.12.1.GA</version>
-	</dependency>	  
-	 <dependency>
-		<groupId>org.hibernate</groupId>
-		<artifactId>hibernate-c3p0</artifactId>
-		<version>3.6.2.Final</version>
-	</dependency>  
-	<dependency>
-		<groupId>mysql</groupId>
-		<artifactId>mysql-connector-java</artifactId>
-		<version>5.1.32</version>
-	</dependency>
-	<dependency>
-		<groupId>com.amazonaws</groupId>
-		<artifactId>aws-java-sdk</artifactId>
-		<version>1.9.26</version>
-	</dependency>
+    	<exclusions>
+    		<exclusion>
+    			<artifactId>antlr</artifactId>
+    			<groupId>antlr</groupId>
+    		</exclusion>
+    	</exclusions>
+     </dependency>
+	
 	
   </dependencies>
 

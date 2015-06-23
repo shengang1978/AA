@@ -7,6 +7,7 @@ import java.util.List;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 
 import com.divx.service.BaseDao;
@@ -15,6 +16,7 @@ import com.divx.service.domain.model.DcpEmailJob;
 import com.divx.service.domain.model.DcpEmailTemplate;
 import com.divx.service.domain.model.DcpFriendRequest;
 import com.divx.service.domain.model.OsfMessages;
+import com.divx.service.domain.model.OsfProjects;
 import com.divx.service.domain.model.OsfTeamMembers;
 
 @Repository
@@ -69,11 +71,11 @@ public class FriendDaoImpl extends BaseDao
 			String hql = "";
 			if (userId >= 0)
 			{
-				hql = String.format("FROM OsfTeamMembers s WHERE s.projectId = %d and s.userId = %d order by s.id desc", groupId, userId);
+				hql = String.format("FROM OsfTeamMembers s WHERE s.projectId = %d and s.userId = %d and s.enabled = true order by s.id desc", groupId, userId);
 			}
 			else if (userId == -1)
 			{
-				hql = String.format("FROM OsfTeamMembers s WHERE s.projectId = %d order by s.id desc", groupId);
+				hql = String.format("FROM OsfTeamMembers s WHERE s.projectId = %d and s.enabled = true order by s.id desc", groupId);
 			}
 			List<?> shares = session.createQuery(hql).list();
 			
@@ -413,7 +415,9 @@ public class FriendDaoImpl extends BaseDao
 			query.setString(4, mobiles);			
 			
 			List<Object> ret = query.list();
+			
 			if(ret != null){
+				getSessionFactory().getCache().evictEntityRegion(OsfTeamMembers.class);
 				return Integer.parseInt(ret.get(0).toString());
 			}else{
 				return -1;
@@ -440,7 +444,7 @@ public class FriendDaoImpl extends BaseDao
 		{
 			tx = session.beginTransaction();
 			
-			String hql = String.format("select s FROM OsfProjects p, OsfTeamMembers s WHERE p.id = s.projectId and p.enteredById = s.userId and p.categoryId = 1 and s.roleId = 1 and s.userId = %d order by s.id desc", userId);
+			String hql = String.format("select s FROM OsfProjects p, OsfTeamMembers s WHERE p.id = s.projectId and p.enteredById = s.userId and p.categoryId = 1 and s.roleId = 1 and s.userId = %d and s.enabled = true order by s.id desc", userId);
 
 			List<?> shares = session.createQuery(hql).list();
 			
@@ -540,6 +544,51 @@ public class FriendDaoImpl extends BaseDao
 			if (transaction != null)
 				transaction.commit();
 			session.close();
+		}
+	}
+	
+	@Override
+	public int UnbindFriend(int userId, int friendId)
+	{
+		Session session=getSessionFactory().openSession();
+		Transaction tx = null;
+		try
+		{
+			tx = session.beginTransaction();
+			//			String hql = String.format("SELECT m FROM OsfTeamMembers m, OsfProjects p WHERE   m.projectId = p.id  and p.categoryId = 1 and p.enteredById = %d and m.userId = %d and  m.enabled=true", userId, friendId);
+			String hql1 = String.format("update osf_team_members set _enabled = 0" +
+						     " where _project_id = (" +
+						     " select _id from osf_projects" +
+						     " where _entered_by_id =%d and _category_id = 1 limit 1)" +
+						     " and _user_id = %d", userId, friendId);
+			String hql2 = String.format("update osf_team_members set _enabled = 0" +
+				     " where _project_id = (" +
+				     " select _id from osf_projects" +
+				     " where _entered_by_id =%d and _category_id = 1 limit 1)" +
+				     " and _user_id = %d", friendId, userId);
+			
+			int nRow = session.createSQLQuery(hql1).executeUpdate();
+			nRow += session.createSQLQuery(hql2).executeUpdate();
+			
+			getSessionFactory().getCache().evictEntityRegion(OsfTeamMembers.class);
+			getSessionFactory().getCache().evictEntityRegion(OsfProjects.class);
+			return nRow;
+		}
+		catch(Exception ex)
+		{
+			if (tx != null)
+			{
+				tx.rollback();
+				tx = null;
+			}
+			throw ex;
+		}
+		finally
+		{
+			if (tx != null)
+				tx.commit();
+			
+			session.clear();
 		}
 	}
 

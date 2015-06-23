@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-23 19:07:38 by Hibernate Tools 4.3.1
+// Generated 2015-6-1 16:15:49 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 import java.util.HashSet;
@@ -24,7 +24,17 @@ public class DcpMedia implements java.io.Serializable {
 	private String errorlog;
 	private Integer contenttype;
 	private Integer parentId;
+	private Boolean ispublic;
+	private String contentSettings;
+	private Integer weight;
+	private Integer lessonId;
+	private Integer appversion;
+	private Integer transferUserId;
+	private Set dcpStoryplayTotalstats = new HashSet(0);
 	private Set dcpLessons = new HashSet(0);
+	private Set dcpMediaSigns = new HashSet(0);
+	private Set dcpDownloads = new HashSet(0);
+	private Set dcpStoryplays = new HashSet(0);
 
 	public DcpMedia() {
 	}
@@ -45,7 +55,11 @@ public class DcpMedia implements java.io.Serializable {
 	public DcpMedia(String title, Date datecreated, Date datemodified,
 			int userId, int status, Date expiredate, String description,
 			boolean deleted, String snapshoturl, String errorlog,
-			Integer contenttype, Integer parentId, Set dcpLessons) {
+			Integer contenttype, Integer parentId, Boolean ispublic,
+			String contentSettings, Integer weight, Integer lessonId,
+			Integer appversion, Integer transferUserId,
+			Set dcpStoryplayTotalstats, Set dcpLessons, Set dcpMediaSigns,
+			Set dcpDownloads, Set dcpStoryplays) {
 		this.title = title;
 		this.datecreated = datecreated;
 		this.datemodified = datemodified;
@@ -58,7 +72,17 @@ public class DcpMedia implements java.io.Serializable {
 		this.errorlog = errorlog;
 		this.contenttype = contenttype;
 		this.parentId = parentId;
+		this.ispublic = ispublic;
+		this.contentSettings = contentSettings;
+		this.weight = weight;
+		this.lessonId = lessonId;
+		this.appversion = appversion;
+		this.transferUserId = transferUserId;
+		this.dcpStoryplayTotalstats = dcpStoryplayTotalstats;
 		this.dcpLessons = dcpLessons;
+		this.dcpMediaSigns = dcpMediaSigns;
+		this.dcpDownloads = dcpDownloads;
+		this.dcpStoryplays = dcpStoryplays;
 	}
 
 	public Integer getMediaId() {
@@ -165,12 +189,92 @@ public class DcpMedia implements java.io.Serializable {
 		this.parentId = parentId;
 	}
 
+	public Boolean getIspublic() {
+		return this.ispublic;
+	}
+
+	public void setIspublic(Boolean ispublic) {
+		this.ispublic = ispublic;
+	}
+
+	public String getContentSettings() {
+		return this.contentSettings;
+	}
+
+	public void setContentSettings(String contentSettings) {
+		this.contentSettings = contentSettings;
+	}
+
+	public Integer getWeight() {
+		return this.weight;
+	}
+
+	public void setWeight(Integer weight) {
+		this.weight = weight;
+	}
+
+	public Integer getLessonId() {
+		return this.lessonId;
+	}
+
+	public void setLessonId(Integer lessonId) {
+		this.lessonId = lessonId;
+	}
+
+	public Integer getAppversion() {
+		return this.appversion;
+	}
+
+	public void setAppversion(Integer appversion) {
+		this.appversion = appversion;
+	}
+
+	public Integer getTransferUserId() {
+		return this.transferUserId;
+	}
+
+	public void setTransferUserId(Integer transferUserId) {
+		this.transferUserId = transferUserId;
+	}
+
+	public Set getDcpStoryplayTotalstats() {
+		return this.dcpStoryplayTotalstats;
+	}
+
+	public void setDcpStoryplayTotalstats(Set dcpStoryplayTotalstats) {
+		this.dcpStoryplayTotalstats = dcpStoryplayTotalstats;
+	}
+
 	public Set getDcpLessons() {
 		return this.dcpLessons;
 	}
 
 	public void setDcpLessons(Set dcpLessons) {
 		this.dcpLessons = dcpLessons;
+	}
+
+	public Set getDcpMediaSigns() {
+		return this.dcpMediaSigns;
+	}
+
+	public void setDcpMediaSigns(Set dcpMediaSigns) {
+		this.dcpMediaSigns = dcpMediaSigns;
+	}
+
+	public Set getDcpDownloads() {
+		return this.dcpDownloads;
+	}
+
+	public void setDcpDownloads(Set dcpDownloads) {
+		this.dcpDownloads = dcpDownloads;
+	}
+
+	public Set getDcpStoryplays() {
+		return this.dcpStoryplays;
+	}
+
+	public void setDcpStoryplays(Set dcpStoryplays) {
+		this.dcpStoryplays = dcpStoryplays;
 	}
 
 }

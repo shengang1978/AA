@@ -3,6 +3,8 @@ package com.divx.service.model;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.divx.service.model.RegisterOption.eRegisterType;
 @XmlRootElement(name = "UserProfile")
 public class UserProfile{
 	private int userId;
@@ -20,6 +22,8 @@ public class UserProfile{
 	private String tdcImgUrl;
 	private String homepage;
 	private String nickname;
+	private String photourl;
+	private eRegisterType registerType;
 	
 	public int getUserId() {
 		return userId;
@@ -111,5 +115,17 @@ public class UserProfile{
 	}
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+	public eRegisterType getRegisterType() {
+		return registerType;
+	}
+	public void setRegisterType(eRegisterType registerType) {
+		this.registerType = registerType;
+	}
+	public String getPhotourl() {
+		return photourl;
+	}
+	public void setPhotourl(String photourl) {
+		this.photourl = photourl;
 	}
 }

@@ -1,6 +1,6 @@
 package com.divx.service.domain.model;
 
-// Generated 2015-4-20 23:30:30 by Hibernate Tools 4.3.1
+// Generated 2015-6-23 12:26:37 by Hibernate Tools 4.3.1
 
 import java.util.Date;
 
@@ -11,6 +11,7 @@ public class DcpPartyUser implements java.io.Serializable {
 
 	private Integer id;
 	private DcpParty dcpParty;
+	private int userId;
 	private Date datecreated;
 	private Date datemodified;
 	private String username;
@@ -25,18 +26,21 @@ public class DcpPartyUser implements java.io.Serializable {
 	public DcpPartyUser() {
 	}
 
-	public DcpPartyUser(DcpParty dcpParty, Date datecreated, Date datemodified,
-			int usertype) {
+	public DcpPartyUser(DcpParty dcpParty, int userId, Date datecreated,
+			Date datemodified, int usertype) {
 		this.dcpParty = dcpParty;
+		this.userId = userId;
 		this.datecreated = datecreated;
 		this.datemodified = datemodified;
 		this.usertype = usertype;
 	}
 
-	public DcpPartyUser(DcpParty dcpParty, Date datecreated, Date datemodified,
-			String username, String email, String mobile, String qq,
-			String weixin, String nickname, String snapshoturl, int usertype) {
+	public DcpPartyUser(DcpParty dcpParty, int userId, Date datecreated,
+			Date datemodified, String username, String email, String mobile,
+			String qq, String weixin, String nickname, String snapshoturl,
+			int usertype) {
 		this.dcpParty = dcpParty;
+		this.userId = userId;
 		this.datecreated = datecreated;
 		this.datemodified = datemodified;
 		this.username = username;
@@ -63,6 +67,14 @@ public class DcpPartyUser implements java.io.Serializable {
 
 	public void setDcpParty(DcpParty dcpParty) {
 		this.dcpParty = dcpParty;
+	}
+
+	public int getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
 
 	public Date getDatecreated() {

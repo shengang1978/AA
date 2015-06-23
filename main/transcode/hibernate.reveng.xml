@@ -16,4 +16,7 @@
 	<table-filter match-name="dcp_radio"
 		match-catalog="divx_transcode">
 	</table-filter>
+	<table-filter match-name="dcp_filter"
+		match-catalog="divx_transcode">
+	</table-filter>
 </hibernate-reverse-engineering>

@@ -6,13 +6,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class MediaBase {
 	private int mediaId;
 	private String title;
-	private String description;
+	private String desc;
 	private String keywords;
 	private String smileUrl;
 	private MediaBaseType.eContentType contentType;
 	private int parentId;	//parent media
 							// 0: no parent
-	
+	private String sign;
+	private boolean isPublic;
+	private int downloadCount;
 	public int getMediaId() {
 		return mediaId;
 	}
@@ -25,11 +27,12 @@ public class MediaBase {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public String getDescription() {
-		return description;
+
+	public String getDesc() {
+		return desc;
 	}
-	public void setDescription(String description) {
-		this.description = description;
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 	public String getKeywords() {
 		return keywords;
@@ -54,6 +57,24 @@ public class MediaBase {
 	}
 	public void setParentId(int parentId) {
 		this.parentId = parentId;
+	}
+	public String getSign() {
+		return sign;
+	}
+	public void setSign(String sign) {
+		this.sign = sign;
+	}
+	public boolean getIsPublic() {
+		return isPublic;
+	}
+	public void setIsPublic(boolean isPublic) {
+		this.isPublic = isPublic;
+	}
+	public int getDownloadCount() {
+		return downloadCount;
+	}
+	public void setDownloadCount(int downloadCount) {
+		this.downloadCount = downloadCount;
 	}
 	
 }

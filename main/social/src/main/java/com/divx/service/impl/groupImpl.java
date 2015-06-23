@@ -12,6 +12,7 @@ import com.divx.service.AuthHelper;
 import com.divx.service.Util;
 import com.divx.service.group;
 import com.divx.service.domain.manager.GroupManager;
+import com.divx.service.domain.manager.ImHelper;
 import com.divx.service.model.*;
 
 @WebService(targetNamespace = "http://impl.service.divx.com/", endpointInterface = "com.divx.service.group", portName = "groupImplPort", serviceName = "groupImplService")
@@ -39,6 +40,7 @@ public class groupImpl implements group {
 		GroupResponse res = groupManager.CreateGroup(helper.getUserId(), option);
 		if(res.getGroupId()>0){
 			groupManager.AddUserToGroup(helper.getUserId(), res.getGroupId(), helper.getUserId());
+			ImHelper.CreateGroup(helper.getUserId(), option.getTitle(), option.getDescription());
 		}
 		return Util.ServiceResponseToResponse(res);
 	}

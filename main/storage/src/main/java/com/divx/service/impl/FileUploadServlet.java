@@ -15,19 +15,25 @@ import java.util.List;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.divx.service.AuthHelper;
 import com.divx.service.ConfigurationManager;
+import com.divx.service.MediaServiceHelper;
 import com.divx.service.Util;
 import com.divx.service.model.FileUpload;
-import com.divx.service.model.MediaBaseType;
+import com.divx.service.model.MediaBaseType.eContentType;
+import com.divx.service.model.MediaBaseType.eFileType;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.ShareOption;
 import com.divx.service.model.Upload;
 import com.divx.service.model.UploadInfoResponse;
+import com.divx.service.model.MediaBaseType;
+import com.divx.service.model.edu.Lesson;
+import com.divx.service.model.edu.LessonsResponse;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemIterator;
@@ -61,6 +67,7 @@ public class FileUploadServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		
 		UploadInfoResponse res = new UploadInfoResponse();
+		res.setResponseMessage("Init");
 		RandomAccessFile raf = null;
 		try
 		{
@@ -73,7 +80,8 @@ public class FileUploadServlet extends HttpServlet {
 			
 			AuthHelper helper = null;
 			FileUpload fu = null;
-			ShareOption shareOption = null;
+			String shareOption = null;
+			String v2gOption = null;
 			
 			String assetTmpLocation = "";		
 			String assetDestLocation = "";
@@ -89,7 +97,7 @@ public class FileUploadServlet extends HttpServlet {
 				helper = new AuthHelper(strToken);
 				fu = Util.JsonToObject(strFileUpload, FileUpload.class);
 				if(strShareOption != null && !strShareOption.isEmpty()){
-					shareOption = Util.JsonToObject(strShareOption, ShareOption.class);
+					shareOption = strShareOption; //Util.JsonToObject(strShareOption, ShareOption.class);
 				}
 				
 				int nIndex = fu.getFilename().lastIndexOf("."); 
@@ -125,7 +133,11 @@ public class FileUploadServlet extends HttpServlet {
 								fu = Util.JsonToObject(fi.getString(), FileUpload.class);
 								break;
 							case "ShareOption":
-								shareOption = Util.JsonToObject(fi.getString(), ShareOption.class);
+								shareOption = fi.getString(); //Util.JsonToObject(fi.getString(), ShareOption.class);
+								break;
+							case "V2GOption":
+								v2gOption = fi.getString(); //Util.JsonToObject(fi.getString(), V2GOption.class);
+								break;
 							}
 							
 						}
@@ -158,17 +170,36 @@ public class FileUploadServlet extends HttpServlet {
 			}
 			else
 			{
+				if (fu.getContentType() == MediaBaseType.eContentType.EduStory)
+				{
+					if (fu.getFileType() != MediaBaseType.eFileType.EduStoryAudio && 
+							fu.getFileType() != MediaBaseType.eFileType.EduStoryZip &&
+							fu.getFileType() != MediaBaseType.eFileType.EduStoryConfig)
+					{
+						res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+					    res.setResponseMessage("File type of Store can only be one of EduStoryAudio, EduStoryConfig, EduStoryZip");
+						out.println(Util.ObjectToJson(res));
+						return;
+					}
+					if( MediaBaseType.eFileType.EduStoryZip == fu.getFileType() ||
+						MediaBaseType.eFileType.EduStoryConfig == fu.getFileType()){
+						res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+						res.setResponseMessage(String.format("Deprecated file type. We don't support (%s) any more.", fu.getFileType().toString()));
+						out.println(Util.ObjectToJson(res));
+						return;
+					}
+				}
 				fileExt = GetFileExtByFileUpload(fileExt, fu);
 				
-				UploadInfoResponse uploadinfores = uploadManager.GetUploadInfo(fu.getMediaId());
-				Upload info = null;
-				if(uploadinfores.getResponseCode() == 0 && uploadinfores.getUploadInfo() != null){
-					info = uploadinfores.getUploadInfo();
-				}
+				UploadInfoResponse uploadinfores = uploadManager.GetUploadInfo(fu.getMediaId(), fu.getFileType());
+				Upload info = uploadinfores.getUploadInfo();
+				if (info == null)
+					info = new Upload();
 				
+				info.setContentSettings(fu.getContentSettings());
 				if (fu.getContentType() != null)
 					info.setContentType(fu.getContentType());
-
+				
 				int nStartPosition = 0;
 				if (info != null && info.getStatus() != Upload.eUploadStatus.none)
 				{
@@ -181,7 +212,7 @@ public class FileUploadServlet extends HttpServlet {
 					res.setResponseCode(ResponseCode.RESULT_WRONG_UPLOAD_START_POSITION);
 				    res.setResponseMessage("Invalid upload start position.");
 				}
-				else if (info != null && info.getStatus() == Upload.eUploadStatus.done && info.getTotalSize() > 0)
+				else if (info != null && info.getContentType() != eContentType.EduStory && info.getStatus() == Upload.eUploadStatus.done && info.getTotalSize() > 0)
 				{
 					res.setUploadInfo(info);
 					res.setResponseCode(ResponseCode.RESULT_FILE_HAS_UPLOADED);
@@ -200,19 +231,25 @@ public class FileUploadServlet extends HttpServlet {
 							new Date().getTime(),
 							fileExt);
 					assetTmpLocation = ConfigurationManager.GetInstance().UploadTempFolder() + "/" + filename;
-					if (info == null || info.getStatus() == Upload.eUploadStatus.none)
-					{						
+					if (info.getStatus() == Upload.eUploadStatus.none || nStartPosition == 0)
+					{
 						if (fu.getContentType() == MediaBaseType.eContentType.Gif ||
-							fu.getContentType() == MediaBaseType.eContentType.File)
-							assetDestLocation = Util.UrlWithSlashes(ConfigurationManager.GetInstance().TCE_LOCATION_OUT()) + filename;
-						else
-							assetDestLocation = Util.UrlWithSlashes(ConfigurationManager.GetInstance().UploadDestFolder()) + filename;
-					}
+								fu.getContentType() == MediaBaseType.eContentType.EduBook ||
+								fu.getContentType() == MediaBaseType.eContentType.EduStory)
+								assetDestLocation = Util.UrlWithSlashes(ConfigurationManager.GetInstance().TCE_LOCATION_OUT()) + filename;
+							else
+								assetDestLocation = Util.UrlWithSlashes(ConfigurationManager.GetInstance().UploadDestFolder()) + filename;
+						}
 					else
 					{
+						if (fu.getContentType() == MediaBaseType.eContentType.EduStory)
+						{
+							log.error(String.format("Should not come here. filename(%s) info(%s)", filename, Util.ObjectToJson(info)));
+						}
 						assetDestLocation = info.getFileurl();
+						filename = assetDestLocation.substring(assetDestLocation.lastIndexOf("/") + 1);
 					}
-					
+				
 					OutputStream os = new FileOutputStream(new File(assetTmpLocation));
 	
 				    int bufSize = 100000;
@@ -228,13 +265,10 @@ public class FileUploadServlet extends HttpServlet {
 				    os.close();
 				    in.close();		    
 				    
-				    if (info == null)
-				    {
-				    	info = new Upload();
-				    }
-				    
 				    info.setTotalSize(fu.getTotalSize());
 				    info.setMediaId(fu.getMediaId());
+					info.setLessonId(fu.getLessonId());
+					
 				    int nEndPosition = nStartPosition + totalWrite;
 				    if (fu.getTotalSize() <= 0 || fu.getTotalSize() <= nEndPosition)
 				    	info.setStatus(Upload.eUploadStatus.predone.ordinal());
@@ -244,19 +278,25 @@ public class FileUploadServlet extends HttpServlet {
 				    info.setEndPosition(nEndPosition);
 				    info.setFilename(fu.getFilename());
 				    info.setFileurl(assetDestLocation);
+				    if (fu.getFileType() == null)
+				    	info.setFileType(eFileType.Auto);
+				    else
+				    	info.setFileType(fu.getFileType());
 				    
 				    boolean bWriteToDst = false;
 				    if (nStartPosition > 0)
 				    {
 				    	FileInputStream fis = null;
 				    	FileOutputStream fos = null;
+				    	File tmpFile = null;
 				    	try
 				    	{
 					    	//Resume the uploading at the breakpoint
 					    	// or uploading the being recorded asset
 					    	raf = new RandomAccessFile(assetDestLocation, "rw");
 					    	raf.seek(nStartPosition);
-					    	fis = new FileInputStream(new File(assetTmpLocation));
+					    	tmpFile = new File(assetTmpLocation);
+					    	fis = new FileInputStream(tmpFile);
 					    	fos = new FileOutputStream(raf.getFD());
 					    	bytesRead = 0;
 						    totalWrite = 0;
@@ -284,12 +324,29 @@ public class FileUploadServlet extends HttpServlet {
 				    			fos.flush();
 				    			fos.close();
 				    		}
+				    		
+				    		if (tmpFile != null)
+				    		{//delete the temp file.
+				    			try
+				    			{
+				    				tmpFile.delete();
+				    			}
+				    			catch(Exception ex)
+				    			{	
+				    				Util.LogError(log, String.format("Fail to delete the tmp file (%s)", assetTmpLocation), ex);
+				    			}
+				    		}
 				    	}
 				    }
 				    else
 				    {
 					    File srcFile = new File(assetTmpLocation);
 					    File dstFile = new File(assetDestLocation);
+
+					    if (dstFile.exists())
+					    {
+					    	dstFile.delete();
+					    }
 					    bWriteToDst = srcFile.renameTo(dstFile);
 					    if (!bWriteToDst)
 					    {
@@ -301,7 +358,18 @@ public class FileUploadServlet extends HttpServlet {
 				    
 				    if (bWriteToDst)
 				    {	
-				    	ServiceResponse pubRes = uploadManager.SetUploadInfo(info,helper.getToken(),shareOption);
+				    	if (v2gOption != null && !v2gOption.isEmpty())
+				    	{
+				    		info.setV2gJson(DatatypeConverter.printBase64Binary(v2gOption.getBytes()));
+				    	}
+				    	
+				    	if (shareOption != null && !shareOption.isEmpty())
+				    	{
+				    		info.setShareJson(DatatypeConverter.printBase64Binary(shareOption.getBytes()));
+				    	}
+				    	
+				    	ServiceResponse pubRes = uploadManager.SetUploadInfo(helper.getToken(), info);
+
 				    	if (pubRes.getResponseCode() == ResponseCode.SUCCESS)
 					   	{
 					   		if (fu.getTotalSize() <= 0 || (info.getStatus() != Upload.eUploadStatus.done && info.getStatus() != Upload.eUploadStatus.predone)){
@@ -322,7 +390,8 @@ public class FileUploadServlet extends HttpServlet {
 				   		info.setStatus(Upload.eUploadStatus.none);
 				   		log.info(String.format("Fail to copy/move the %s to %s", assetTmpLocation, assetDestLocation));
 				   	}
-				   	
+				    
+				    info.setFileurl(Util.UrlWithHttp(filename));
 				    res.setUploadInfo(info);
 				}
 			}
@@ -330,7 +399,7 @@ public class FileUploadServlet extends HttpServlet {
 		catch(Exception ex)
 		{
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-		    res.setResponseMessage("Exception. " + ex.getMessage());
+			res.setResponseMessage("Exception. " + Util.getStackTrace(ex));
 		    //ex.printStackTrace();
 		    Util.LogError(log, String.format("Upload Exception"), ex);
 		}
@@ -346,7 +415,7 @@ public class FileUploadServlet extends HttpServlet {
 	private String GetFileExtByFileUpload(String ext, FileUpload fu)
 	{
 		String result = ext;
-		if (fu != null)
+		if (fu != null && fu.getContentType() != null)
 		{
 			switch(fu.getContentType())
 			{

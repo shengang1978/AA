@@ -19,6 +19,10 @@ public interface TranscodeDao {
 	
 	List<DcpTranscode> GetUndoneTranscode(int status);
 	
+	List<DcpTranscode> GetUndoneTranscode(List<Integer> status);
+	
+	List<DcpTranscode> GetUndoneTranscode(int jobType, List<Integer> status);
+	
 	int CreateFilter(DcpFilter obj);
 	
 	DcpFilter getDcpFilter(int width,int height,int rotation,eJobType type);

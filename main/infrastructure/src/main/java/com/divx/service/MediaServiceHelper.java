@@ -9,12 +9,19 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.apache.log4j.Logger;
 
+import com.divx.service.model.DcpBaseType.eAppType;
 import com.divx.service.model.KeyValuePair;
+import com.divx.service.model.Media;
 import com.divx.service.model.MediaBaseType;
+import com.divx.service.model.MediaBaseType.eContentType;
+import com.divx.service.model.MediaResponse;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.UploadInfoResponse;
 import com.divx.service.model.Upload;
+import com.divx.service.model.edu.BookOption;
+import com.divx.service.model.edu.Lesson;
+import com.divx.service.model.edu.LessonsResponse;
 
 public class MediaServiceHelper extends ServiceResponse {
 	
@@ -331,5 +338,233 @@ public class MediaServiceHelper extends ServiceResponse {
 			log.error(String.format("Fail to call EndPublish(%s)", Util.ObjectToJson(endOpt)), ex);
 		}
 		return false;
+	}
+	
+	public static LessonsResponse GetLesson(int lessonId){
+		LessonsResponse lr = new LessonsResponse();
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = baseUrl + "/lesson/" + lessonId;
+			String reqRet = Util.HttpGet(reqUrl);
+			if(reqRet.isEmpty()){
+				lr.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				lr.setResponseMessage("Fail to call GetLesson");
+				return lr;
+			}
+			lr = Util.JsonToObject(reqRet, LessonsResponse.class);
+		}catch(Exception ex){
+			log.error(String.format("Fail to call GetLesson for lessonId :%d", lessonId), ex);
+		}
+		return lr;
+	
+	}
+	
+	public static ServiceResponse UpdateLessonInfo(Lesson lesson){
+		ServiceResponse lr = new ServiceResponse();
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = baseUrl + "/lesson/";
+			String reqRet = Util.HttpPutJson(reqUrl, lesson, null);
+			if(reqRet.isEmpty()){
+				lr.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				lr.setResponseMessage("Fail to call UpdateLessonInfo");
+				return lr;
+			}
+			lr = Util.JsonToObject(reqRet, ServiceResponse.class);
+		}catch(Exception ex){
+			log.error(String.format("Fail to call UpdateLessonInfo for lesson :%s",Util.ObjectToJson(lesson)), ex);
+		}
+		return lr;
+	
+	}
+	public class MediasResponse extends ServiceResponse {
+		private List<Media>	medias;
+		private int startPos;
+		private int endPos;
+		public List<Media> getMedias() {
+			return medias;
+		}
+		public void setMedias(List<Media> medias) {
+			this.medias = medias;
+		}
+		public int getStartPos() {
+			return startPos;
+		}
+		public void setStartPos(int startPos) {
+			this.startPos = startPos;
+		}
+		public int getEndPos() {
+			return endPos;
+		}
+		public void setEndPos(int endPos) {
+			this.endPos = endPos;
+		}
+	}
+	public MediasResponse MediasResponse;
+	public  MediasResponse GetPublicMedias(int startPos,int endPos){
+		MediaServiceHelper.MediasResponse mr = new MediaServiceHelper.MediasResponse();
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = String.format("%s/media/PublicMedias?startPos=%d&endPos=%d", baseUrl,startPos,endPos);
+			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
+			headers.add(new KeyValuePair<String, String>("AppType", "4"));
+			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
+			String reqRet = Util.HttpGet(reqUrl, headers);
+			if(reqRet.isEmpty()){
+				mr.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				mr.setResponseMessage("Fail to call PublicMedias");
+				return mr;
+			}
+		mr = Util.JsonToObject(reqRet,MediaServiceHelper.MediasResponse.class);
+		
+	}catch(Exception ex){
+		log.error("Fail to call PublicMedias", ex);
+	}
+		return mr;
+		
+	}
+	public class CreateMediaResponse extends ServiceResponse {
+		private int mediaId;
+		private String sign;
+		private boolean isTransfered;
+
+		public int getMediaId() {
+			return mediaId;
+		}
+
+		public void setMediaId(int mediaId) {
+			this.mediaId = mediaId;
+		}
+
+		public boolean isTransfered() {
+			return isTransfered;
+		}
+
+		public void setTransfered(boolean isTransfered) {
+			this.isTransfered = isTransfered;
+		}
+
+		public String getSign() {
+			return sign;
+		}
+
+		public void setSign(String sign) {
+			this.sign = sign;
+		}
+	}
+	public CreateMediaResponse CreateMediaResponse;
+	public  CreateMediaResponse CreateMedia(String token,String title,String desc,String keyWord,String bookUrl,boolean isPublic){
+		MediaServiceHelper msh = new MediaServiceHelper();
+		CreateMediaResponse cmr = null;
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = String.format("%s/media/", baseUrl);
+			com.divx.service.model.MediaBase mediaBase = new com.divx.service.model.MediaBase();
+			mediaBase.setTitle(title);
+			mediaBase.setDesc(desc);
+			mediaBase.setKeywords(keyWord);
+			mediaBase.setIsPublic(isPublic);
+			mediaBase.setSmileUrl(bookUrl);
+			mediaBase.setContentType(eContentType.EduBookURL);
+			//msh.MediaBase = mediaBase;
+			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
+			headers.add(new KeyValuePair<String, String>("AppType", "4"));
+			headers.add(new KeyValuePair<String, String>("Token", token));
+			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
+			System.out.println(String.format("{\"MediaBase\":%s}", Util.ObjectToJson(mediaBase)));
+			String reqRet = Util.HttpPost(reqUrl, String.format("{\"MediaBase\":%s}", Util.ObjectToJson(mediaBase)), headers);
+			cmr = msh.CreateMediaResponse;
+			if(reqRet.isEmpty()){
+				cmr.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				cmr.setResponseMessage("Fail to call PublicMedias");
+				return cmr;
+			}
+		cmr = Util.JsonToObject(reqRet, CreateMediaResponse.class);
+		
+	}catch(Exception ex){
+		log.error("Fail to call PublicMedias", ex);
+	}
+		return cmr;
+		
+	}
+	BookOption BookOption;
+	public ServiceResponse GetBookInfo(int mediaId,String filePath){
+		ServiceResponse res = new ServiceResponse();
+		MediaServiceHelper msh = new MediaServiceHelper();
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = String.format("%s/media/UpdateBookInfo", baseUrl);
+			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
+			headers.add(new KeyValuePair<String, String>("AppType", "4"));
+			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
+			BookOption option = new BookOption();
+			option.setMediaId(mediaId);
+			option.setFilePath(filePath);
+			msh.BookOption = option;
+			String reqRet = Util.HttpPostJson(reqUrl, msh);
+			if(reqRet.isEmpty()){
+				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				res.setResponseMessage("Fail to call GetBookInfo");
+				return res;
+			}
+			res = Util.JsonToObject(reqRet, ServiceResponse.class);
+		}catch(Exception ex){
+			
+		}
+		return res;
+	}
+	
+	public MediaResponse GetMedia(int mediaId){
+		MediaResponse res = new MediaResponse();
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = String.format("%s/media/%d",baseUrl, mediaId);
+			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
+			headers.add(new KeyValuePair<String, String>("AppType", "4"));
+			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
+			String reqRet = Util.HttpGet(reqUrl, headers);
+			if(reqRet.isEmpty()){
+				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				res.setResponseMessage("Fail to call GetMedia");
+				return res;
+			}
+			res = Util.JsonToObject(reqRet, MediaResponse.class);
+		}catch(Exception ex){
+			
+		}
+		return res;
+	}
+	public  ServiceResponse UpdateMedia(String token,String title,String desc,String keyWord,boolean isPublic){
+		MediaServiceHelper msh = new MediaServiceHelper();
+		ServiceResponse cmr = new ServiceResponse();
+		try{
+			String baseUrl = ConfigurationManager.GetInstance().MediaServiceBaseUrl();
+			String reqUrl = String.format("%s/media/", baseUrl);
+			com.divx.service.model.MediaBase mediaBase = new com.divx.service.model.MediaBase();
+			mediaBase.setTitle(title);
+			mediaBase.setDesc(desc);
+			mediaBase.setKeywords(keyWord);
+			mediaBase.setIsPublic(isPublic);
+			mediaBase.setContentType(eContentType.EduBook);
+			//msh.MediaBase = mediaBase;
+			List<KeyValuePair<String, String>> headers = new ArrayList<KeyValuePair<String, String>>();
+			headers.add(new KeyValuePair<String, String>("AppType", "4"));
+			headers.add(new KeyValuePair<String, String>("Token", token));
+			headers.add(new KeyValuePair<String, String>("Content-Type", "application/json"));
+			System.out.println(String.format("{\"MediaBase\":%s}", Util.ObjectToJson(mediaBase)));
+			String reqRet = Util.HttpPut(reqUrl, String.format("{\"MediaBase\":%s}", Util.ObjectToJson(mediaBase)), headers);
+		
+			if(reqRet.isEmpty()){
+				cmr.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				cmr.setResponseMessage("Fail to call PublicMedias");
+				return cmr;
+			}
+		cmr = Util.JsonToObject(reqRet, ServiceResponse.class);
+		
+	}catch(Exception ex){
+		log.error("Fail to call PublicMedias", ex);
+	}
+		return cmr;
+		
 	}
 }

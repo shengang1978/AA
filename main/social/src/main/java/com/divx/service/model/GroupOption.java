@@ -5,13 +5,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "GroupOption")
 public class GroupOption {
 	private String title;
-	private String description;
+	private String desc;
 
 	public String getDescription() {
-		return description;
+		return desc;
 	}
 	public void setDescription(String description) {
-		this.description = description;
+		this.desc = description;
 	}
 	public String getTitle() {
 		return title;

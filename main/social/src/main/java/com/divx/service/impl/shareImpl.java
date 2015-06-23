@@ -13,7 +13,7 @@ import com.divx.service.domain.manager.ShareManager;
 import com.divx.service.domain.model.OsfComments;
 import com.divx.service.model.ActivitiesResponse;
 import com.divx.service.model.Activity;
-import com.divx.service.model.LikeOption;
+import com.divx.service.model.BaseSocialType.ActionType;
 import com.divx.service.model.QueryOption;
 import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
@@ -56,12 +56,12 @@ public class shareImpl implements share {
 			return Util.ServiceResponseToResponse(res);
 		}
 		
-		return Util.ServiceResponseToResponse(shareManager.AddShareActivity(helper.getUserId(), shareId, Activity.ActionType.comment, comment));
+		return Util.ServiceResponseToResponse(shareManager.AddShareActivity(helper.getUserId(), shareId, ActionType.comment, comment));
 
 	}
 
 	@Override
-	public Response Like(int shareId, String like) {
+	public Response Like(com.divx.service.model.Like like) {
 		ServiceResponse res = new ServiceResponse();
 		AuthHelper helper = new AuthHelper();
 		if (helper.isGuest())
@@ -70,9 +70,22 @@ public class shareImpl implements share {
 			res.setResponseMessage("Not Login");
 			return Util.ServiceResponseToResponse(res);
 		}
-		
-		return Util.ServiceResponseToResponse(shareManager.AddShareActivity(helper.getUserId(), shareId, Activity.ActionType.like, like.toLowerCase()));
+		return Util.ServiceResponseToResponse(shareManager.AddLike(helper.getUserId(), like));
 	}
+	
+//	@Override
+//	public Response Like(int shareId, String like) {
+//		ServiceResponse res = new ServiceResponse();
+//		AuthHelper helper = new AuthHelper();
+//		if (helper.isGuest())
+//		{
+//			res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+//			res.setResponseMessage("Not Login");
+//			return Util.ServiceResponseToResponse(res);
+//		}
+//		
+//		return Util.ServiceResponseToResponse(shareManager.AddShareActivity(helper.getUserId(), shareId, Activity.ActionType.like, like.toLowerCase()));
+//	}
 
 	@Override
 	public Response MyShares(QueryOption.QueryType option, int startPos, int endPos) {
@@ -85,7 +98,7 @@ public class shareImpl implements share {
 			return Util.ServiceResponseToResponse(res);
 		}
 		
-		return Util.ServiceResponseToResponse(shareManager.GetShares(helper.getUserId(), option));
+		return Util.ServiceResponseToResponse(shareManager.GetShares(helper.getUserId(), option, startPos, endPos));
 	}
 
 	@Override
@@ -132,9 +145,14 @@ public class shareImpl implements share {
 	}
 
 	@Override
-	public Response GetPublicShares(int startPos, int endPos) {
+	public Response GetPublicShares(QueryOption.MediaType option,QueryOption.SearchType searchOption,int startPos, int endPos) {
 		AuthHelper helper = new AuthHelper();
 		
-		return Util.ServiceResponseToResponse(shareManager.GetPublicShares(helper.getAppType(), startPos, endPos));
+		return Util.ServiceResponseToResponse(shareManager.GetPublicShares(helper.getAppType(), option,searchOption,startPos, endPos));
+	}
+
+	@Override
+	public Response UserShares(int userId, int startPos, int endPos) {
+		return Util.ServiceResponseToResponse(shareManager.GetShares(userId, QueryOption.QueryType.mine, startPos, endPos));
 	}
 }

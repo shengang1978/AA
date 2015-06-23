@@ -12,6 +12,8 @@ public class FileUpload {
 	private MediaBaseType.eContentType contentType;
 	private MediaBaseType.eFileType	fileType;
 	private String filename;
+	private int lessonId;
+	private String contentSettings;
 	
 	public int getTotalSize() {
 		return totalSize;
@@ -54,5 +56,17 @@ public class FileUpload {
 	}
 	public void setFileType(MediaBaseType.eFileType fileType) {
 		this.fileType = fileType;
+	}
+	public int getLessonId() {
+		return lessonId;
+	}
+	public void setLessonId(int lessonId) {
+		this.lessonId = lessonId;
+	}
+	public String getContentSettings() {
+		return contentSettings;
+	}
+	public void setContentSettings(String contentSettings) {
+		this.contentSettings = contentSettings;
 	}
 }

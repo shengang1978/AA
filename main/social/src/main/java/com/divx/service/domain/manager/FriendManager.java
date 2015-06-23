@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import com.divx.service.ConfigurationManager;
 import com.divx.service.MessageServiceHelper;
+import com.divx.service.UserHelper;
 import com.divx.service.UserServiceHelper;
+import com.divx.service.Util;
 import com.divx.service.domain.dao.FriendDao;
 import com.divx.service.domain.dao.GroupDao;
 import com.divx.service.domain.model.DcpEmailJob;
@@ -37,9 +39,10 @@ import com.divx.service.model.UsersResponse;
 
 @Service
 public class FriendManager {
+	public static Logger log = Logger.getLogger(FriendManager.class);
+		
 	private FriendDao friendDao;
 	private GroupDao groupDao;
-	private UserHelper userHelper = new UserHelper();
 
 	@Autowired
 	public void setFriendDao(FriendDao friendDao) {
@@ -47,51 +50,52 @@ public class FriendManager {
 	}
 
 	@Autowired
-	public void setFriendDao(GroupDao groupDao) {
+	public void setGroupDao(GroupDao groupDao) {
 		this.groupDao = groupDao;
 	}
 
 	static com.divx.service.domain.manager.SendEmailHelper.WatchMonitor monitor;
 	static Thread threadMonitor;
-
+	//public  static boolean sendEmailEnable = ConfigurationManager.GetInstance().GetConfigValue("SendEmail_Enable", false);
 	static {
-		SendEmailHelper helper = new SendEmailHelper();
-		monitor = helper.new WatchMonitor();
+		if(false){
+			SendEmailHelper helper = new SendEmailHelper();
+			monitor = helper.new WatchMonitor();
 
-		threadMonitor = new Thread(monitor);
-		threadMonitor.start();
+			threadMonitor = new Thread(monitor);
+			threadMonitor.start();
+		}
+		
 	}
 
 	public UsersResponse GetMyFriends(int userId) {
 		UsersResponse res = new UsersResponse();
 		try {
-			List<User> friends = new LinkedList<User>();
-
-			OsfProjects group = GetMyFriendGroup(userId);
-			if (group == null) {
-				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-				res.setResponseMessage("Fail to create MyFriends group.");
-				return res;
-			}
-			// List<OsfTeamMembers> tms =
-			// friendDao.GetUsersInGroup(group.getId().intValue(), "");
-			List<OsfTeamMembers> tms = friendDao.GetUsers(group.getId()
-					.intValue(), GroupRole.friend.ordinal());
-			if (tms != null && tms.size() > 0) {
-				for (OsfTeamMembers tm : tms) {
-					// if (tm.getStatus() == null || tm.getStatus() == "")
-					{
-						/*
-						 * User u = new User();
-						 * u.setUserId((int)tm.getUserId());
-						 * u.setPhotoUrl(tm.getPhotourl());
-						 * u.setNickname(tm.getNickname());
-						 * u.setUsername(tm.getUsername());
-						 */
-
-						User u = userHelper.GetUser((int) tm.getUserId());
+			List<User> friends = CacheManager.GetInstance().GetCacheMyFriends(userId);
+			
+			if (friends == null)
+			{
+				friends = new LinkedList<User>();
+			
+				OsfProjects group = GetMyFriendGroup(userId);
+				if (group == null) {
+					res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+					res.setResponseMessage("Fail to create MyFriends group.");
+					return res;
+				}
+	
+				List<OsfTeamMembers> tms = friendDao.GetUsers(group.getId()
+						.intValue(), GroupRole.friend.ordinal());
+				if (tms != null && tms.size() > 0) {
+					for (OsfTeamMembers tm : tms) {
+						User u = UserHelper.GetUser((int) tm.getUserId());
 						friends.add(u);
 					}
+				}
+				
+				if (friends.size() > 0)
+				{
+					CacheManager.GetInstance().SetCacheMyFriend(userId, friends);
 				}
 			}
 			res.setUsers(friends);
@@ -104,8 +108,6 @@ public class FriendManager {
 		}
 		return res;
 	}
-	 public static Logger log = Logger.getLogger(FriendManager.class);
-	
 	public ServiceResponse RequestFriend(int userId, FriendRequest friend) {
 		ServiceResponse res = new ServiceResponse();
 		try {
@@ -117,10 +119,10 @@ public class FriendManager {
 			friendRequest.setReceiveUserid(friend.getUserId());
 			if ( friend.getUserId()==userId) {
 				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
-				res.setResponseMessage("Cannot add self.");
+				res.setResponseMessage("不能添加自己为好友.");
 				return res;
 			}
-			User friendUser = userHelper.GetUser(friend.getUserId());
+			User friendUser = UserHelper.GetUser(friend.getUserId());
 			
 			if (friendUser == null || friendUser.getUserId() <= 0) {
 				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
@@ -128,7 +130,7 @@ public class FriendManager {
 						"Fail to get user(%d) info by UserService.", userId));
 				return res;
 			}
-			User userSelf = userHelper.GetUser(userId);
+			User userSelf = UserHelper.GetUser(userId);
 			if (userSelf == null || userSelf.getUserId() <= 0) {
 				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
 				res.setResponseMessage(String.format(
@@ -139,12 +141,12 @@ public class FriendManager {
 			OsfTeamMembers osfTeamMembers= friendDao.GetMyFriend(userId, friend.getUserId());
 			if (osfTeamMembers!=null) {
 				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);// 好友重复添加
-				res.setResponseMessage(String.format("Repeat to add friend.",
+				res.setResponseMessage(String.format("对方已经是您的好友.",
 						userId));
 				return res;
 			}
 
-			String content = String.format("%s wants to be friend with you. ",
+			String content = String.format("%s想邀请您为好友。 ",
 					userSelf.getNickname());
 			if (friend.getContent() != null && !friend.getContent().isEmpty())
 				content += friend.getContent();
@@ -155,7 +157,7 @@ public class FriendManager {
 			if (requestId > 0) {
 				res.setResponseCode(ResponseCode.SUCCESS);
 				res.setResponseMessage("Success");
-				MessageServiceHelper msh = new MessageServiceHelper();
+//				MessageServiceHelper msh = new MessageServiceHelper();
 
 //				SysMessage msg = new SysMessage();
 //				msg.setMessageType(SysMessage.eSysMessageType.ToPerson);
@@ -171,12 +173,13 @@ public class FriendManager {
 //				}
 			}else {
 				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				res.setResponseMessage("Fail to save the request.");
 			}
 			
 		} catch (Exception ex) {
-			log.error(ex.getMessage());
+			Util.LogError(log, String.format("RequestFriend(%d, %s)", userId, Util.ObjectToJson(friend)), ex);
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-			res.setResponseMessage(ex.getMessage());
+			res.setResponseMessage("Internal Error. Exception " + ex.getMessage());
 			ex.printStackTrace();
 		}
 		return res;
@@ -187,37 +190,10 @@ public class FriendManager {
 		OsfProjects group = null;
 		try {
 			group = groupDao.GetMyFriendGroup(userId);
-			if (group == null) {
-				group = new OsfProjects();
-				group.setCategoryId(1);
-				group.setEnabled(true);
-				group.setEntered(new Date());
-				group.setModified(new Date());
-				group.setModifiedById(new Long(userId));
-				group.setEnteredById(new Long(userId));
-				group.setTitle("MyFriends");
-				group.setUniqueId(String.format("MyFriend-%d-%d", userId,
-						new Date().getTime()));
-				int tmid = groupDao.CreateGroup(group);
-				if (tmid > 0) {
 
-					OsfTeamMembers obj = new OsfTeamMembers();
-					obj.setEnabled(true);
-					obj.setStatus("");
-					obj.setProjectId(tmid);
-					obj.setRoleId(GroupRole.admin.ordinal());
-					obj.setUserId(userId);
-					/*
-					 * User user = userHelper.GetUser(userId);
-					 * obj.setNickname(user.getNickname());
-					 * obj.setPhotourl(user.getPhotoUrl());
-					 * obj.setUsername(user.getUsername());
-					 */
-					friendDao.SetUserToGroup(obj);
-				}
-			}
-		} catch (Exception ex) {
-
+		} 
+		catch (Exception ex) {
+			Util.LogError(log, String.format("Exception to GetMyFriendGroup(%d)", userId), ex);
 			ex.printStackTrace();
 		}
 
@@ -233,10 +209,9 @@ public class FriendManager {
 				for (DcpFriendRequest obj : frList) {
 					FriendRequestOption fr = new FriendRequestOption();
 					fr.setRequestId(obj.getRequestId());
-					fr.setUserId(obj.getRequestUserid());
+					fr.setUser(UserHelper.GetUser(obj.getRequestUserid()));
 					fr.setContent(obj.getContent());
-					fr.setUserPhoto(userHelper.GetUser(obj.getRequestUserid())
-							.getPhotoUrl());
+
 					frs.add(fr);
 				}
 				res.setRequestList(frs);
@@ -280,29 +255,13 @@ public class FriendManager {
 					return res;
 				}
 
-				/*
-				 * User fromUser = userHelper.GetUser(userId); if (fromUser ==
-				 * null) {
-				 * res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-				 * res.setResponseMessage("Fail to UserService"); return res; }
-				 * 
-				 * User toUser = userHelper.GetUser(request.getRequestUserid());
-				 * if (toUser == null) {
-				 * res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-				 * res.setResponseMessage("Fail to UserService"); return res; }
-				 */
-
 				OsfTeamMembers fromTm = new OsfTeamMembers();
 				fromTm.setUserId(userId);
 				fromTm.setEnabled(true);
 				fromTm.setProjectId(toGroup.getId());
 				fromTm.setRoleId(GroupRole.friend.ordinal());
 				fromTm.setStatus("");
-				/*
-				 * fromTm.setUsername(fromUser.getUsername());
-				 * fromTm.setNickname(fromUser.getNickname());
-				 * fromTm.setPhotourl(fromUser.getPhotoUrl());
-				 */
+
 				int ret = friendDao.SetUserToGroup(fromTm);
 				if (ret <= 0) {
 					res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
@@ -315,20 +274,20 @@ public class FriendManager {
 				toTm.setProjectId(fromGroup.getId());
 				toTm.setRoleId(GroupRole.friend.ordinal());
 				toTm.setStatus("");
-				/*
-				 * toTm.setUsername(toUser.getUsername());
-				 * toTm.setNickname(toUser.getNickname());
-				 * toTm.setPhotourl(toUser.getPhotoUrl());
-				 */
 
 				int ret2 = friendDao.SetUserToGroup(toTm);
 				if (ret2 > 0) {
+					ImHelper.AddFriend(userId, request.getRequestUserid());
 					res.setResponseCode(ResponseCode.SUCCESS);
 					res.setResponseMessage("Success");
 				} else {
 					res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 					res.setResponseMessage("Fail to RespondRequestFriend");
 				}
+				
+				CacheManager.GetInstance().ClearCacheMyFriend(userId);
+				CacheManager.GetInstance().ClearCacheMyFriend(request.getRequestUserid());
+				
 				break;
 			}
 
@@ -345,10 +304,13 @@ public class FriendManager {
 				break;
 			}
 			default:
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage(String.format("Invalid RequestType(%s)", oper.getRespondType().toString()));
 				break;
 			}
 
-		} catch (Exception ex) {
+		} 
+		catch (Exception ex) {
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			res.setResponseMessage(ex.getMessage());
 			ex.printStackTrace();
@@ -359,11 +321,12 @@ public class FriendManager {
 	public ServiceResponse InviteUser(int userId, InviteOption option) {
 		ServiceResponse res = new ServiceResponse();
 		try {
-			if (!threadMonitor.isAlive()) {
-				threadMonitor = new Thread(monitor);
-				threadMonitor.start();
+			if(false){
+				if (!threadMonitor.isAlive()) {
+					threadMonitor = new Thread(monitor);
+					threadMonitor.start();
+				}
 			}
-			
 			boolean bEnableInvitedEmail = ConfigurationManager.GetInstance().GetConfigValue("Social_Enable_InviteUser", false);
 			if (!bEnableInvitedEmail)
 			{
@@ -424,8 +387,6 @@ public class FriendManager {
 						obj.setStatus("");
 						obj.setRoleId(GroupRole.groupMember.ordinal());
 						int aa = friendDao.SetUserToGroup(obj);
-						//System.out.println("---" + aa);
-						
 					}
 				}
 			} else {
@@ -479,15 +440,6 @@ public class FriendManager {
 				res.setResponseMessage("Fail to GetMyFriendGroup");
 				return res;
 			}
-			/*
-			 * User fromUser = userHelper.GetUser(formUserId); if (fromUser ==
-			 * null) { res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-			 * res.setResponseMessage("Fail to UserService"); return res; }
-			 * 
-			 * User toUser = userHelper.GetUser(toUserId); if (toUser == null) {
-			 * res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-			 * res.setResponseMessage("Fail to UserService"); return res; }
-			 */
 
 			OsfTeamMembers fromTm = new OsfTeamMembers();
 			fromTm.setUserId(formUserId);
@@ -495,11 +447,7 @@ public class FriendManager {
 			fromTm.setProjectId(toGroup.getId());
 			fromTm.setRoleId(GroupRole.friend.ordinal());
 			fromTm.setStatus("");
-			/*
-			 * fromTm.setUsername(fromUser.getUsername());
-			 * fromTm.setNickname(fromUser.getNickname());
-			 * fromTm.setPhotourl(fromUser.getPhotoUrl());
-			 */
+
 			int midFrom = friendDao.SetUserToGroup(fromTm);
 			if (midFrom <= 0) {
 				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
@@ -513,11 +461,6 @@ public class FriendManager {
 			toTm.setProjectId(fromGroup.getId());
 			toTm.setRoleId(GroupRole.friend.ordinal());
 			toTm.setStatus("");
-			/*
-			 * toTm.setUsername(toUser.getUsername());
-			 * toTm.setNickname(toUser.getNickname());
-			 * toTm.setPhotourl(toUser.getPhotoUrl());
-			 */
 
 			int midTo = friendDao.SetUserToGroup(toTm);
 			if (midTo > 0) {
@@ -536,32 +479,26 @@ public class FriendManager {
 		return res;
 	}
 
-	public UsersResponse UnbindFriend(int userId, int friendId) {
-		UsersResponse res = new UsersResponse();
-		int result = 0;
+	public ServiceResponse UnbindFriend(int userId, int friendId) {
+		ServiceResponse res = new ServiceResponse();
 		try {
-			OsfTeamMembers teamMembers = friendDao
-					.GetMyFriend(userId, friendId);//
-			if (teamMembers != null) {
-				result = friendDao.UnbindFriend(teamMembers);
-				if (result > 0) {
-					res.setResponseCode(ResponseCode.SUCCESS);
-					res.setResponseMessage("Success");
-				} else {
-					res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
-					res.setResponseMessage("Fail to unbind the friend");
-				}
-			} else {
+			int nRet = friendDao.UnbindFriend(userId, friendId);
+			if (nRet > 0) {
+				ImHelper.RemoveFriend(userId, friendId);
+				CacheManager.GetInstance().ClearCacheMyFriend(userId);
+				CacheManager.GetInstance().ClearCacheMyFriend(friendId);
+				res.setResponseCode(ResponseCode.SUCCESS);
+				res.setResponseMessage("Success");
+			} 
+			else {
 				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
 				res.setResponseMessage("Invalid friend Id");
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			res.setResponseMessage(ex.getMessage());
+			Util.LogError(log, String.format("Exception to UnbindFriend(%d, %d)", userId, friendId), ex);
 		}
 		return res;
-
 	}
-
 }

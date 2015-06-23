@@ -1,12 +1,15 @@
 package com.divx.service.domain.manager;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +37,7 @@ import com.divx.service.domain.model.DcpUserRole;
 import com.divx.service.domain.model.OsfUsers;
 import com.divx.service.domain.repository.DivxUserDao;
 import com.divx.service.domain.repository.TokenDao;
+import com.divx.service.im.HXImHelper;
 import com.divx.service.model.AuthResponse;
 import com.divx.service.model.ChangePasswordOption;
 import com.divx.service.model.CheckUserResponse;
@@ -43,6 +47,7 @@ import com.divx.service.model.KeyValuePair;
 import com.divx.service.model.KeyValueStringPair;
 import com.divx.service.model.MailSetting;
 import com.divx.service.model.OAuthOption;
+import com.divx.service.model.UserResponse;
 import com.divx.service.model.OAuthOption.eAuthProvider;
 import com.divx.service.model.Organization;
 import com.divx.service.model.QQUserInfo;
@@ -52,6 +57,7 @@ import com.divx.service.model.ResponseCode;
 import com.divx.service.model.ServiceResponse;
 import com.divx.service.model.User;
 import com.divx.service.model.UserInfoResponse;
+import com.divx.service.model.UsersResponse;
 import com.divx.service.model.WeixinRet;
 import com.divx.service.model.WeixinUserInfo;
 import com.divx.service.model.UserInfoResponse.RegisterType;
@@ -61,6 +67,7 @@ import com.divx.service.model.StartupResponse;
 import com.divx.service.model.UserPhotoOption;
 import com.divx.service.model.UserProfile;
 import com.divx.service.model.UserProfileResponse;
+import com.divx.service.model.im.HxUser;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
@@ -69,6 +76,8 @@ import com.google.common.cache.CacheBuilder;
 public class UserManager {
 	public static final Cache<Integer, UserProfile> cacheProfile = CacheBuilder.newBuilder().maximumSize(10000).expireAfterWrite(6, TimeUnit.HOURS).build();
 	public static final Cache<String, List<OsfUsers>> cacheFindUsers = CacheBuilder.newBuilder().maximumSize(10000).expireAfterWrite(6, TimeUnit.HOURS).build();
+	public static final Cache<String, UsersResponse> cacheListUsers = CacheBuilder.newBuilder().maximumSize(10000).expireAfterWrite(6, TimeUnit.HOURS).build();
+	public static final Cache<String, StartupResponse> cacheStartup = CacheBuilder.newBuilder().maximumSize(5).expireAfterWrite(1, TimeUnit.HOURS).build();
 	
 	private static final Logger log =  Logger.getLogger(UserManager.class);
 	private final static DivxAuthUserService userDetailsService = new DivxAuthUserService();
@@ -85,21 +94,31 @@ public class UserManager {
 	public void setTokenDao(TokenDao tokenDao) {
 		this.tokenDao = tokenDao;
 	}
+	//public  static boolean sendEmailEnable = ConfigurationManager.GetInstance().GetConfigValue("SendEmail_Enable", false);
 	static com.divx.service.domain.manager.SendEmailHelper.WatchMonitor monitor;
 	static Thread threadMonitor;
 	
 	static{
-		SendEmailHelper helper = new SendEmailHelper();
-		monitor = helper.new WatchMonitor();
-		
-		threadMonitor = new Thread(monitor);
-		threadMonitor.start();
+		if(false){
+			SendEmailHelper helper = new SendEmailHelper();
+			monitor = helper.new WatchMonitor();
+			
+			threadMonitor = new Thread(monitor);
+			threadMonitor.start();
+		}
+	
 	  }
 	public AuthResponse Login(String username, String password, String deviceUniqueId, String deviceType, int orgId)
 	{
 		AuthResponse res = new AuthResponse();
 		try
 		{
+			if (username.isEmpty() || password.isEmpty())
+			{
+				res.setResponseCode(ResponseCode.AUTH_ERROR_USERNAME_OR_PASSWORD_INVALID);
+				res.setResponseMessage("Invalid username or password!");
+				return res;
+			}
 			OsfUsers user = divxUserDao.GetUserByUsername(orgId, username);
 			if (user == null)
 			{
@@ -120,30 +139,27 @@ public class UserManager {
 				return res;
 			}
 			
-			if(user!=null && StringUtils.equals(password, user.getPassword())) {
+			UUID uid = UUID.randomUUID();
+			user.setToken(uid.toString());
+			user.setLastLogin(new Date());
+			divxUserDao.UpdateUser(user);
+			res.setResponseMessage("Success");
 
-				UUID uid = UUID.randomUUID();
-				user.setToken(uid.toString());
-				user.setLastLogin(new Date());
-				divxUserDao.UpdateUser(user);
-				res.setResponseMessage("Success");
-
-				res = generateAuthResponse(deviceUniqueId, user, deviceType, user.getToken());
-			}	
+			res = generateAuthResponse(deviceUniqueId, user, deviceType);
 		}
 		catch(Exception ex)
 		{
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			res.setResponseMessage(ex.getMessage());
-			//ex.printStackTrace();
-			log.error(String.format("Login(%s)", username), ex);
+			Util.LogError(log, String.format("Login(%s)", username), ex);
 		}
 			
 		return  res;
 	}
-	public AuthResponse generateAuthResponse(String deviceUniqueId,OsfUsers user,String deviceType, String strToken){
+	public AuthResponse generateAuthResponse(String deviceUniqueId,OsfUsers user,String deviceType){
 		DcpToken token = tokenDao.GetToken(deviceUniqueId, user.getId().intValue());
 		AuthResponse ar = new AuthResponse();
+		UUID uid = UUID.randomUUID();
 		if (token == null)
 		{
 			token = new DcpToken();
@@ -157,13 +173,16 @@ public class UserManager {
 			}
 			catch(Exception ex)
 			{
-				return null;
+				ar.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+				ar.setResponseMessage(String.format("Invalid deviceType(%s)", deviceType));
+				return ar;
 			}
 			token.setDeviceguid(Util.EncryptDeviceUniqueId(deviceUniqueId, user.getId()));
 			token.setIsactive(true);
 			token.setUserId(user.getId().intValue());
-			token.setToken(strToken);
-			token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
+			
+			token.setToken(uid.toString());
+			token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 24));
 			int tokenId = tokenDao.CreateToken(token);
 			if(tokenId <= 0){
 				ar.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
@@ -176,8 +195,8 @@ public class UserManager {
 			token.setDatemodified(new Date());
 			token.setIsactive(true);
 			token.setUserId(user.getId().intValue());
-			token.setToken(strToken);
-			token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 6));
+			token.setToken(uid.toString());
+			token.setExpiredate(Util.GetDate(new Date(), Calendar.MONTH, 24));
 			int tokenId = tokenDao.UpdateToken(token);
 			if(tokenId <= 0){
 				ar.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
@@ -194,15 +213,26 @@ public class UserManager {
 		MessageServiceHelper helper = new MessageServiceHelper();
 		ServiceResponse sr = helper.RegisterDevice(token.getDeviceguid(), 
 				token.getDevicetype(), 
+				user.getUsername(), 
 				user.getNickname().isEmpty() ? user.getUsername() : user.getNickname(), 
-				user.getNickname(), 
 				user.getPhotourl());
 		if (sr.getResponseCode() != 0)
 		{
 			ar.setResponseMessage(String.format("Fail to register device on message service. ResponseCode(%d), %s", sr.getResponseCode(), sr.getResponseMessage()));
 		}
 		ar.setDeviceGuid(token.getDeviceguid());
-		ar.setToken(new DivXAuthToken(user, token).GetAuthTokenString(new DivXAuthUser(user)));		
+		ar.setToken(new DivXAuthToken(user, token).GetAuthTokenString(new DivXAuthUser(user)));	
+		User u = new User();
+		u.setUserId(user.getId().intValue());
+		u.setUsername(user.getUsername());
+		u.setNickname(user.getNickname());
+		if(user.getPhotourl() != null && !user.getPhotourl().isEmpty()){
+			u.setPhotourl(Util.UrlWithHttp(user.getPhotourl()));
+		}else{
+			u.setPhotourl("");
+		}
+	
+		ar.setUser(u);
 		ar.setResponseMessage("success");
 		ar.setResponseCode(ResponseCode.SUCCESS);				
 		return ar;
@@ -215,84 +245,156 @@ public class UserManager {
 			OsfUsers user  = null;
 			DcpOauthUsers oauthUser = null;
 			if(option.getAccessToken() == null || option.getOpenId() == null ||option.getAuthProvider() == null){
-				res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-				res.setResponseMessage("Not AccessToken or OpenId");
+				res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+				res.setResponseMessage("Invalid AccessToken or OpenId");
 				return res;
 			}
 			if(token == null || token.isEmpty()){
+				switch(option.getAuthProvider())
+				{
+				case QQ:
+					user = QQLogin(option.getAccessToken(),option.getOpenId(),orgId);
+				break;
+				case Weixin:
+					user = WeixinLogin(option.getAccessToken(),option.getOpenId(),orgId);
+					break;
+				default:
+					res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+					res.setResponseMessage("authProvider type can only be QQ or Weixin");
+					return res;
+				}
+				if(user == null){
+					res.setResponseCode(ResponseCode.AUTH_ERROR_INVALID_OAUTH_TOKEN);
+					res.setResponseMessage("Invalid oauth token");
+					return res;
+				}
+				
 				oauthUser = divxUserDao.GetDcpOauthUser(option.getOpenId(), option.getAuthProvider().ordinal());
 				if(oauthUser == null){
-					if(eAuthProvider.QQ == option.getAuthProvider()){
-						user =  QQLogin(option.getAccessToken(),option.getOpenId(),orgId);
-					}else if(eAuthProvider.Weixin == option.getAuthProvider()){
-						user = WeixinLogin(option.getAccessToken(),option.getOpenId(),orgId);
-					}else{
-						res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-						res.setResponseMessage("authProvider type only QQ or Weixin");
-						return res;
-					}	
-					if(user == null){
-						res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-						res.setResponseMessage("error AccessToken or OpenId");
-						return res;
-					}
-					
+					user.setUsernameStatus(false);
 					int userId = divxUserDao.CreateUser(user);	
 					if(userId > 0){
+						String username = String.format("tyty%06d", userId);
+						if(divxUserDao.GetUserByUsername(orgId, username) != null){
+							username = String.format("%s%d", username , System.currentTimeMillis()/1000);
+						}
+						user.setUsername(username);
+						divxUserDao.UpdateUser(user);
 						oauthUser = new DcpOauthUsers();
 						oauthUser.setAccessToken(option.getAccessToken());
 						oauthUser.setOpenId(option.getOpenId());
 						oauthUser.setOsfUsers(user);
-						oauthUser.setOauthType(eAuthProvider.Weixin.ordinal());
+						oauthUser.setOauthType(option.getAuthProvider().ordinal());
 						oauthUser.setCreateDate(new Date());
 						oauthUser.setModifyDate(new Date());
 						int oUId = divxUserDao.createOauthUser(oauthUser);	
+						ImHelper.RegisterUser(user.getId().intValue(), user.getNickname());
+						cacheProfile.invalidate(userId);
 					}
-				}else{
+				}
+				else
+				{
 					oauthUser.setAccessToken(option.getAccessToken());
 					oauthUser.setModifyDate(new Date());
 					int oUId = divxUserDao.createOauthUser(oauthUser);	
 					user = divxUserDao.GetUser(oauthUser.getOsfUsers().getId().intValue());
 				}
-			
-			}else{
+			}
+			else
+			{
+				//Bind the account with the OAuth.
 				AuthHelper  helper = new AuthHelper(token);
 				if(helper.isGuest()){
 					res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
 					res.setResponseMessage("you must be login befor set QQ or Weixin.");
 					return res;
 				}
-				user = divxUserDao.GetUser(helper.getUserId());
 				oauthUser = divxUserDao.GetDcpOauthUser(option.getOpenId(), option.getAuthProvider().ordinal());
+				if (oauthUser != null && oauthUser.getOsfUsers().getId().intValue() != helper.getUserId())
+				{
+					res.setResponseCode(ResponseCode.AUTH_ERROR_OAUTH_HAS_BOUND);
+					res.setResponseMessage("您的QQ或微信号已经被绑定其它账号。");
+					return res;	
+				}
+				
+				user = divxUserDao.GetUser(helper.getUserId());
+				if(eRegisterType.Guest.ordinal() == user.getUsernametype()){
+					OsfUsers u = null;
+					switch(option.getAuthProvider())
+					{
+					case QQ:
+						u = QQLogin(option.getAccessToken(),option.getOpenId(),orgId);
+						user.setUsernametype(eRegisterType.QQ.ordinal());
+						break;
+					case Weixin:
+						u = WeixinLogin(option.getAccessToken(),option.getOpenId(),orgId);
+						user.setUsernametype(eRegisterType.Weixin.ordinal());
+						break;
+					default:
+						res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+						res.setResponseMessage("authProvider type can only be QQ or Weixin");
+						return res;
+					}
+					if(u == null){
+						res.setResponseCode(ResponseCode.AUTH_ERROR_INVALID_OAUTH_TOKEN);
+						res.setResponseMessage("Invalid oauth token");
+						return res;
+					}
+					else
+					{
+						user.setNickname(u.getNickname()); 
+						user.setPhotourl(u.getPhotourl());
+						user.setUsername(String.format("tyty%06d", helper.getUserId()));
+						user.setLastLogin(new Date());
+						divxUserDao.UpdateUser(user);
+						cacheProfile.invalidate(helper.getUserId());
+						ImHelper.RegisterUser(user.getId().intValue(), user.getNickname());
+					}
+				}
+				
 				if(oauthUser == null){
 					oauthUser = new DcpOauthUsers();
 					oauthUser.setAccessToken(option.getAccessToken());
 					oauthUser.setOpenId(option.getOpenId());
 					oauthUser.setOsfUsers(user);
-					oauthUser.setOauthType(eAuthProvider.Weixin.ordinal());
+					oauthUser.setOauthType(option.getAuthProvider().ordinal());
 					oauthUser.setCreateDate(new Date());
 					oauthUser.setModifyDate(new Date());
-					int oUId = divxUserDao.createOauthUser(oauthUser);
-					
-				}else{
-					if(oauthUser.getOsfUsers().getId().intValue() != helper.getUserId()){
-						res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
-						res.setResponseMessage("Your QQ or Weixin has been set for an exist account.");
-						return res;	
-					}
+				}
+				else
+				{
 					oauthUser.setAccessToken(option.getAccessToken());
 					oauthUser.setModifyDate(new Date());
-					int oUId = divxUserDao.createOauthUser(oauthUser);	
-					
 				}
-			
+				divxUserDao.createOauthUser(oauthUser);	
 			}
-			
 	
 			if(user != null){
-				res = generateAuthResponse(deviceUniqueId, user, deviceType, user.getToken());	
-			}else{
-				res.setResponseCode(ResponseCode.AUTH_ERROR_TOKEN_INVALID_OR_NOT_LOGIN);
+				if(token == null || token.isEmpty()){
+					res = generateAuthResponse(deviceUniqueId, user, deviceType);	
+				}
+				else
+				{
+					res.setDeviceGuid(Util.EncryptDeviceUniqueId(deviceUniqueId, user.getId()));
+					res.setResponseCode(ResponseCode.SUCCESS);
+					res.setResponseMessage("success");
+					User u = new User();
+					u.setUserId(user.getId().intValue());
+					u.setUsername(user.getUsername());
+					u.setNickname(user.getNickname());
+					if(user.getPhotourl() != null && !user.getPhotourl().isEmpty()){
+						u.setPhotourl(Util.UrlWithHttp(user.getPhotourl()));
+					}else{
+						u.setPhotourl("");
+					}
+				
+					res.setUser(u);
+					res.setToken(token);
+				}
+			}
+			else
+			{
+				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 				res.setResponseMessage("fail to OAuthLogin");
 				return res;
 			}
@@ -375,7 +477,7 @@ public class UserManager {
 			u.setNickname(user.getNickname());
 			u.setOrganizationId(orgId);
 			u.setPassword("");
-			u.setPhotourl(user.getFigureurl_qq_1());
+			u.setPhotourl(user.getFigureurl_qq_2());
 			u.setTimezone("");
 			u.setProjectId(new Long(1));
 			UUID uid = UUID.randomUUID();
@@ -394,90 +496,143 @@ public class UserManager {
 	public AuthResponse Register(RegisterOption option, String deviceUniqueId, String deviceType, int orgId)
 	{
 		AuthResponse res = new AuthResponse();
-
-		if (option.getPassword() == null || option.getPassword().isEmpty() 
-			|| option.getRepassword() == null || option.getPassword().compareTo(option.getRepassword()) != 0) {
-			res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_INVALID_PASSWORD);
-			res.setResponseMessage("Invalid password");
-			return res;
-		}
-
-		OsfUsers user = new OsfUsers();
-		user.setUsername(option.getUsername());
-		user.setPassword(option.getPassword());
-		//user.setRePassword(option.getRepassword());
-		user.setNickname(option.getUsername());
-		user.setEnabled(true);
-		user.setEntered(new Date());
-		user.setTimezone("");
-		user.setLocale("");
-		user.setProjectId(new Long(1));
-		user.setOrganizationId(orgId);
 		try {
-			switch (option.getRegisterType()) {
-			case username:
-				user.setEmail("");
-				user.setMobile("");
-				break;
-			case email:
-				user.setEmail(option.getUsername());
-				user.setMobile("");
-				break;
-			case mobile:
-				user.setEmail("");
-				user.setMobile(option.getUsername());
-				break;
-			}
-			user.setUsernametype(option.getRegisterType().ordinal());
-			
-			int nRet = this.CheckRegisterUsername(user, orgId);//userService.createUser(user);
-			if (nRet != 0)
-			{
-				res.setResponseCode(nRet);
-				String errMsg = String.format("Error Code(%d)", nRet);
-				switch (nRet) {
-				case ResponseCode.ERROR_REGISTER_USER_USERNAME_EXIST:
-					errMsg = "Username exists.";
-					break;
-				case ResponseCode.ERROR_REGISTER_USER_EMAIL_EXIST:
-					errMsg = "Email exists.";
-					break;
-				case ResponseCode.ERROR_REGISTER_USER_MOBILE_EXIST:
-					errMsg = "Mobile exists.";
-					break;
+			if(option == null || eRegisterType.Guest == option.getRegisterType()){
+				OsfUsers user = divxUserDao.GetUserByDeviceUniqueId(deviceUniqueId, eRegisterType.Guest.ordinal());
+				if(user == null){
+					user = new OsfUsers();
+					user.setEmail("");
+					user.setEnabled(true);
+					user.setEntered(new Date());
+					user.setLastLogin(new Date());
+					user.setLocale("");
+					user.setMobile("");
+					//SecureRandom random = new SecureRandom();  
+					user.setNickname("");
+					user.setOrganizationId(orgId);
+					user.setPassword("");
+					user.setPhotourl("");
+					user.setTimezone("");
+					user.setProjectId(new Long(1));
+					UUID uid = UUID.randomUUID();
+					user.setToken(uid.toString());
+					user.setUsername("");
+					user.setUsernametype(eRegisterType.Guest.ordinal());//0 username,1 email, 2 mobile,3 weixin, 4 QQ, 5 Guest
+					user.setUsernameStatus(false);
+					int userId = divxUserDao.CreateUser(user);	
+					if(userId < 0){
+						res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+						res.setResponseMessage("fail to create user for guest");
+						return res;
+					}
+					user.setNickname(String.format("游客%06d", userId));
+					String username = String.format("Guest%06d", userId);
+					if(divxUserDao.GetUserByUsername(orgId, username) != null){
+						username = String.format("%s%d", username , System.currentTimeMillis()/1000);
+					}
+					user.setUsername(username);
+					if(divxUserDao.UpdateUser(user) < 0){
+						res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+						res.setResponseMessage("fail to create user for guest");
+						return res;
+					}
+					
 				}
-				res.setResponseMessage(errMsg);
-				return res;
+				
+				res = generateAuthResponse(deviceUniqueId, user, deviceType);	
+				res.setRegisterType(eRegisterType.Guest);
 			}
-			
-			UUID uid = UUID.randomUUID();
-			user.setToken(uid.toString());
-			user.setLastLogin(new Date());
-			int nUserId = divxUserDao.CreateUser(user);
-			if(nUserId > 0){
-				DcpUserRole userRole = new DcpUserRole(); 
-				userRole.setOsfUsers(user);
-				DcpRole role = divxUserDao.GetRole(2);//1 admin 2 user
+			else
+			{
+				if (option.getPassword() == null || option.getPassword().isEmpty() 
+						|| option.getRepassword() == null || option.getPassword().compareTo(option.getRepassword()) != 0) {
+						res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_INVALID_PASSWORD);
+						res.setResponseMessage("Invalid password");
+						return res;
+					}
+	
+				OsfUsers user = new OsfUsers();
+				user.setUsername(option.getUsername().trim());
+				user.setPassword(option.getPassword().trim());
+				//user.setRePassword(option.getRepassword());
+				user.setNickname(option.getUsername().trim());
+				user.setEnabled(true);
+				user.setEntered(new Date());
+				user.setTimezone("");
+				user.setLocale("");
+				user.setProjectId(new Long(1));
+				user.setOrganizationId(orgId);
 				
-				userRole.setDcpRole(role);
-				userRole.setCreateDate(new Date());
-				userRole.setModifyDate(new Date());
-				int roleId = divxUserDao.createUserRole(userRole);
+				switch (option.getRegisterType()) {
+					case username:
+						user.setEmail("");
+						user.setMobile("");
+						user.setUsernameStatus(true);
+						break;
+					case email:
+						user.setEmail(option.getUsername().trim());
+						user.setMobile("");
+						user.setUsernameStatus(false);
+						break;
+					case mobile:
+						user.setEmail("");
+						user.setMobile(option.getUsername().trim());
+						user.setUsernameStatus(false);
+						break;
+				}
+				user.setUsernametype(option.getRegisterType().ordinal());
+					
+				int nRet = this.CheckRegisterUsername(user, orgId);//userService.createUser(user);
+				if (nRet != 0)
+				{
+					res.setResponseCode(nRet);
+					String errMsg = String.format("Error Code(%d)", nRet);
+					switch (nRet) {
+						case ResponseCode.ERROR_REGISTER_USER_USERNAME_EXIST:
+							errMsg = "Username exists.";
+							break;
+						case ResponseCode.ERROR_REGISTER_USER_EMAIL_EXIST:
+							errMsg = "Email exists.";
+							break;
+						case ResponseCode.ERROR_REGISTER_USER_MOBILE_EXIST:
+							errMsg = "Mobile exists.";
+							break;
+					}
+					res.setResponseMessage(errMsg);
+					return res;
+				}
+					
+				UUID uid = UUID.randomUUID();
+				user.setToken(uid.toString());
+				user.setLastLogin(new Date());
+				int nUserId = divxUserDao.CreateUser(user);
+				if(nUserId > 0){
+					DcpUserRole userRole = new DcpUserRole(); 
+					userRole.setOsfUsers(user);
+					DcpRole role = divxUserDao.GetRole(2);//1 admin 2 user
+						
+					userRole.setDcpRole(role);
+					userRole.setCreateDate(new Date());
+					userRole.setModifyDate(new Date());
+					int roleId = divxUserDao.createUserRole(userRole);
+						
+					res = generateAuthResponse(deviceUniqueId, user, deviceType);
+				}
 				
-				res = generateAuthResponse(deviceUniqueId, user, deviceType, user.getToken());
-				
-				
+				if (res.getResponseCode() == ResponseCode.SUCCESS)
+				{	
+					ImHelper.RegisterUser(nUserId, user.getNickname());
+				}
 			}
-			
-		
-			cacheFindUsers.invalidateAll();
-			
-		} 
+			ClearUserCache();
+				
+		}
 		catch (Exception ex) {
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			res.setResponseMessage(ex.getMessage());
 			log.error(option, ex);
-		}
+		}	
+		
 		return res;
 	}
 	
@@ -580,11 +735,28 @@ public class UserManager {
 		return res;
 	}
 	
-	public StartupResponse Startup()
+	public StartupResponse Startup(String deviceUniqueId)
 	{
-		StartupResponse res = new StartupResponse();
+		StartupResponse res;
 		try
 		{
+			try
+			{
+				divxUserDao.LogLastAccess(deviceUniqueId);
+				cacheListUsers.invalidateAll();
+			}
+			catch(Exception ee)
+			{
+				
+			}
+			
+			String key = "startup";
+			res = cacheStartup.getIfPresent(key);
+			if (res != null)
+				return res;
+			
+			res = new StartupResponse();
+			
 			ConfigurationManager mgr = ConfigurationManager.GetInstance();
 			
 			List<KeyValueStringPair>	baseUrls = new ArrayList<KeyValueStringPair>();
@@ -597,13 +769,17 @@ public class UserManager {
 			baseUrls.add(new KeyValueStringPair("UploadMediaUrl", mgr.UploadMediaUrl()));		
 			baseUrls.add(new KeyValueStringPair("UserPhotoUploadUrl", mgr.UserPhotoUploadUrl()));		
 			baseUrls.add(new KeyValueStringPair("GroupPhotoUplaodUrl", mgr.GroupPhotoUplaodUrl()));		
+			baseUrls.add(new KeyValueStringPair("MediaWebServerUrl", mgr.GetConfigValue("MediaWebServerUrl", "http://121.40.71.225/media")));	
 			res.setBaseUrls(baseUrls);
 			
 			res.setResponseCode(ResponseCode.SUCCESS);
 			res.setResponseMessage("Success");
+			
+			cacheStartup.put(key, res);
 		}
 		catch(Exception e)
 		{
+			res = new StartupResponse();
 			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
 			res.setResponseMessage(e.getMessage());
 			e.printStackTrace();
@@ -631,13 +807,13 @@ public class UserManager {
 		return 0;
 	}
 	
-	public ServiceResponse UpdateUser(UserOption option,int userId)
+	public UserResponse UpdateUser(UserOption option,int userId)
 	{
-		ServiceResponse res = new ServiceResponse();
+		UserResponse res = new UserResponse();
 		try
 		{	
-			OsfUsers user = divxUserDao.GetUser(userId);
-			if(user != null){
+			OsfUsers u = divxUserDao.GetUser(userId);
+			if(u != null){
 				switch(option.getType())
 				{
 					case username:
@@ -648,15 +824,36 @@ public class UserManager {
 								return res;
 							}
 							
-							if(user.getUsernametype() != OptionType.username.ordinal()){
-								if (!option.getValue().equals(user.getUsername()) && 
-									divxUserDao.GetUserByUsername(user.getOrganizationId(), option.getValue()) != null){
+							if(!u.getUsernameStatus()){
+								if (!option.getValue().equals(u.getUsername()) && 
+									divxUserDao.GetUserByUsername(u.getOrganizationId(), option.getValue()) != null){
 									res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_USERNAME_EXIST);
 									res.setResponseMessage("Username has been Exist.");
 									return res;
 								}else{
-									user.setUsername(option.getValue());
-									user.setUsernametype(OptionType.username.ordinal());
+									if (u.getUsernametype() == eRegisterType.Guest.ordinal())
+									{
+										if(option.getPassword().isEmpty()){
+											res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+											res.setResponseMessage("Password cannot be null.");
+											return res;
+										}
+										u.setNickname(option.getValue());
+										u.setPassword(option.getPassword());
+										ImHelper.RegisterUser(u.getId().intValue(), u.getNickname());
+									}else if(u.getUsernametype() == eRegisterType.QQ.ordinal() || u.getUsernametype() == eRegisterType.Weixin.ordinal()){
+										if(u.getPassword().isEmpty() && option.getPassword().isEmpty()){
+											res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+											res.setResponseMessage("Password cannot be null.");
+											return res;
+										}
+										if (option.getPassword() != null && !option.getPassword().isEmpty())
+											u.setPassword(option.getPassword());
+										ImHelper.RegisterUser(u.getId().intValue(), u.getNickname());
+									}
+									u.setUsername(option.getValue());
+									u.setUsernametype(OptionType.username.ordinal());
+									u.setUsernameStatus(true);
 								}
 							}else{
 								res.setResponseCode(ResponseCode.ERROR_UPDATE_USER_USERNAME_HAVE_SET);
@@ -668,42 +865,88 @@ public class UserManager {
 					case email:
 						{
 							
-							if(user.getUsernametype() == OptionType.username.ordinal()){
+						/*	if(user.getUsernametype() == OptionType.username.ordinal()){*/
 								if(!option.getValue().isEmpty()){
-									if (divxUserDao.GetUserByEmail(user.getOrganizationId(), option.getValue()) != null){
+									if (divxUserDao.GetUserByEmail(u.getOrganizationId(), option.getValue()) != null
+										&& divxUserDao.GetUserByUsername(u.getOrganizationId(), option.getValue()) != null){
 										res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_EMAIL_EXIST);
 										res.setResponseMessage("Email exists");
 										return res;
 									}
 								}
-								user.setEmail(option.getValue());
+								if (u.getUsernametype() == eRegisterType.Guest.ordinal())
+								{
+									if(option.getPassword().isEmpty()){
+										res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+										res.setResponseMessage("Password cannot be null.");
+										return res;
+									}
+									u.setNickname(option.getValue());
+									u.setPassword(option.getPassword());
+									u.setUsername(option.getValue());
+									ImHelper.RegisterUser(u.getId().intValue(), u.getNickname());
+								}else if(u.getUsernametype() == eRegisterType.QQ.ordinal() || u.getUsernametype() == eRegisterType.Weixin.ordinal()){
+									if(u.getPassword().isEmpty() && option.getPassword().isEmpty()){
+										res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+										res.setResponseMessage("Password cannot be null.");
+										return res;
+									}
+									if (option.getPassword() != null && !option.getPassword().isEmpty())
+										u.setPassword(option.getPassword());
+									ImHelper.RegisterUser(u.getId().intValue(), u.getNickname());
+								}
+								u.setEmail(option.getValue());
+								u.setUsernametype(OptionType.email.ordinal());
 								
-							}else{
+							/*}else{
 								res.setResponseCode(ResponseCode.ERROR_UPDATE_USER_USERNAME_NOT_SET);
 								res.setResponseMessage("Username isn't set.");
 								return res;
-							}
+							}*/
 							break;
 						}
 					case mobile:
 						{
-							if(user.getUsernametype() == OptionType.username.ordinal()){
+							/*if(user.getUsernametype() == OptionType.username.ordinal()){*/
 								if(!option.getValue().isEmpty()){
-									if (divxUserDao.GetUserByMobile(user.getOrganizationId(), user.getUsername()) != null){
+									if (divxUserDao.GetUserByMobile(u.getOrganizationId(), option.getValue()) != null
+										&& divxUserDao.GetUserByUsername(u.getOrganizationId(), option.getValue()) != null){
 									res.setResponseCode(ResponseCode.ERROR_REGISTER_USER_MOBILE_EXIST);
 									res.setResponseMessage("mobile exists");
 									return res;
 									}
 								}
-								user.setMobile(option.getValue());
-								
-							}else{
+								if (u.getUsernametype() == eRegisterType.Guest.ordinal())
+								{
+									if(option.getPassword().isEmpty()){
+										res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+										res.setResponseMessage("Password cannot be null.");
+										return res;
+									}
+									u.setNickname(option.getValue());
+									u.setUsername(option.getValue());
+									u.setPassword(option.getPassword());
+									ImHelper.RegisterUser(u.getId().intValue(), u.getNickname());
+								}else if(u.getUsernametype() == eRegisterType.QQ.ordinal() || u.getUsernametype() == eRegisterType.Weixin.ordinal()){
+									if(u.getPassword().isEmpty() && option.getPassword().isEmpty()){
+										res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
+										res.setResponseMessage("Password cannot be null.");
+										return res;
+									}
+									if (option.getPassword() != null && !option.getPassword().isEmpty())
+										u.setPassword(option.getPassword());
+									ImHelper.RegisterUser(u.getId().intValue(), u.getNickname());
+								}
+								u.setMobile(option.getValue());
+								u.setUsernametype(OptionType.mobile.ordinal());
+							/*}else{
 								res.setResponseCode(ResponseCode.ERROR_UPDATE_USER_USERNAME_NOT_SET);
 								res.setResponseMessage("Username isn't set.");
 								return res;
-							}
+							}*/
 							break;
 						}
+				
 					default:
 						{
 							res.setResponseCode(ResponseCode.ERROR_INVALID_PARAMETER);
@@ -717,12 +960,18 @@ public class UserManager {
 				res.setResponseMessage("user not found");
 				return res;
 			}
-			int mid = divxUserDao.UpdateUser(user);
+			int mid = divxUserDao.UpdateUser(u);
 			if(mid > 0){
 				cacheProfile.invalidate(userId);
-				cacheFindUsers.invalidateAll();
-				 res.setResponseCode(ResponseCode.SUCCESS);
-				 res.setResponseMessage("Success");
+				ClearUserCache();
+				User user = new User();
+				user.setUserId(u.getId().intValue());
+				user.setUsername(u.getUsername());
+				user.setNickname(u.getNickname());
+				user.setPhotourl(u.getPhotourl());
+				res.setUser(user);
+				res.setResponseCode(ResponseCode.SUCCESS);
+				res.setResponseMessage("Success");
 			}
 			else{
 				res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
@@ -796,10 +1045,11 @@ public class UserManager {
 					return res;
 				}
 			}
-			
-			if(!threadMonitor.isAlive()) {
-				threadMonitor = new Thread(monitor);
-				threadMonitor.start();
+			if(false){
+				if(!threadMonitor.isAlive()) {
+					threadMonitor = new Thread(monitor);
+					threadMonitor.start();
+				}
 			}
 			DcpEmailJob job = new DcpEmailJob();
 			job.setStatus(false);
@@ -909,11 +1159,12 @@ public class UserManager {
 						userProfile.setSignature(userExt.getSignature());
 						userProfile.setTdcImgUrl(userExt.getTdcImg());
 						userProfile.setTelephone(userExt.getTelephone());	
-						log.info("success");
-						log.error("error");
 					}
+
+					userProfile.setRegisterType(eRegisterType.values()[user.getUsernametype()]);
 					userProfile.setUserId(userId);
 					userProfile.setNickname(user.getNickname());
+					userProfile.setPhotourl(user.getPhotourl());
 				}
 				
 				if (userProfile != null)
@@ -927,7 +1178,6 @@ public class UserManager {
 				res.setUserProfile(userProfile);
 				res.setResponseCode(ResponseCode.SUCCESS);
 				res.setResponseMessage("success");
-				
 			}
 			else
 			{
@@ -1133,6 +1383,7 @@ public class UserManager {
 				int mid = divxUserDao.SetUserExt(userExt);
 				if(mid > 0){
 					cacheProfile.invalidate(user.getId());
+					ImHelper.UpdateNickname(uid, user.getNickname());
 					res.setResponseCode(ResponseCode.SUCCESS);
 					res.setResponseMessage("success");
 				}else{
@@ -1156,7 +1407,45 @@ public class UserManager {
 		return res;
 	}
 
+	public UsersResponse ListUsers(int orgId, int startPos, int endPos)
+	{
+		String key = String.format("lu_%d_%d_%d", orgId, startPos, endPos);
+		UsersResponse res = cacheListUsers.getIfPresent(key);
 
+		if (res != null)
+			return res;
+		try
+		{
+			res = new UsersResponse();
+			
+			List<User> users = new LinkedList<User>();
+			List<OsfUsers> objs = divxUserDao.ListUsers(orgId, startPos, endPos);
+			if (objs != null && objs.size() > 0)
+			{
+				for(OsfUsers obj: objs)
+				{
+					users.add(UserUtils.ToUser(obj, new User()));
+				}
+			}
+			
+			res.setUsers(users);
+			res.setStartPos(startPos);
+			res.setCount(users.size());
+			
+			res.setResponseCode(ResponseCode.SUCCESS);
+			res.setResponseMessage("Success");
+			
+			if (users.size() > 0)
+				cacheListUsers.put(key, res);
+		}
+		catch(Exception ex)
+		{
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage("Exception. " + ex.getMessage());
+			Util.LogError(log, String.format("ListUsers(%d, %d, %d", orgId, startPos, endPos), ex);
+		}
+		return res;
+	}
 	public List<OsfUsers> FindUser(FindUserOption.eFindOption option,String searchKey, int orgId)
 	{
 		String key = String.format("findUsers_%d_%d_%s", option.ordinal(), orgId, searchKey);
@@ -1281,7 +1570,51 @@ public class UserManager {
 		}
 		return res;
 	}
-	
+	public UserResponse GetUser(int userId) {
+		UserResponse res = new UserResponse();
 
+		try
+		{
+			OsfUsers obj = divxUserDao.GetUser(userId);
+			
+			if (obj != null)
+			{
+				com.divx.service.model.User u = new com.divx.service.model.User();
+				u.setUserId(obj.getId().intValue());
+				u.setNickname(obj.getNickname());
+				u.setUsername(obj.getUsername());
+				if (obj.getPhotourl() != null && !obj.getPhotourl().isEmpty())
+				{
+					String configUrl = Util.UrlWithSlashes(ConfigurationManager.GetInstance().THUMBNAIL_OUTPUT_PREFIX());
+					u.setPhotourl(configUrl + obj.getPhotourl());
+				}else{
+					u.setPhotourl("");
+				}
+				res.setUser(u);
+			
+				res.setResponseCode(ResponseCode.SUCCESS);
+				res.setResponseMessage("Success");
+			}
+			else
+			{
+				res.setResponseCode(ResponseCode.RESULT_USER_NOT_FOUND);
+				res.setResponseMessage("Not find.");
+			}
+		}
+		catch(Exception e)
+		{
+			res.setResponseCode(ResponseCode.ERROR_INTERNAL_ERROR);
+			res.setResponseMessage(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return res;
+	}
+
+	private void ClearUserCache()
+	{
+		cacheListUsers.invalidateAll();
+		cacheFindUsers.invalidateAll();
+	}
 	
 }

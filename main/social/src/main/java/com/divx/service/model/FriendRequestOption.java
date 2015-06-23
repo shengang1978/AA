@@ -7,9 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "FriendRequestOption")
 public class FriendRequestOption {
 	private int requestId;
-	private int userId;
 	private String content;
-	private String userPhoto;
+	private User user;
 	
 	public int getRequestId() {
 		return requestId;
@@ -17,13 +16,6 @@ public class FriendRequestOption {
 
 	public void setRequestId(int requestId) {
 		this.requestId = requestId;
-	}
-	public int getUserId() {
-		return userId;
-	}
-
-	public void setUserId(int userId) {
-		this.userId = userId;
 	}
 
 	public String getContent() {
@@ -34,11 +26,11 @@ public class FriendRequestOption {
 		this.content = content;
 	}
 
-	public String getUserPhoto() {
-		return userPhoto;
+	public User getUser() {
+		return user;
 	}
 
-	public void setUserPhoto(String userPhoto) {
-		this.userPhoto = userPhoto;
+	public void setUser(User user) {
+		this.user = user;
 	}
 }

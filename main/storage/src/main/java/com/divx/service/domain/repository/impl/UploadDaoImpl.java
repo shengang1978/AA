@@ -1,6 +1,7 @@
 package com.divx.service.domain.repository.impl;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -13,24 +14,53 @@ import com.divx.service.BaseDao;
 import com.divx.service.MediaServiceHelper.eUploadStatus;
 import com.divx.service.domain.model.DcpOriginalasset;
 import com.divx.service.domain.repository.UploadDao;
+import com.divx.service.model.MediaBaseType;
+import com.divx.service.model.MediaBaseType.eContentType;
 @Repository
 public class UploadDaoImpl extends BaseDao implements UploadDao{
 	
 	@Override
-	public DcpOriginalasset GetUploadInfo(int mediaId) {
-		DcpOriginalasset asset = null;
+	public List<DcpOriginalasset> GetUploadInfo(int mediaId, MediaBaseType.eFileType fileType) {
+		List<DcpOriginalasset> assets = new LinkedList<DcpOriginalasset>();
 		Session ss =  this.getSessionFactory().openSession();
 		try
 		{
 			
 			Transaction trans = ss.beginTransaction();
-			String hql = String.format("FROM DcpOriginalasset a WHERE a.mediaId = %d and a.deleted = 0 order by a.originalassetId desc", mediaId);
+			String hql = "";
+			if (fileType == null || fileType == MediaBaseType.eFileType.Auto)
+				hql = String.format("FROM DcpOriginalasset a WHERE a.mediaId = %d and a.deleted = 0 order by a.originalassetId desc", mediaId);
+			else
+				hql = String.format("FROM DcpOriginalasset a WHERE a.mediaId = %d and a.deleted = 0 and a.filetype = %d order by a.originalassetId desc", 
+									mediaId,
+									fileType.ordinal());
+			
 			List<?> objs = ss.createQuery(hql).list();
 			
 			for (Iterator<?> it = objs.iterator(); it.hasNext(); )
 			{
-				asset = (DcpOriginalasset)it.next();
-				break;
+				DcpOriginalasset asset = (DcpOriginalasset)it.next();
+				if (asset.getContenttype() != eContentType.EduStory.ordinal())
+				{
+					boolean needAdd = true;
+					for(DcpOriginalasset a: assets)
+					{
+						if (a.getFiletype() == asset.getFiletype())
+						{
+							needAdd = false;
+							break;
+						}
+					}
+					if (needAdd)
+					{
+						assets.add(asset);
+					}
+				}
+				else
+				{
+					assets.add(asset);
+					break;
+				}
 			}
 			
 			trans.commit();			
@@ -43,7 +73,7 @@ public class UploadDaoImpl extends BaseDao implements UploadDao{
 			ss.close();
 		}
 		
-		return asset;
+		return assets;
 	}
 	
 	@Override

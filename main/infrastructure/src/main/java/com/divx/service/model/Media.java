@@ -6,34 +6,25 @@ import java.util.Date;
 
 public class Media extends MediaBase{
 	private int userId;
+	private String username;
+	private String nickname;
 
-	//private Date expireDate;
 	private MediaBaseType.eMediaStatus status;
-	private Date createDate;
+	private String createDate;
 	private String snapshotUrl;
-	// Yingyueguan elements
-	private String recordUrl;
-	private String picBookUrl;
-	private String configUrl;
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getNickname() {
+		return nickname;
+	}
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
 	
-	public String getRecordUrl() {
-		return recordUrl;
-	}
-	public void setRecordUrl(String recordUrl) {
-		this.recordUrl = recordUrl;
-	}
-	public String getPicBookUrl() {
-		return picBookUrl;
-	}
-	public void setPicBookUrl(String picBookUrl) {
-		this.picBookUrl = picBookUrl;
-	}
-	public String getConfigUrl() {
-		return configUrl;
-	}
-	public void setConfigUrl(String configUrl) {
-		this.configUrl = configUrl;
-	}
 	public int getUserId() {
 		return userId;
 	}
@@ -59,10 +50,10 @@ public class Media extends MediaBase{
 		this.status = MediaBaseType.eMediaStatus.values()[nStatus];
 	}
 	
-	public Date getCreateDate() {
+	public String getCreateDate() {
 		return createDate;
 	}
-	public void setCreateDate(Date createDate) {
+	public void setCreateDate(String createDate) {
 		this.createDate = createDate;
 	}
 

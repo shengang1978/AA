@@ -16,17 +16,13 @@ import com.divx.service.model.ShareOption;
 public interface socialInner {
 	@GET
 	@Path("/UserFriends/{userId}")
-	@Consumes("application/json")
 	Response UserFriends(@PathParam("userId") int userId);
 	
 	@GET
 	@Path("/UsersInGroup/{groupId}")
-	@Consumes("application/json")
 	Response UsersInGroup(@PathParam("groupId") int groupId);
 	
 	@POST
 	@Path("/InnerShareMedia")
-	@Consumes("application/json")
-	@Produces("application/json")
 	Response InnerShareMedia(ShareOption option);
 }

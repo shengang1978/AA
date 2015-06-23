@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-4-23 19:07:38 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-6-9 11:04:14 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpScore" table="dcp_score" catalog="divx_content" optimistic-lock="version">
         <id name="scoreId" type="java.lang.Integer">
@@ -11,6 +11,9 @@
         <many-to-one name="dcpLesson" class="com.divx.service.domain.model.DcpLesson" fetch="select">
             <column name="lesson_id" not-null="true" />
         </many-to-one>
+        <property name="userId" type="java.lang.Integer">
+            <column name="user_id" />
+        </property>
         <property name="listen" type="java.lang.Integer">
             <column name="listen" />
         </property>
@@ -38,5 +41,14 @@
         <property name="recordduration" type="java.lang.Integer">
             <column name="recordduration" />
         </property>
+        <property name="readcount" type="java.lang.Integer">
+            <column name="readcount" />
+        </property>
+        <set name="dcpScorestats" table="dcp_scorestat" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="score_id" not-null="true" />
+            </key>
+            <one-to-many class="com.divx.service.domain.model.DcpScorestat" />
+        </set>
     </class>
 </hibernate-mapping>

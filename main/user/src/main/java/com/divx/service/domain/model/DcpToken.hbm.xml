@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<!-- Generated 2015-2-6 15:30:04 by Hibernate Tools 4.3.1 -->
+<!-- Generated 2015-6-11 16:01:06 by Hibernate Tools 4.3.1 -->
 <hibernate-mapping>
     <class name="com.divx.service.domain.model.DcpToken" table="dcp_token" catalog="divx_user" optimistic-lock="version">
         <id name="tokenId" type="java.lang.Integer">

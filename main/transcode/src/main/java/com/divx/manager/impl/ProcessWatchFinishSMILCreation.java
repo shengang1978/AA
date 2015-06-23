@@ -4,6 +4,7 @@ package com.divx.manager.impl;
 import org.apache.log4j.Logger;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.divx.manager.impl.ProcessUtils;
@@ -40,12 +41,16 @@ public class ProcessWatchFinishSMILCreation extends BaseWatch {
 		try{
 			super.DoTask();
 			updateThreadActiveTime();
-			List<DcpTranscode> listTranscode = transcodeDao.GetUndoneTranscode(eProcessStatus.FinishSMILCreation.ordinal());
+			List<Integer> statusList = new LinkedList<Integer>();
+			statusList.add(eProcessStatus.FinishSMILCreation.ordinal());
+			statusList.add(eProcessStatus.V2gJpg2GifDone.ordinal());
+			List<DcpTranscode> listTranscode = transcodeDao.GetUndoneTranscode(statusList);
 			if(null == listTranscode)
 				return;
 			for(DcpTranscode dcpTrans : listTranscode) {
 				try {
-					if(eProcessStatus.FinishSMILCreation.ordinal() == dcpTrans.getStatus()){
+					if(eProcessStatus.FinishSMILCreation.ordinal() == dcpTrans.getStatus() ||
+							eProcessStatus.V2gJpg2GifDone.ordinal() == dcpTrans.getStatus()){
 						ProcessUtils.callEndPublishForDone(dcpTrans);
 							
 					} 

@@ -42,7 +42,7 @@ public class UserHelper {
 						user.setUserId(new Long(u.getUser().getUserId()).intValue());
 						user.setUsername(u.getUser().getUsername());
 						user.setNickname(u.getUser().getNickname());
-						user.setPhotoUrl(u.getUser().getPhotourl());
+						user.setPhotoUrl(u.getUser().getPhotoUrl());
 						System.out.println("1----get by User DB: "+ u.getUser()); 
 						/*OsfTeamMembers tm = dao.GetUser(Integer.parseInt(key));
 							if (tm != null)

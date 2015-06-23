@@ -2,12 +2,10 @@ package com.divx.service.model;
 
 import java.util.Date;
 
+import com.divx.service.model.BaseSocialType.ActionType;
+
 public class Activity{
-	public enum ActionType
-	{
-		comment,
-		like
-	}
+	
 	private int id;
 	private User user;
 	private ActionType activityType;

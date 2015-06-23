@@ -122,7 +122,7 @@ public class MessageManager {
 					return res;
 				}
 				
-				for(SocialServiceHelper.User u : ur.getUsers())
+				for(User u : ur.getUsers())
 				{
 					if (u.getUserId() != userId)
 						userIds.add(u.getUserId());
@@ -143,7 +143,7 @@ public class MessageManager {
 					return res;
 				}
 				
-				for(SocialServiceHelper.User u : ur.getUsers())
+				for(User u : ur.getUsers())
 				{
 					if (u.getUserId() != userId)
 						userIds.add(u.getUserId());
@@ -232,7 +232,7 @@ public class MessageManager {
 					return res;
 				}
 				
-				for(SocialServiceHelper.User u : ur.getUsers())
+				for(User u : ur.getUsers())
 				{
 					if (u.getUserId() != msg.getSenderId())
 					userIds.add(u.getUserId());
