@@ -25,7 +25,7 @@
 		<jdbc.url><![CDATA[jdbc:mysql://database_ip_addr/divx_message?createDatabaseIfNotExist=true&amp;useUnicode=true&amp;characterEncoding=utf-8&amp;sessionVariables=FOREIGN_KEY_CHECKS=0]]></jdbc.url>
 		<jdbc.username>dcp_db</jdbc.username>
 		<jdbc.password>dcpd1vxd1vx</jdbc.password>
-		<org.springframework.version>3.2.6.RELEASE</org.springframework.version>
+		<org.springframework.version>5.3.18</org.springframework.version>
 	</properties>
 	<dependencies>
 		<dependency>
